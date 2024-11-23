@@ -1,0 +1,1 @@
+Placeholder content for /mnt/data/Blockchain_Based_Carbon_Credit_Marketplace/code/ai_models/training_scripts/train_forecasting_model.py
