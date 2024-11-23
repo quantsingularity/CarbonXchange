@@ -4,6 +4,8 @@
 ## Overview
 The **Blockchain-Based Carbon Credit Marketplace** is an innovative platform for trading tokenized carbon credits. It combines blockchain technology for transparency, AI-driven market forecasting, and quantitative finance techniques to create a secure and efficient marketplace for sustainability-focused investments.
 
+> **Note**: CarbonXchange is currently under active development. Features and functionalities are being added and improved continuously to enhance user experience.
+
 ## Key Features
 - **Carbon Credit Tokenization**: Convert carbon credits into blockchain-based tokens for easy trading.
 - **AI-Powered Market Insights**: Predict demand and optimize pricing using advanced machine learning models.
