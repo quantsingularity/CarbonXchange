@@ -1,1 +1,8 @@
-Placeholder content for /mnt/data/Blockchain_Based_Carbon_Credit_Marketplace/code/blockchain/migrations/2_deploy_contracts.js
+const CarbonCreditToken = artifacts.require("CarbonCreditToken");
+const Marketplace = artifacts.require("Marketplace");
+
+module.exports = async function(deployer) {
+  await deployer.deploy(CarbonCreditToken);
+  const token = await CarbonCreditToken.deployed();
+  await deployer.deploy(Marketplace, token.address);
+};

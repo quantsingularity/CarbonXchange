@@ -1,1 +1,19 @@
-Placeholder content for /mnt/data/Blockchain_Based_Carbon_Credit_Marketplace/code/frontend/src/App.js
+import React from 'react';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import TradingDashboard from './components/TradingDashboard';
+import CreditVisualization from './components/CreditVisualization';
+import MarketAnalysis from './components/MarketAnalysis';
+
+function App() {
+  return (
+    <Router>
+      <Switch>
+        <Route exact path="/" component={TradingDashboard} />
+        <Route path="/visualization" component={CreditVisualization} />
+        <Route path="/analysis" component={MarketAnalysis} />
+      </Switch>
+    </Router>
+  );
+}
+
+export default App;

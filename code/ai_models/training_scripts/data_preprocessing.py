@@ -1,1 +1,17 @@
-Placeholder content for /mnt/data/Blockchain_Based_Carbon_Credit_Marketplace/code/ai_models/training_scripts/data_preprocessing.py
+import pandas as pd
+from sklearn.preprocessing import StandardScaler
+
+def preprocess_data(filepath):
+    df = pd.read_csv(filepath)
+    
+    # Handle missing values
+    df = df.fillna(df.mean())
+    
+    # Feature engineering
+    df['price_volume_ratio'] = df['historical_price'] / df['trading_volume']
+    
+    # Normalization
+    scaler = StandardScaler()
+    scaled_features = scaler.fit_transform(df[['historical_price', 'trading_volume', 'price_volume_ratio']])
+    
+    return pd.DataFrame(scaled_features, columns=['price', 'volume', 'ratio'])
