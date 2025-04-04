@@ -1,4 +1,3 @@
-
 # Blockchain-Based Carbon Credit Marketplace
 
 ## Overview
