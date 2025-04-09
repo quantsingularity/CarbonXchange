@@ -31,7 +31,7 @@ contract Marketplace {
     function buyCredits(uint256 listingId, uint256 amount) external payable {
         Listing storage listing = listings[listingId];
         require(msg.value == amount * listing.pricePerToken, "Incorrect payment");
-        require(token.transfer(msg.sender, amount), "Transfer failed");
+        require(token.transferFrom(address(this), msg.sender, amount), "Transfer failed");
         payable(listing.seller).transfer(msg.value);
         emit Purchase(msg.sender, listingId, amount);
     }

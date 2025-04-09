@@ -1,17 +1,20 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
-import TradingDashboard from './components/TradingDashboard';
-import CreditVisualization from './components/CreditVisualization';
-import MarketAnalysis from './components/MarketAnalysis';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import MainLayout from './layouts/MainLayout';
+import Dashboard from './pages/Dashboard';
+import MarketAnalysis from './pages/MarketAnalysis';
+import CreditVisualization from './pages/CreditVisualization';
 
 function App() {
   return (
     <Router>
-      <Switch>
-        <Route exact path="/" component={TradingDashboard} />
-        <Route path="/visualization" component={CreditVisualization} />
-        <Route path="/analysis" component={MarketAnalysis} />
-      </Switch>
+      <MainLayout>
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/analysis" element={<MarketAnalysis />} />
+          <Route path="/visualization" element={<CreditVisualization />} />
+        </Routes>
+      </MainLayout>
     </Router>
   );
 }
