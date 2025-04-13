@@ -79,8 +79,8 @@ The **Blockchain-Based Carbon Credit Marketplace** is an innovative platform for
 
 ### **1. Clone Repository**
 ```bash
-git clone https://github.com/your-repo-name/Carbon-Credit-Marketplace.git
-cd Carbon-Credit-Marketplace
+git clone https://github.com/abrar2030/CarbonExchange.git
+cd CarbonExchange
 ```
 
 ### **2. Install Backend Dependencies**
