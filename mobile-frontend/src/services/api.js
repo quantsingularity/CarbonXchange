@@ -152,3 +152,15 @@ export const getWalletBalance = async () => {
 
 // Add other API functions as needed based on api-reference.md
 
+
+
+
+export const getCreditById = async (creditId) => {
+  try {
+    const response = await apiClient.get(`/credits/${creditId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Get Credit By ID API error:", error.response?.data || error.message);
+    throw error;
+  }
+};

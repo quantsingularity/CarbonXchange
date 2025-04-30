@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { registerUser, resetAuthError } from '../../store/slices/authSlice';
+import theme from '../../styles/theme'; // Import the theme
 
 const RegisterScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [fullName, setFullName] = useState('');
-  const [walletAddress, setWalletAddress] = useState(''); // Optional based on your API
+  const [walletAddress, setWalletAddress] = useState(''); // Optional
   const dispatch = useDispatch();
   const { isLoading, error } = useSelector((state) => state.auth);
 
@@ -24,9 +25,14 @@ const RegisterScreen = ({ navigation }) => {
       Alert.alert('Error', 'Passwords do not match.');
       return;
     }
-    // Basic email validation (consider a more robust library)
+    // Basic email validation
     if (!/\S+@\S+\.\S+/.test(email)) {
         Alert.alert('Error', 'Please enter a valid email address.');
+        return;
+    }
+    // Basic password strength (example: min 6 chars)
+    if (password.length < 6) {
+        Alert.alert('Error', 'Password must be at least 6 characters long.');
         return;
     }
 
@@ -34,88 +40,133 @@ const RegisterScreen = ({ navigation }) => {
       email,
       password,
       fullName,
-      walletAddress, // Include if required by your API
+      // Only include walletAddress if it's not empty, or adjust based on API requirements
+      ...(walletAddress && { walletAddress }), 
     };
     dispatch(registerUser(userData));
-    // Navigation to AppNavigator will be handled in App.js based on isLoggedIn state
+    // Navigation handled by App.js based on state
   };
 
   React.useEffect(() => {
     if (error) {
-      Alert.alert('Registration Failed', error.message || 'An unknown error occurred');
+      const message = error.message || (error.response?.data?.message) || 'Registration failed. Please try again.';
+      Alert.alert('Registration Failed', message);
+      dispatch(resetAuthError()); // Reset error after showing it
     }
-  }, [error]);
+  }, [error, dispatch]);
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Register for CarbonXchange</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Full Name"
-        value={fullName}
-        onChangeText={setFullName}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-        autoCapitalize="none"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
-       <TextInput
-        style={styles.input}
-        placeholder="Confirm Password"
-        value={confirmPassword}
-        onChangeText={setConfirmPassword}
-        secureTextEntry
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Wallet Address (Optional)"
-        value={walletAddress}
-        onChangeText={setWalletAddress}
-        autoCapitalize="none"
-      />
-      {isLoading ? (
-        <Button title="Registering..." disabled />
-      ) : (
-        <Button title="Register" onPress={handleRegister} />
-      )}
-      <Button
-        title="Already have an account? Login"
-        onPress={() => navigation.navigate('Login')}
-      />
-    </View>
+    <KeyboardAvoidingView 
+      behavior={Platform.OS === "ios" ? "padding" : "height"} 
+      style={styles.container}
+    >
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <View style={styles.innerContainer}>
+          <Text style={styles.title}>Create Account</Text>
+          <Text style={styles.subtitle}>Join CarbonXchange</Text>
+          
+          <TextInput
+            style={styles.input}
+            placeholder="Full Name"
+            value={fullName}
+            onChangeText={setFullName}
+            placeholderTextColor={theme.colors.textSecondary}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Email"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            placeholderTextColor={theme.colors.textSecondary}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Password (min. 6 characters)"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+            placeholderTextColor={theme.colors.textSecondary}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Confirm Password"
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+            secureTextEntry
+            placeholderTextColor={theme.colors.textSecondary}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Wallet Address (Optional)"
+            value={walletAddress}
+            onChangeText={setWalletAddress}
+            autoCapitalize="none"
+            placeholderTextColor={theme.colors.textSecondary}
+          />
+
+          {isLoading ? (
+            <ActivityIndicator size="large" color={theme.colors.primary} style={{ marginVertical: theme.spacing.md }} />
+          ) : (
+            <TouchableOpacity style={styles.button} onPress={handleRegister} disabled={isLoading}>
+              <Text style={styles.buttonText}>Register</Text>
+            </TouchableOpacity>
+          )}
+
+          <TouchableOpacity 
+            style={[styles.button, styles.buttonSecondary]} 
+            onPress={() => navigation.navigate('Login')} 
+            disabled={isLoading}
+          >
+            <Text style={styles.buttonSecondaryText}>Already have an account? Login</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
+// Use theme variables for styling
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    padding: 20,
+    backgroundColor: theme.colors.background, // Use theme background
+  },
+  scrollContainer: {
+    flexGrow: 1, // Ensures content can scroll if needed
+    justifyContent: 'center', // Center content vertically
+  },
+  innerContainer: {
+    padding: theme.spacing.lg, // Use theme spacing
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
+    ...theme.typography.h1, // Use theme typography
     textAlign: 'center',
+    color: theme.colors.primary, // Use theme primary color
+    marginBottom: theme.spacing.sm,
+  },
+  subtitle: {
+    ...theme.typography.body1,
+    color: theme.colors.textSecondary,
+    textAlign: 'center',
+    marginBottom: theme.spacing.xl, // More space after subtitle
   },
   input: {
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-    marginBottom: 15,
-    paddingHorizontal: 10,
-    borderRadius: 5,
+    ...theme.components.input, // Use theme input component style
+  },
+  button: {
+    ...theme.components.button, // Use theme button component style
+  },
+  buttonText: {
+    ...theme.components.buttonText, // Use theme button text style
+  },
+  buttonSecondary: {
+    ...theme.components.buttonSecondary, // Use theme secondary button style
+    marginTop: theme.spacing.sm, // Add some space between buttons
+  },
+  buttonSecondaryText: {
+    ...theme.components.buttonSecondaryText, // Use theme secondary button text style
   },
 });
 

@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, Button, FlatList, TouchableOpacity } from 'react-native';
-import { getWalletBalance, getUserTrades } from '../../services/api'; // Assuming API service is set up
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, StyleSheet, ActivityIndicator, TouchableOpacity, FlatList, RefreshControl } from 'react-native';
+import { getWalletBalance, getUserTrades } from '../../services/api';
+import theme from '../../styles/theme'; // Import the theme
 import { useSelector } from 'react-redux';
 
 const WalletScreen = ({ navigation }) => {
@@ -8,181 +9,291 @@ const WalletScreen = ({ navigation }) => {
   const [trades, setTrades] = useState([]);
   const [isLoadingBalance, setIsLoadingBalance] = useState(false);
   const [isLoadingTrades, setIsLoadingTrades] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [errorBalance, setErrorBalance] = useState(null);
   const [errorTrades, setErrorTrades] = useState(null);
   const [tradePage, setTradePage] = useState(1);
   const [totalTradePages, setTotalTradePages] = useState(1);
 
-  const { user } = useSelector((state) => state.auth); // Get user info if needed
+  // const { user } = useSelector((state) => state.auth); // User info if needed
 
-  const fetchWalletBalance = async () => {
+  const fetchWalletBalance = useCallback(async () => {
     setIsLoadingBalance(true);
     setErrorBalance(null);
     try {
       const response = await getWalletBalance();
-      if (response.success) {
+      if (response.success && response.data) {
         setBalance(response.data);
       } else {
         setErrorBalance(response.error?.message || 'Failed to fetch wallet balance');
       }
     } catch (err) {
-      setErrorBalance(err.message || 'An error occurred while fetching balance');
+      setErrorBalance(err.response?.data?.message || err.message || 'An error occurred while fetching balance');
     } finally {
       setIsLoadingBalance(false);
     }
-  };
+  }, []);
 
-  const fetchUserTrades = async (pageNum = 1) => {
-    setIsLoadingTrades(true);
+  const fetchUserTrades = useCallback(async (pageNum = 1, refreshing = false) => {
+    if (!refreshing) {
+      setIsLoadingTrades(true);
+    } else {
+      setIsRefreshing(true);
+    }
     setErrorTrades(null);
     try {
-      const response = await getUserTrades({ page: pageNum, limit: 10 }); // Adjust limit
-      if (response.success) {
+      const response = await getUserTrades({ page: pageNum, limit: 15 }); // Increased limit
+      if (response.success && response.data?.trades) {
         setTrades(pageNum === 1 ? response.data.trades : [...trades, ...response.data.trades]);
-        setTotalTradePages(response.data.pages);
+        setTotalTradePages(response.data.pages || 1);
         setTradePage(pageNum);
       } else {
         setErrorTrades(response.error?.message || 'Failed to fetch trades');
       }
     } catch (err) {
-      setErrorTrades(err.message || 'An error occurred while fetching trades');
+      setErrorTrades(err.response?.data?.message || err.message || 'An error occurred while fetching trades');
     } finally {
-      setIsLoadingTrades(false);
+      if (!refreshing) {
+        setIsLoadingTrades(false);
+      } else {
+        setIsRefreshing(false);
+      }
     }
-  };
+  }, [trades]); // Include trades for correct appending
+
+  const loadData = useCallback((refreshing = false) => {
+    fetchWalletBalance();
+    fetchUserTrades(1, refreshing);
+  }, [fetchWalletBalance, fetchUserTrades]);
 
   useEffect(() => {
-    fetchWalletBalance();
-    fetchUserTrades(1); // Fetch initial page of trades
-  }, []);
+    loadData();
+  }, [loadData]);
+
+  const onRefresh = () => {
+    loadData(true);
+  };
 
   const handleLoadMoreTrades = () => {
-    if (!isLoadingTrades && tradePage < totalTradePages) {
+    if (!isLoadingTrades && !isRefreshing && tradePage < totalTradePages) {
       fetchUserTrades(tradePage + 1);
     }
   };
 
   const renderTradeItem = ({ item }) => (
     <View style={styles.tradeItemContainer}>
-      <Text>Type: {item.type.toUpperCase()}</Text>
-      <Text>Credit ID: {item.creditId}</Text> 
-      <Text>Amount: {item.amount}</Text>
-      <Text>Price: ${item.price}</Text>
-      <Text>Status: {item.status}</Text>
-      <Text>Date: {new Date(item.createdAt).toLocaleDateString()}</Text>
+      <View style={styles.tradeItemHeader}>
+        <Text style={styles.tradeItemType}>{item.type?.toUpperCase() || 'N/A'}</Text>
+        <Text style={styles.tradeItemDate}>{new Date(item.createdAt).toLocaleDateString()}</Text>
+      </View>
+      <Text style={styles.tradeItemDetail}>Credit ID: {item.creditId || 'N/A'}</Text>
+      <View style={styles.tradeItemRow}>
+        <Text style={styles.tradeItemDetail}>Amount: {item.amount} tCO2e</Text>
+        <Text style={styles.tradeItemDetail}>Price: ${item.price?.toFixed(2)}</Text>
+      </View>
+      <Text style={styles.tradeItemStatus}>Status: {item.status || 'N/A'}</Text>
     </View>
   );
 
   const renderTradeFooter = () => {
-    if (!isLoadingTrades) return null;
-    return <ActivityIndicator style={{ marginVertical: 20 }} />;
+    if (!isLoadingTrades || isRefreshing) return null;
+    return <ActivityIndicator style={{ marginVertical: theme.spacing.lg }} size="large" color={theme.colors.primary} />;
   };
+
+  const renderEmptyTrades = () => {
+     if (isLoadingTrades || isRefreshing) return null;
+     return (
+        <View style={styles.centeredMessageContainer}>
+          <Text style={styles.emptyText}>No trade history found.</Text>
+          {errorTrades && <Text style={styles.errorText}>{errorTrades}</Text>}
+          <TouchableOpacity style={[theme.components.button, styles.retryButton]} onPress={() => fetchUserTrades(1)}>
+             <Text style={theme.components.buttonText}>Retry</Text>
+          </TouchableOpacity>
+        </View>
+     );
+  }
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>My Wallet</Text>
-      
-      <View style={styles.section}>
-        <Text style={styles.subTitle}>Balance</Text>
+
+      {/* Balance Section */}
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>Account Balance</Text>
         {isLoadingBalance ? (
-          <ActivityIndicator />
+          <ActivityIndicator color={theme.colors.primary} />
         ) : errorBalance ? (
-          <View>
-            <Text style={styles.errorText}>Error fetching balance: {errorBalance}</Text>
-            <Button title="Retry Balance" onPress={fetchWalletBalance} />
+          <View style={styles.centeredMessageContainerSmall}>
+            <Text style={styles.errorText}>{errorBalance}</Text>
+            <TouchableOpacity style={[theme.components.button, styles.retryButtonSmall]} onPress={fetchWalletBalance}>
+              <Text style={theme.components.buttonText}>Retry</Text>
+            </TouchableOpacity>
           </View>
         ) : balance ? (
           <View>
-            <Text style={styles.balanceText}>Token Balance: {balance.tokenBalance}</Text>
-            <Text style={styles.balanceText}>Credit Balance: {balance.creditBalance} Tonnes</Text>
-            <Text style={styles.balanceText}>Pending Trades: {balance.pendingTrades}</Text>
+            <View style={styles.balanceRow}>
+              <Text style={styles.balanceLabel}>Token Balance:</Text>
+              {/* Assuming token balance needs formatting */} 
+              <Text style={styles.balanceValue}>{balance.tokenBalance?.toLocaleString() || '0'} TOK</Text>
+            </View>
+            <View style={styles.balanceRow}>
+              <Text style={styles.balanceLabel}>Credit Holdings:</Text>
+              <Text style={styles.balanceValue}>{balance.creditBalance || '0'} tCO2e</Text>
+            </View>
+            <View style={styles.balanceRow}>
+              <Text style={styles.balanceLabel}>Pending Trades:</Text>
+              <Text style={styles.balanceValue}>{balance.pendingTrades || '0'}</Text>
+            </View>
           </View>
         ) : (
-          <Text>No balance information available.</Text>
+          <Text style={theme.typography.body1}>No balance information available.</Text>
         )}
       </View>
 
-      <Text style={styles.subTitle}>Trade History</Text>
-      {errorTrades && (
-          <View style={{alignItems: 'center'}}>
-            <Text style={styles.errorText}>Error fetching trades: {errorTrades}</Text>
-            <Button title="Retry Trades" onPress={() => fetchUserTrades(1)} />
-          </View>
-      )}
+      {/* Trade History Section - Using FlatList */}
+      <Text style={styles.sectionTitle}>Recent Trade History</Text>
       <FlatList
         data={trades}
         renderItem={renderTradeItem}
-        keyExtractor={(item) => item.id.toString()} // Assuming trades have unique IDs
+        keyExtractor={(item) => item.id?.toString() || Math.random().toString()}
         style={styles.tradeList}
-        contentContainerStyle={{ paddingBottom: 20 }}
+        contentContainerStyle={styles.tradeListContent}
         onEndReached={handleLoadMoreTrades}
-        onEndReachedThreshold={0.5}
+        onEndReachedThreshold={0.6}
         ListFooterComponent={renderTradeFooter}
-        ListEmptyComponent={() => (
-          !isLoadingTrades && !errorTrades && <Text style={styles.emptyText}>No trade history found.</Text>
-        )}
+        ListEmptyComponent={renderEmptyTrades}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={onRefresh}
+            colors={[theme.colors.primary]}
+            tintColor={theme.colors.primary}
+          />
+        }
       />
     </View>
   );
 };
 
+// Use theme variables for styling
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 15,
-    backgroundColor: '#f9f9f9',
+    backgroundColor: theme.colors.background,
+    padding: theme.spacing.lg,
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
+    ...theme.typography.h1,
+    color: theme.colors.primary,
+    marginBottom: theme.spacing.lg,
     textAlign: 'center',
-    color: '#333',
   },
-  subTitle: {
-    fontSize: 18,
+  card: {
+    ...theme.components.card,
+    marginBottom: theme.spacing.lg,
+  },
+  cardTitle: {
+    ...theme.typography.h3,
+    marginBottom: theme.spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.border,
+    paddingBottom: theme.spacing.sm,
+  },
+  balanceRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: theme.spacing.sm,
+    paddingVertical: theme.spacing.xs,
+  },
+  balanceLabel: {
+    ...theme.typography.body1,
+    color: theme.colors.textSecondary,
+  },
+  balanceValue: {
+    ...theme.typography.body1,
     fontWeight: '600',
-    marginBottom: 10,
-    color: '#444',
   },
-  section: {
-    backgroundColor: '#fff',
-    padding: 15,
-    borderRadius: 8,
-    marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 1.41,
-    elevation: 2,
-  },
-  balanceText: {
-    fontSize: 16,
-    marginBottom: 8,
-    color: '#555',
+  sectionTitle: {
+    ...theme.typography.h3,
+    marginBottom: theme.spacing.md,
+    marginTop: theme.spacing.sm, // Add some space above if needed
   },
   tradeList: {
-    flex: 1, // Ensure FlatList takes available space
+    flex: 1, // Make list take remaining space
+  },
+  tradeListContent: {
+     paddingBottom: theme.spacing.lg, // Space at the bottom of the list
   },
   tradeItemContainer: {
-    backgroundColor: '#fff',
-    padding: 12,
-    marginBottom: 10,
-    borderRadius: 5,
+    backgroundColor: theme.colors.surface,
+    padding: theme.spacing.md,
+    marginBottom: theme.spacing.md,
+    borderRadius: theme.components.card.borderRadius,
     borderWidth: 1,
-    borderColor: '#eee',
+    borderColor: theme.colors.border,
+  },
+  tradeItemHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: theme.spacing.xs,
+  },
+  tradeItemType: {
+    ...theme.typography.body1,
+    fontWeight: 'bold',
+    color: theme.colors.primary,
+  },
+  tradeItemDate: {
+    ...theme.typography.caption,
+  },
+  tradeItemDetail: {
+    ...theme.typography.body2,
+    color: theme.colors.text,
+    marginBottom: theme.spacing.xs,
+  },
+  tradeItemRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  tradeItemStatus: {
+    ...theme.typography.caption,
+    marginTop: theme.spacing.xs,
+    fontStyle: 'italic',
+  },
+  centeredMessageContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: theme.spacing.lg,
+    marginTop: theme.spacing.xl, // Push message down a bit
+  },
+   centeredMessageContainerSmall: {
+    alignItems: 'center',
+    paddingVertical: theme.spacing.md,
   },
   errorText: {
-    color: 'red',
-    marginBottom: 10,
+    ...theme.typography.body1,
+    color: theme.colors.error,
     textAlign: 'center',
+    marginBottom: theme.spacing.md,
   },
   emptyText: {
-      textAlign: 'center',
-      marginTop: 30,
-      fontSize: 16,
-      color: 'gray',
-  }
+    ...theme.typography.body1,
+    color: theme.colors.textSecondary,
+    textAlign: 'center',
+    marginBottom: theme.spacing.md,
+  },
+  retryButton: {
+    marginTop: theme.spacing.md,
+    paddingVertical: theme.spacing.sm,
+    paddingHorizontal: theme.spacing.lg,
+    minHeight: 40,
+  },
+  retryButtonSmall: {
+     marginTop: theme.spacing.sm,
+     paddingVertical: theme.spacing.xs,
+     paddingHorizontal: theme.spacing.md,
+     minHeight: 35,
+  },
 });
 
 export default WalletScreen;
