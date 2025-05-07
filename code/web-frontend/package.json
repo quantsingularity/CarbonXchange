@@ -32,7 +32,9 @@
     "webpack": "^5.80.0",
     "webpack-cli": "^5.0.2",
     "webpack-dev-server": "^4.13.3",
-    "jest": "^29.5.0"
+    "jest": "^29.5.0",
+    "@testing-library/react": "^14.0.0",
+    "@testing-library/jest-dom": "^5.16.5"
   },
   "browserslist": {
     "production": [
@@ -45,5 +47,13 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "jest": {
+    "setupFilesAfterEnv": ["@testing-library/jest-dom/extend-expect"],
+    "testEnvironment": "jsdom",
+    "moduleNameMapper": {
+      "\\.(css|less|scss|sass)$": "identity-obj-proxy"
+    }
   }
 }
+
