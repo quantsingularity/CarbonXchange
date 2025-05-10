@@ -226,4 +226,3 @@ echo "Remember to check for any specific Node.js or Python version requirements 
 # echo "Made the script executable: ./setup_carbonxchange_env.sh"
 
 echo "Setup script created at ./setup_carbonxchange_env.sh"
-
