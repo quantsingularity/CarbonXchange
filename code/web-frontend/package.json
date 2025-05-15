@@ -6,7 +6,8 @@
   "scripts": {
     "start": "webpack serve --mode development --open",
     "build": "webpack --mode production",
-    "test": "jest"
+    "test": "jest",
+    "lint": "eslint . --ext .js,.jsx"
   },
   "dependencies": {
     "react": "^18.2.0",
@@ -34,7 +35,10 @@
     "webpack-dev-server": "^4.13.3",
     "jest": "^29.5.0",
     "@testing-library/react": "^14.0.0",
-    "@testing-library/jest-dom": "^5.16.5"
+    "@testing-library/jest-dom": "^5.16.5",
+    "eslint": "^8.57.0",
+    "eslint-plugin-react": "^7.34.3",
+    "@babel/eslint-parser": "^7.24.7"
   },
   "browserslist": {
     "production": [
