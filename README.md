@@ -10,7 +10,7 @@
 CarbonXchange is an innovative platform that leverages blockchain technology and artificial intelligence to revolutionize carbon credit trading, making it more transparent, efficient, and accessible for businesses and individuals.
 
 <div align="center">
-  <img src="resources/carbonxchange_dashboard.png" alt="CarbonXchange Dashboard" width="80%">
+  <img src="docs/images/CarbonXchange_dashboard.bmp" alt="CarbonXchange Dashboard" width="80%">
 </div>
 
 > **Note**: This project is under active development. Features and functionalities are continuously being enhanced to improve carbon credit trading capabilities and user experience.
