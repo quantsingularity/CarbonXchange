@@ -1,5 +1,6 @@
 # Carbon Credit Trading Platform
 
+[![CI Status](https://img.shields.io/github/actions/workflow/status/abrar2030/CarbonXchange/ci-cd.yml?branch=main&label=CI&logo=github)](https://github.com/abrar2030/CarbonXchange/actions)
 [![CI Status](https://img.shields.io/github/workflow/status/abrar2030/CarbonXchange/CI/main?label=CI)](https://github.com/abrar2030/CarbonXchange/actions)
 [![Test Coverage](https://img.shields.io/codecov/c/github/abrar2030/CarbonXchange/main?label=Coverage)](https://codecov.io/gh/abrar2030/CarbonXchange)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
