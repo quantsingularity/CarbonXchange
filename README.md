@@ -1,23 +1,23 @@
-# Carbon Credit Trading Platform
+# CarbonXchange
 
-[![CI Status](https://img.shields.io/github/actions/workflow/status/abrar2030/CarbonXchange/ci-cd.yml?branch=main&label=CI&logo=github)](https://github.com/abrar2030/CarbonXchange/actions)
-[![CI Status](https://img.shields.io/github/workflow/status/abrar2030/CarbonXchange/CI/main?label=CI)](https://github.com/abrar2030/CarbonXchange/actions)
+[![CI/CD Status](https://img.shields.io/github/actions/workflow/status/abrar2030/CarbonXchange/ci-cd.yml?branch=main&label=CI/CD&logo=github)](https://github.com/abrar2030/CarbonXchange/actions)
 [![Test Coverage](https://img.shields.io/codecov/c/github/abrar2030/CarbonXchange/main?label=Coverage)](https://codecov.io/gh/abrar2030/CarbonXchange)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Smart Contract Audit](https://img.shields.io/badge/audit-passing-brightgreen)](https://github.com/abrar2030/CarbonXchange)
+[![License](https://img.shields.io/github/license/abrar2030/CarbonXchange)](https://github.com/abrar2030/CarbonXchange/blob/main/LICENSE)
 
-## Overview
+## 🌿 Blockchain-Based Carbon Credit Trading Platform
 
-CarbonXchange is a blockchain-based platform for transparent and efficient carbon credit trading. It combines distributed ledger technology with AI-powered verification to create a trusted marketplace for carbon offsets.
+CarbonXchange is an innovative platform that leverages blockchain technology and artificial intelligence to revolutionize carbon credit trading, making it more transparent, efficient, and accessible for businesses and individuals.
 
 <div align="center">
-  <img src="docs/CarbonXchange.bmp" alt="Carbon Credit Trading Platform" width="100%">
+  <img src="resources/carbonxchange_dashboard.png" alt="CarbonXchange Dashboard" width="80%">
 </div>
 
-> **Note**: CarbonXchange is currently under active development. Features and functionalities are being added and improved continuously to enhance user experience.
+> **Note**: This project is under active development. Features and functionalities are continuously being enhanced to improve carbon credit trading capabilities and user experience.
 
 ## Table of Contents
+- [Overview](#overview)
 - [Key Features](#key-features)
-- [Feature Implementation Status](#feature-implementation-status)
 - [Technology Stack](#technology-stack)
 - [Architecture](#architecture)
 - [Installation and Setup](#installation-and-setup)
@@ -27,95 +27,105 @@ CarbonXchange is a blockchain-based platform for transparent and efficient carbo
 - [Contributing](#contributing)
 - [License](#license)
 
+## Overview
+
+CarbonXchange is a decentralized platform that transforms how carbon credits are verified, traded, and retired. By combining blockchain's immutability with AI-powered verification, the platform ensures transparency and trust in the carbon offset market while making it accessible to businesses of all sizes and environmentally conscious individuals.
+
 ## Key Features
 
-- **Blockchain-Based Carbon Credits**: Tokenized carbon credits with transparent provenance tracking
-- **AI-Powered Verification**: Machine learning models to validate carbon offset projects
-- **Marketplace**: Trading platform for buying and selling carbon credits
-- **Real-Time Analytics**: Dashboards for market trends and environmental impact
-- **Smart Contract Automation**: Automated verification and settlement processes
+### Blockchain-Based Carbon Credit Tokenization
+- **Transparent Verification**: Immutable record of carbon credit origin and lifecycle
+- **Fractional Ownership**: Ability to purchase partial carbon credits
+- **Smart Contract Automation**: Automated issuance, trading, and retirement
+- **Provenance Tracking**: Complete history of each carbon credit from creation to retirement
 
-## Feature Implementation Status
+### AI-Powered Verification System
+- **Project Validation**: Automated assessment of carbon offset projects
+- **Satellite Imagery Analysis**: Remote monitoring of reforestation and conservation projects
+- **Data Verification**: Cross-referencing multiple data sources for accuracy
+- **Fraud Detection**: Identifying suspicious patterns and double-counting
 
-| Feature | Status | Description | Planned Release |
-|---------|--------|-------------|----------------|
-| **Blockchain Infrastructure** |
-| Carbon Credit Tokenization | ✅ Implemented | ERC-1155 tokens for carbon credits | v1.0 |
-| Smart Contracts | ✅ Implemented | Automated trading and verification | v1.0 |
-| Provenance Tracking | ✅ Implemented | Transparent origin and ownership history | v1.0 |
-| Multi-chain Support | 🔄 In Progress | Integration with multiple blockchains | v1.1 |
-| Layer 2 Scaling | 📅 Planned | Optimistic rollups for scalability | v1.2 |
-| **AI Verification** |
-| Satellite Imagery Analysis | ✅ Implemented | Forest cover and land use verification | v1.0 |
-| Project Validation | ✅ Implemented | Automated project assessment | v1.0 |
-| Emissions Calculation | ✅ Implemented | CO2 equivalent calculation | v1.0 |
-| Fraud Detection | 🔄 In Progress | ML-based anomaly detection | v1.1 |
-| Real-time Monitoring | 📅 Planned | Continuous project verification | v1.2 |
-| **Marketplace** |
-| Buy/Sell Interface | ✅ Implemented | User-friendly trading platform | v1.0 |
-| Order Book | ✅ Implemented | Matching buy and sell orders | v1.0 |
-| Auction Mechanism | ✅ Implemented | Time-limited bidding for credits | v1.0 |
-| OTC Trading | 🔄 In Progress | Direct peer-to-peer transactions | v1.1 |
-| Derivatives Market | 📅 Planned | Futures and options for carbon credits | v1.2 |
-| **Analytics** |
-| Market Trends | ✅ Implemented | Price and volume analytics | v1.0 |
-| Environmental Impact | ✅ Implemented | CO2 reduction visualization | v1.0 |
-| Portfolio Analysis | ✅ Implemented | User holdings and performance | v1.0 |
-| Predictive Analytics | 🔄 In Progress | Market forecasting | v1.1 |
-| ESG Reporting | 📅 Planned | Corporate sustainability metrics | v1.2 |
-| **Platform Features** |
-| User Authentication | ✅ Implemented | Secure account management | v1.0 |
-| Wallet Integration | ✅ Implemented | Connect with crypto wallets | v1.0 |
-| KYC/AML Compliance | ✅ Implemented | Regulatory compliance checks | v1.0 |
-| Corporate Accounts | 🔄 In Progress | Multi-user business accounts | v1.1 |
-| API Access | 📅 Planned | Programmatic platform integration | v1.2 |
+### Carbon Credit Marketplace
+- **Peer-to-Peer Trading**: Direct transactions between buyers and sellers
+- **Auction Mechanism**: Competitive bidding for carbon credits
+- **Price Discovery**: Transparent market-based pricing
+- **Portfolio Management**: Tools for managing carbon credit investments
 
-**Legend:**
-- ✅ Implemented: Feature is complete and available
-- 🔄 In Progress: Feature is currently being developed
-- 📅 Planned: Feature is planned for future release
+### Impact Tracking & Reporting
+- **Real-Time Metrics**: Live tracking of carbon offset impact
+- **Customizable Reports**: Generate reports for sustainability goals and compliance
+- **ESG Integration**: Connect carbon credits to broader ESG initiatives
+- **API Access**: Integrate carbon data into corporate sustainability systems
 
 ## Technology Stack
 
-### Blockchain
-- **Ethereum/Polygon**: Primary blockchain for smart contracts
-- **Solidity**: Smart contract development
-- **Web3.js/ethers.js**: Blockchain interaction libraries
-- **IPFS**: Decentralized storage for project documentation
-
-### AI/ML
-- **TensorFlow/PyTorch**: Machine learning frameworks
-- **Computer Vision**: Satellite imagery analysis
-- **NLP**: Project documentation analysis
-- **Time Series Analysis**: Emissions data processing
-
-### Frontend
-- **React.js**: User interface development
-- **Redux**: State management
-- **D3.js**: Data visualization
-- **Material-UI**: Component library
+### Blockchain & Smart Contracts
+- **Blockchain**: Ethereum, Polygon
+- **Smart Contract Language**: Solidity
+- **Development Framework**: Hardhat, Truffle
+- **Token Standard**: ERC-1155 (for carbon credit tokens)
+- **Oracles**: Chainlink for external data
 
 ### Backend
-- **Node.js/Express**: API services
-- **Python/FastAPI**: ML model serving
-- **PostgreSQL**: Relational database
-- **Redis**: Caching and real-time updates
+- **Language**: Node.js, TypeScript
+- **Framework**: Express, NestJS
+- **Database**: PostgreSQL, MongoDB
+- **API Documentation**: Swagger
+- **Authentication**: JWT, OAuth2
+
+### Frontend
+- **Framework**: React with TypeScript
+- **State Management**: Redux Toolkit
+- **Styling**: Tailwind CSS, Styled Components
+- **Web3 Integration**: ethers.js, web3.js
+- **Data Visualization**: D3.js, Recharts
+
+### AI & Machine Learning
+- **Languages**: Python, TensorFlow
+- **Computer Vision**: For satellite imagery analysis
+- **Natural Language Processing**: For document verification
+- **Data Processing**: Pandas, NumPy
+- **Model Deployment**: TensorFlow Serving
 
 ### DevOps
-- **Docker/Kubernetes**: Containerization and orchestration
-- **GitHub Actions**: CI/CD pipeline
-- **Prometheus/Grafana**: Monitoring and alerting
-- **AWS/GCP**: Cloud infrastructure
+- **Containerization**: Docker
+- **Orchestration**: Kubernetes
+- **CI/CD**: GitHub Actions
+- **Monitoring**: Prometheus, Grafana
+- **Infrastructure as Code**: Terraform
 
 ## Architecture
 
 The CarbonXchange platform follows a microservices architecture with these key components:
 
-1. **Blockchain Layer**: Handles tokenization, smart contracts, and on-chain transactions
-2. **AI Verification Layer**: Processes and validates carbon offset project data
-3. **Marketplace Layer**: Facilitates trading and order matching
-4. **Analytics Layer**: Provides insights and reporting
-5. **API Gateway**: Manages external integrations and access control
+```
+CarbonXchange/
+├── Blockchain Layer
+│   ├── Carbon Credit Token Contracts
+│   ├── Marketplace Contracts
+│   ├── Verification Registry
+│   └── Governance Contracts
+├── AI Verification Layer
+│   ├── Project Validation Service
+│   ├── Satellite Imagery Analysis
+│   ├── Document Processing
+│   └── Fraud Detection System
+├── Marketplace Layer
+│   ├── Order Matching Engine
+│   ├── Auction System
+│   ├── Price Discovery Mechanism
+│   └── Portfolio Management
+├── Analytics Layer
+│   ├── Impact Calculation
+│   ├── Reporting Engine
+│   ├── Data Visualization
+│   └── ESG Integration
+└── API Gateway
+    ├── Authentication & Authorization
+    ├── Rate Limiting
+    ├── Request Routing
+    └── External Integrations
+```
 
 ## Installation and Setup
 
@@ -125,7 +135,20 @@ The CarbonXchange platform follows a microservices architecture with these key c
 - Docker and Docker Compose
 - Ethereum wallet (MetaMask recommended)
 
-### Local Development Setup
+### Quick Start with Setup Script
+```bash
+# Clone the repository
+git clone https://github.com/abrar2030/CarbonXchange.git
+cd CarbonXchange
+
+# Run the setup script
+./setup_carbonxchange_env.sh
+
+# Start the application
+./run_carbonxchange.sh
+```
+
+### Manual Local Development Setup
 
 1. Clone the repository:
 ```bash
@@ -136,11 +159,11 @@ cd CarbonXchange
 2. Install dependencies:
 ```bash
 # Backend dependencies
-cd backend
+cd code/backend
 npm install
 
 # Frontend dependencies
-cd ../frontend
+cd ../web-frontend
 npm install
 
 # AI service dependencies
@@ -161,32 +184,84 @@ docker-compose up -d
 
 5. Deploy smart contracts to local blockchain:
 ```bash
-cd blockchain
+cd code/blockchain
 npx hardhat run scripts/deploy.js --network localhost
 ```
 
 ## Usage
 
 ### User Registration and Onboarding
+
 1. Create an account on the platform
+   - Sign up with email or social login
+   - Complete profile information
+   - Accept terms and conditions
+
 2. Complete KYC verification
+   - Upload identification documents
+   - Verify email and phone number
+   - Wait for approval (typically within 24 hours)
+
 3. Connect your Ethereum wallet
+   - Install MetaMask or compatible wallet
+   - Connect wallet to the platform
+   - Ensure sufficient funds for gas fees
 
 ### For Carbon Credit Suppliers
+
 1. Register your carbon offset project
+   - Provide project details and documentation
+   - Upload verification certificates
+   - Specify project location and impact metrics
+
 2. Submit required documentation
+   - Project methodology and standards compliance
+   - Baseline calculations and monitoring reports
+   - Third-party verification documents
+
 3. Wait for AI verification
+   - Automated document analysis
+   - Satellite imagery verification (if applicable)
+   - Cross-reference with external databases
+
 4. Once approved, your carbon credits will be tokenized and available for sale
+   - Set pricing strategy
+   - Choose between direct sale or auction
+   - Monitor sales and analytics
 
 ### For Carbon Credit Buyers
+
 1. Browse available carbon credits
+   - Filter by project type, location, and certification
+   - View detailed project information and impact metrics
+   - Compare prices and quality
+
 2. Purchase credits directly or place bids
+   - Buy now at listed price
+   - Place bids in auctions
+   - Set up recurring purchases
+
 3. View your portfolio and impact metrics
+   - Track owned carbon credits
+   - Monitor environmental impact
+   - Generate certificates for compliance
 
 ### Analytics and Reporting
+
 1. Access the dashboard for market insights
+   - Price trends and market volume
+   - Supply and demand analytics
+   - Project performance metrics
+
 2. Generate reports for compliance and sustainability goals
+   - Customizable report templates
+   - Export in multiple formats (PDF, CSV, Excel)
+   - Automated scheduled reporting
+
 3. Track your environmental impact
+   - Carbon footprint reduction metrics
+   - Contribution to UN Sustainable Development Goals
+   - Comparative analysis with industry benchmarks
 
 ## Testing
 
@@ -196,40 +271,46 @@ The project includes comprehensive testing to ensure reliability and security:
 - Unit tests for contract functions
 - Integration tests for contract interactions
 - Security audits with tools like Slither and MythX
+- Gas optimization analysis
 
 ### AI Model Testing
 - Model validation with test datasets
 - Performance metrics evaluation
 - Bias and fairness testing
+- Edge case handling
 
 ### Backend Testing
 - API endpoint tests
 - Database integration tests
 - Authentication and authorization tests
+- Performance and load testing
 
 ### Frontend Testing
 - Component tests with React Testing Library
 - End-to-end tests with Cypress
 - User experience testing
+- Cross-browser compatibility
 
 To run tests:
-
 ```bash
 # Smart contract tests
-cd blockchain
+cd code/blockchain
 npx hardhat test
 
 # AI model tests
-cd ai-service
+cd code/ai-service
 pytest
 
 # Backend tests
-cd backend
+cd code/backend
 npm test
 
 # Frontend tests
-cd frontend
+cd web-frontend
 npm test
+
+# Run all tests
+./run_all_tests.sh
 ```
 
 ## CI/CD Pipeline
@@ -241,15 +322,17 @@ CarbonXchange uses GitHub Actions for continuous integration and deployment:
 - Code quality checks with ESLint, Prettier, and Pylint
 - Test coverage reporting
 - Security scanning for vulnerabilities
+- Smart contract verification
 
 ### Continuous Deployment
 - Automated deployment to staging environment on merge to main
 - Manual promotion to production after approval
 - Smart contract verification on Etherscan
 - Infrastructure updates via Terraform
+- Database migration management
 
 Current CI/CD Status:
-- Build: ![Build Status](https://img.shields.io/github/workflow/status/abrar2030/CarbonXchange/CI/main?label=build)
+- Build: ![Build Status](https://img.shields.io/github/actions/workflow/status/abrar2030/CarbonXchange/ci-cd.yml?branch=main&label=build)
 - Test Coverage: ![Coverage](https://img.shields.io/codecov/c/github/abrar2030/CarbonXchange/main?label=coverage)
 - Smart Contract Audit: ![Audit Status](https://img.shields.io/badge/audit-passing-brightgreen)
 
@@ -283,7 +366,6 @@ We welcome contributions to improve CarbonXchange! Here's how you can contribute
    - Respond to review comments and make necessary adjustments
 
 ### Development Guidelines
-
 - Follow Solidity best practices for smart contracts
 - Use ESLint and Prettier for JavaScript/React code
 - Follow PEP 8 style guide for Python code
