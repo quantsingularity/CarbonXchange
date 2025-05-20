@@ -5,8 +5,6 @@
 [![Smart Contract Audit](https://img.shields.io/badge/smart%20contracts-audited-brightgreen)](https://github.com/abrar2030/CarbonXchange/tree/main/code/blockchain)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-![CarbonXchange Dashboard](https://raw.githubusercontent.com/abrar2030/CarbonXchange/main/docs/images/dashboard.png)
-
 ## 🌿 Blockchain-Based Carbon Credit Trading Platform
 
 CarbonXchange is an innovative platform that leverages blockchain technology and artificial intelligence to revolutionize carbon credit trading, making it more transparent, efficient, and accessible for businesses and individuals.
