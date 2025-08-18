@@ -101,3 +101,79 @@ xlsxwriter==3.1.9
 # API Documentation
 flask-restx==1.3.0
 apispec==6.3.0
+
+# Additional Production Dependencies for CarbonXchange
+
+# Multi-factor Authentication
+pyotp==2.9.0
+qrcode==7.4.2
+
+# Advanced Security
+flask-talisman==1.1.0
+flask-seasurf==1.1.1
+
+# Rate Limiting and Security
+slowapi==0.1.9
+flask-httpauth==4.8.0
+
+# Monitoring and Error Tracking
+sentry-sdk[flask]==1.38.0
+newrelic==9.2.0
+
+# SMS and Communication
+twilio==8.11.0
+
+# Data Analysis and Reporting
+pandas==2.1.4
+numpy==1.25.2
+matplotlib==3.8.2
+seaborn==0.13.0
+
+# Financial Calculations
+quantlib==1.32
+
+# UUID and Unique Identifiers
+uuid==1.30
+shortuuid==1.0.11
+
+# Internationalization
+babel==2.13.1
+flask-babel==4.0.0
+
+# Health Checks
+flask-healthz==1.0.1
+
+# Configuration Management
+dynaconf==3.2.4
+
+# Advanced Logging
+python-json-logger==2.0.7
+colorlog==6.8.0
+
+# Performance Monitoring
+py-spy==0.3.14
+memory-profiler==0.61.0
+
+# Backup and Storage
+boto3==1.34.0
+azure-storage-blob==12.19.0
+
+# Compliance and Audit
+audit-log==1.0.0
+
+# Advanced Validation
+schema==0.7.5
+voluptuous==0.14.1
+
+# Task Scheduling
+apscheduler==3.10.4
+croniter==2.0.1
+
+# Network and HTTP
+httpx==0.25.2
+aiohttp==3.9.1
+
+# Development and Debugging
+flask-debugtoolbar==0.13.1
+werkzeug-profiler==0.1.1
+
