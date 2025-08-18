@@ -1,10 +1,5 @@
 # CarbonXchange Backend - Production-Ready Carbon Credit Trading Platform
 
-**Version:** 1.0.0  
-**Author:** Manus AI  
-**License:** MIT  
-**Last Updated:** August 18, 2025
-
 ## Overview
 
 CarbonXchange Backend is a production-ready, enterprise-grade API platform for carbon credit trading that meets financial industry standards. Built with Flask and designed for scalability, security, and regulatory compliance, this backend provides comprehensive functionality for carbon credit management, trading operations, user management with KYC compliance, and regulatory reporting.
@@ -655,35 +650,3 @@ fix: resolve database connection timeout
 docs: update API documentation
 test: add integration tests for compliance module
 ```
-
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
-## Support
-
-For support and questions:
-
-- **Documentation**: [API Documentation](https://docs.carbonxchange.com)
-- **Issues**: [GitHub Issues](https://github.com/carbonxchange/backend/issues)
-- **Email**: support@carbonxchange.com
-- **Discord**: [CarbonXchange Community](https://discord.gg/carbonxchange)
-
-## Changelog
-
-### Version 1.0.0 (2025-08-18)
-
-**Initial Release**
-
-- Complete user management system with KYC compliance
-- Carbon credit management and trading engine
-- Comprehensive security and audit logging
-- Market data and analytics capabilities
-- Regulatory compliance and reporting features
-- Production-ready deployment configuration
-- Comprehensive test suite and documentation
-
----
-
-**Built with ❤️ by Manus AI for the carbon credit trading community.**
-
