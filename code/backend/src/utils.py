@@ -438,3 +438,83 @@ def calculate_percentage_change(old_value: Decimal, new_value: Decimal) -> Decim
     
     return ((new_value - old_value) / old_value) * 100
 
+# Additional validation functions for trading system
+def validate_request_data(data: dict, required_fields: list) -> bool:
+    """Validate that all required fields are present in request data"""
+    if not data:
+        return False
+    
+    for field in required_fields:
+        if field not in data or data[field] is None:
+            return False
+        
+        # Check for empty strings
+        if isinstance(data[field], str) and not data[field].strip():
+            return False
+    
+    return True
+
+def handle_api_error(error: Exception) -> tuple:
+    """Handle API errors and return appropriate response"""
+    from flask import current_app
+    from werkzeug.exceptions import HTTPException
+    import logging
+    
+    logger = logging.getLogger(__name__)
+    
+    if isinstance(error, HTTPException):
+        return {
+            'error': error.description,
+            'code': error.code,
+            'timestamp': datetime.now(timezone.utc).isoformat()
+        }, error.code
+    
+    # Log unexpected errors
+    logger.error(f"Unexpected API error: {str(error)}", exc_info=True)
+    
+    # Don't expose internal errors in production
+    if current_app.config.get('ENV') == 'production':
+        return {
+            'error': 'Internal server error',
+            'code': 500,
+            'timestamp': datetime.now(timezone.utc).isoformat()
+        }, 500
+    else:
+        return {
+            'error': str(error),
+            'code': 500,
+            'type': type(error).__name__,
+            'timestamp': datetime.now(timezone.utc).isoformat()
+        }, 500
+
+def paginate_query(query, page: int = 1, per_page: int = 20, max_per_page: int = 100):
+    """Enhanced pagination with result wrapper"""
+    from sqlalchemy.orm import Query
+    
+    class PaginationResult:
+        def __init__(self, items, page, per_page, total):
+            self.items = items
+            self.page = page
+            self.per_page = per_page
+            self.total = total
+            self.pages = (total + per_page - 1) // per_page
+            self.has_prev = page > 1
+            self.has_next = page < self.pages
+            self.prev_num = page - 1 if self.has_prev else None
+            self.next_num = page + 1 if self.has_next else None
+    
+    # Validate parameters
+    page = max(1, int(page))
+    per_page = min(max(1, int(per_page)), max_per_page)
+    
+    # Get total count
+    total = query.count()
+    
+    # Calculate offset
+    offset = (page - 1) * per_page
+    
+    # Get items for current page
+    items = query.offset(offset).limit(per_page).all()
+    
+    return PaginationResult(items, page, per_page, total)
+
