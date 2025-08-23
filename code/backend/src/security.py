@@ -397,8 +397,237 @@ class RiskAssessment:
         
         return risk_level, risk_score, risk_factors
 
+class AdvancedSecurityManager:
+    """Advanced security manager for financial applications"""
+    
+    def __init__(self, app=None):
+        self.app = app
+        self.redis_client = None
+        
+        if app is not None:
+            self.init_app(app)
+    
+    def init_app(self, app):
+        """Initialize advanced security manager"""
+        self.app = app
+        
+        # Initialize Redis for session management
+        try:
+            import redis
+            self.redis_client = redis.from_url(app.config.get('REDIS_URL', 'redis://localhost:6379/0'))
+            self.redis_client.ping()
+        except Exception as e:
+            logger.warning(f"Redis not available for advanced security features: {e}")
+    
+    def generate_mfa_secret(self, user_email: str) -> dict:
+        """Generate MFA secret and QR code"""
+        try:
+            import pyotp
+            import qrcode
+            from io import BytesIO
+            import base64
+            
+            secret = pyotp.random_base32()
+            
+            # Create TOTP URI
+            totp_uri = pyotp.totp.TOTP(secret).provisioning_uri(
+                name=user_email,
+                issuer_name="CarbonXchange"
+            )
+            
+            # Generate QR code
+            qr = qrcode.QRCode(version=1, box_size=10, border=5)
+            qr.add_data(totp_uri)
+            qr.make(fit=True)
+            
+            img = qr.make_image(fill_color="black", back_color="white")
+            buffer = BytesIO()
+            img.save(buffer, format='PNG')
+            qr_code_data = base64.b64encode(buffer.getvalue()).decode()
+            
+            return {
+                'secret': secret,
+                'qr_code': f"data:image/png;base64,{qr_code_data}",
+                'manual_entry_key': secret
+            }
+        except ImportError:
+            logger.warning("MFA dependencies not available")
+            return {'secret': secrets.token_hex(16), 'qr_code': None, 'manual_entry_key': None}
+    
+    def verify_mfa_token(self, secret: str, token: str) -> bool:
+        """Verify MFA token"""
+        try:
+            import pyotp
+            totp = pyotp.TOTP(secret)
+            return totp.verify(token, valid_window=1)
+        except ImportError:
+            logger.warning("MFA verification not available")
+            return False
+        except Exception as e:
+            logger.error(f"MFA verification error: {e}")
+            return False
+    
+    def check_rate_limit(self, key: str, limit: int, window: int = 3600) -> bool:
+        """Advanced rate limiting with sliding window"""
+        if not self.redis_client:
+            return True
+        
+        try:
+            now = time.time()
+            pipeline = self.redis_client.pipeline()
+            
+            # Remove old entries
+            pipeline.zremrangebyscore(f"rate_limit:{key}", 0, now - window)
+            
+            # Count current requests
+            pipeline.zcard(f"rate_limit:{key}")
+            
+            # Add current request
+            pipeline.zadd(f"rate_limit:{key}", {str(now): now})
+            
+            # Set expiry
+            pipeline.expire(f"rate_limit:{key}", window)
+            
+            results = pipeline.execute()
+            current_count = results[1]
+            
+            return current_count < limit
+        except Exception as e:
+            logger.error(f"Rate limiting error: {e}")
+            return True
+    
+    def detect_anomalous_behavior(self, user_id: int, action: str, context: dict) -> dict:
+        """Detect anomalous user behavior patterns"""
+        if not self.redis_client:
+            return {'anomaly_score': 0, 'risk_level': 'low'}
+        
+        try:
+            # Get user's historical behavior
+            behavior_key = f"user_behavior:{user_id}"
+            recent_actions = self.redis_client.lrange(f"{behavior_key}:actions", 0, 99)
+            
+            # Calculate anomaly score based on various factors
+            anomaly_score = 0
+            
+            # Time-based anomalies
+            current_hour = datetime.now().hour
+            typical_hours = [int(h) for h in self.redis_client.smembers(f"{behavior_key}:hours") or []]
+            if typical_hours and current_hour not in typical_hours:
+                anomaly_score += 20
+            
+            # Frequency anomalies
+            action_count_today = len([a for a in recent_actions if action in a.decode()])
+            if action_count_today > 10:  # Threshold for suspicious activity
+                anomaly_score += 30
+            
+            # Geographic anomalies (if IP tracking is available)
+            current_ip = request.remote_addr if request else None
+            if current_ip:
+                known_ips = self.redis_client.smembers(f"{behavior_key}:ips")
+                if known_ips and current_ip.encode() not in known_ips:
+                    anomaly_score += 25
+            
+            # Update behavior patterns
+            self.redis_client.lpush(f"{behavior_key}:actions", f"{action}:{time.time()}")
+            self.redis_client.ltrim(f"{behavior_key}:actions", 0, 99)
+            self.redis_client.sadd(f"{behavior_key}:hours", current_hour)
+            if current_ip:
+                self.redis_client.sadd(f"{behavior_key}:ips", current_ip)
+            
+            # Determine risk level
+            if anomaly_score >= 60:
+                risk_level = 'critical'
+            elif anomaly_score >= 40:
+                risk_level = 'high'
+            elif anomaly_score >= 20:
+                risk_level = 'medium'
+            else:
+                risk_level = 'low'
+            
+            return {
+                'anomaly_score': anomaly_score,
+                'risk_level': risk_level,
+                'factors': {
+                    'unusual_time': current_hour not in typical_hours if typical_hours else False,
+                    'high_frequency': action_count_today > 10,
+                    'new_location': current_ip and current_ip.encode() not in (known_ips or set())
+                }
+            }
+        except Exception as e:
+            logger.error(f"Anomaly detection error: {e}")
+            return {'anomaly_score': 0, 'risk_level': 'low'}
+
+# Advanced security decorators
+def require_mfa_verification(f):
+    """Require MFA verification for sensitive operations"""
+    @functools.wraps(f)
+    def decorated_function(*args, **kwargs):
+        verify_jwt_in_request()
+        claims = get_jwt()
+        
+        if not claims.get('mfa_verified'):
+            return jsonify({'error': 'MFA verification required for this operation'}), 403
+        
+        return f(*args, **kwargs)
+    return decorated_function
+
+def advanced_rate_limit(limit: int, window: int = 3600):
+    """Advanced rate limiting decorator"""
+    def decorator(f):
+        @functools.wraps(f)
+        def decorated_function(*args, **kwargs):
+            # Create rate limit key
+            key = f"{request.remote_addr}:{request.endpoint}"
+            
+            # Check if advanced security manager is available
+            security_manager = getattr(current_app, 'advanced_security_manager', None)
+            if security_manager and not security_manager.check_rate_limit(key, limit, window):
+                return jsonify({'error': 'Rate limit exceeded', 'retry_after': window}), 429
+            
+            return f(*args, **kwargs)
+        return decorated_function
+    return decorator
+
+def anomaly_detection(f):
+    """Anomaly detection decorator"""
+    @functools.wraps(f)
+    def decorated_function(*args, **kwargs):
+        try:
+            verify_jwt_in_request()
+            current_user_uuid = get_jwt_identity()
+            user = User.query.filter_by(uuid=current_user_uuid).first()
+            
+            if user:
+                security_manager = getattr(current_app, 'advanced_security_manager', None)
+                if security_manager:
+                    anomaly_result = security_manager.detect_anomalous_behavior(
+                        user.id, 
+                        request.endpoint or 'unknown',
+                        {'method': request.method, 'ip': request.remote_addr}
+                    )
+                    
+                    # Log high-risk anomalies
+                    if anomaly_result['risk_level'] in ['high', 'critical']:
+                        logger.warning(f"Anomalous behavior detected for user {user.email}: {anomaly_result}")
+                        
+                        # For critical anomalies, require additional verification
+                        if anomaly_result['risk_level'] == 'critical':
+                            return jsonify({
+                                'error': 'Additional verification required due to unusual activity',
+                                'anomaly_score': anomaly_result['anomaly_score']
+                            }), 403
+        except Exception as e:
+            logger.error(f"Anomaly detection error: {e}")
+        
+        return f(*args, **kwargs)
+    return decorated_function
+
 def init_security(app):
     """Initialize security features for the Flask app"""
+    
+    # Initialize advanced security manager
+    advanced_security_manager = AdvancedSecurityManager(app)
+    app.advanced_security_manager = advanced_security_manager
     
     # Apply security headers to all responses
     @app.after_request
