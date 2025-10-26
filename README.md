@@ -1,8 +1,7 @@
 # CarbonXchange
 
-[![CI/CD Status](https://img.shields.io/github/actions/workflow/status/abrar2030/CarbonXchange/ci-cd.yml?branch=main&label=CI/CD&logo=github)](https://github.com/abrar2030/CarbonXchange/actions)
+![CI/CD Status](https://img.shields.io/github/actions/workflow/status/abrar2030/CarbonXchange/cicd.yml?branch=main&label=CI/CD&logo=github)
 [![Test Coverage](https://img.shields.io/badge/coverage-81%25-brightgreen)](https://github.com/abrar2030/CarbonXchange/actions)
-[![Smart Contract Audit](https://img.shields.io/badge/smart%20contracts-audited-brightgreen)](https://github.com/abrar2030/CarbonXchange/tree/main/code/blockchain)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 ## 🌿 Blockchain-Based Carbon Credit Trading Platform
