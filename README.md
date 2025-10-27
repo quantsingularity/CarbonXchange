@@ -33,28 +33,36 @@ CarbonXchange is a decentralized platform that transforms how carbon credits are
 ## Key Features
 
 ### Blockchain-Based Carbon Credit Tokenization
-* **Transparent Verification**: Immutable record of carbon credit origin and lifecycle
-* **Fractional Ownership**: Ability to purchase partial carbon credits
-* **Smart Contract Automation**: Automated issuance, trading, and retirement
-* **Provenance Tracking**: Complete history of each carbon credit from creation to retirement
+| Feature | Description |
+| :--- | :--- |
+| **Transparent Verification** | Immutable record of carbon credit origin and lifecycle |
+| **Fractional Ownership** | Ability to purchase partial carbon credits |
+| **Smart Contract Automation** | Automated issuance, trading, and retirement |
+| **Provenance Tracking** | Complete history of each carbon credit from creation to retirement |
 
 ### AI-Powered Verification System
-* **Project Validation**: Automated assessment of carbon offset projects
-* **Satellite Imagery Analysis**: Remote monitoring of reforestation and conservation projects
-* **Data Verification**: Cross-referencing multiple data sources for accuracy
-* **Fraud Detection**: Identifying suspicious patterns and double-counting
+| Feature | Description |
+| :--- | :--- |
+| **Project Validation** | Automated assessment of carbon offset projects |
+| **Satellite Imagery Analysis** | Remote monitoring of reforestation and conservation projects |
+| **Data Verification** | Cross-referencing multiple data sources for accuracy |
+| **Fraud Detection** | Identifying suspicious patterns and double-counting |
 
 ### Carbon Credit Marketplace
-* **Peer-to-Peer Trading**: Direct transactions between buyers and sellers
-* **Auction Mechanism**: Competitive bidding for carbon credits
-* **Price Discovery**: Transparent market-based pricing
-* **Portfolio Management**: Tools for managing carbon credit investments
+| Feature | Description |
+| :--- | :--- |
+| **Peer-to-Peer Trading** | Direct transactions between buyers and sellers |
+| **Auction Mechanism** | Competitive bidding for carbon credits |
+| **Price Discovery** | Transparent market-based pricing |
+| **Portfolio Management** | Tools for managing carbon credit investments |
 
 ### Impact Tracking & Reporting
-* **Real-Time Metrics**: Live tracking of carbon offset impact
-* **Customizable Reports**: Generate reports for sustainability goals and compliance
-* **ESG Integration**: Connect carbon credits to broader ESG initiatives
-* **API Access**: Integrate carbon data into corporate sustainability systems
+| Feature | Description |
+| :--- | :--- |
+| **Real-Time Metrics** | Live tracking of carbon offset impact |
+| **Customizable Reports** | Generate reports for sustainability goals and compliance |
+| **ESG Integration** | Connect carbon credits to broader ESG initiatives |
+| **API Access** | Integrate carbon data into corporate sustainability systems |
 
 ## Technology Stack
 
@@ -188,71 +196,6 @@ cd code/blockchain
 npx hardhat run scripts/deploy.js --network localhost
 ```
 
-## Usage
-
-### User Registration and Onboarding
-
-1. Create an account on the platform
-   * Sign up with email or social login
-   * Complete profile information
-   * Accept terms and conditions
-
-2. Complete KYC verification
-   * Upload identification documents
-   * Verify email and phone number
-   * Wait for approval (typically within 24 hours)
-
-3. Connect your Ethereum wallet
-   * Install MetaMask or compatible wallet
-   * Connect wallet to the platform
-   * Ensure sufficient funds for gas fees
-
-### For Carbon Credit Suppliers
-
-1. Register your carbon offset project
-   * Provide project details and documentation
-   * Upload verification certificates
-   * Specify project location and impact metrics
-
-2. Submit required documentation
-   * Project methodology and standards compliance
-   * Baseline calculations and monitoring reports
-   * Third-party verification documents
-
-3. Wait for AI verification
-   * Automated document analysis
-   * Satellite imagery verification (if applicable)
-   * Cross-reference with external databases
-
-4. Once approved, your carbon credits will be tokenized and available for sale
-   * Set pricing strategy
-   * Choose between direct sale or auction
-   * Monitor sales and analytics
-
-### For Carbon Credit Buyers
-
-1. Browse available carbon credits
-   * Filter by project type, location, and certification
-   * View detailed project information and impact metrics
-   * Compare prices and quality
-
-2. Purchase credits directly or place bids
-   * Buy now at listed price
-   * Place bids in auctions
-   * Set up recurring purchases
-
-3. View your portfolio and impact metrics
-   * Track owned carbon credits
-   * Monitor environmental impact
-   * Generate certificates for compliance
-
-### Market Analytics
-
-1. Access the dashboard for market insights
-   * Price trends and market volume
-   * Supply and demand analytics
-   * Project performance metrics
-
 ## Testing
 
 The project maintains comprehensive test coverage across all components to ensure reliability and security.
@@ -269,28 +212,36 @@ The project maintains comprehensive test coverage across all components to ensur
 | Overall | 81% | ✅ |
 
 ### Smart Contract Tests
-* Unit tests for all contract functions
-* Integration tests for contract interactions
-* Security tests using Slither and Mythril
-* Gas optimization tests
+| Test Type | Description |
+| :--- | :--- |
+| Unit tests | For all contract functions |
+| Integration tests | For contract interactions |
+| Security tests | Using Slither and Mythril |
+| Gas optimization tests | To ensure efficiency |
 
 ### Backend Tests
-* API endpoint tests
-* Service layer unit tests
-* Database integration tests
-* Authentication and authorization tests
+| Test Type | Description |
+| :--- | :--- |
+| API endpoint tests | To verify correct routing and response |
+| Service layer unit tests | For core business logic |
+| Database integration tests | For data persistence and retrieval |
+| Authentication and authorization tests | To ensure secure access control |
 
 ### AI Model Tests
-* Model accuracy validation
-* Computer vision algorithm tests
-* Document processing tests
-* Fraud detection tests
+| Test Type | Description |
+| :--- | :--- |
+| Model accuracy validation | To ensure predictive power |
+| Computer vision algorithm tests | For satellite imagery analysis |
+| Document processing tests | For data extraction and verification |
+| Fraud detection tests | To assess security |
 
 ### Frontend Tests
-* Component tests with React Testing Library
-* Integration tests with Cypress
-* End-to-end user flow tests
-* Web3 integration tests
+| Test Type | Description |
+| :--- | :--- |
+| Component tests | With React Testing Library |
+| Integration tests | With Cypress for feature flows |
+| End-to-end user flow tests | To verify complete user journeys |
+| Web3 integration tests | For blockchain connectivity |
 
 ### Running Tests
 
@@ -315,15 +266,16 @@ npm test
 ./lint-all.sh test
 ```
 
-## CI/CD Pipeline
-
+#### CI/CD Pipeline
 CarbonXchange uses GitHub Actions for continuous integration and deployment:
 
-* Automated testing on each pull request
-* Smart contract security scanning
-* Code quality checks
-* Docker image building and publishing
-* Automated deployment to staging and production environments
+| Stage | Description |
+| :--- | :--- |
+| Automated testing | On each pull request |
+| Smart contract security scanning | To ensure contract safety |
+| Code quality checks | To enforce standards |
+| Docker image building | And publishing |
+| Automated deployment | To staging and production environments |
 
 ## Contributing
 
