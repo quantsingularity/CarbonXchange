@@ -2,38 +2,43 @@
 Trading Service for CarbonXchange Backend
 Implements comprehensive trading engine with financial industry standards
 """
+
 import logging
 from datetime import datetime, timedelta
 from decimal import Decimal
-from typing import Dict, List, Optional, Any, Tuple
-from sqlalchemy import func, and_, or_, desc
+from typing import Any, Dict, List, Optional, Tuple
+
+from sqlalchemy import and_, desc, func, or_
 from sqlalchemy.exc import IntegrityError
 
-from ..models.trading import Order, Trade, Portfolio, PortfolioHolding, OrderType, OrderSide, OrderStatus, TradeStatus, PortfolioType
-from ..models.carbon_credit import CarbonCredit, CarbonProject, CreditStatus
-from ..models.user import User
 from ..models import db
+from ..models.carbon_credit import CarbonCredit, CarbonProject, CreditStatus
+from ..models.trading import (Order, OrderSide, OrderStatus, OrderType,
+                              Portfolio, PortfolioHolding, PortfolioType,
+                              Trade, TradeStatus)
+from ..models.user import User
 from .audit_service import AuditService
 
 logger = logging.getLogger(__name__)
+
 
 class TradingService:
     """
     Comprehensive trading service implementing financial industry standards
     """
-    
+
     def __init__(self):
         self.audit_service = AuditService()
         self.matching_engine = MatchingEngine()
         self.settlement_engine = SettlementEngine()
-    
+
     def submit_order(self, order: Order) -> bool:
         """
         Submit order to trading engine
-        
+
         Args:
             order: Order to submit
-            
+
         Returns:
             True if order submitted successfully
         """
@@ -41,149 +46,170 @@ class TradingService:
             # Validate order
             if not self._validate_order(order):
                 raise ValueError("Order validation failed")
-            
+
             # Check for sufficient balance (for sell orders)
             if order.side == OrderSide.SELL:
                 if not self._check_sufficient_balance(order):
                     raise ValueError("Insufficient balance for sell order")
-            
+
             # Check for sufficient buying power (for buy orders)
             if order.side == OrderSide.BUY:
                 if not self._check_sufficient_buying_power(order):
                     raise ValueError("Insufficient buying power for buy order")
-            
+
             # Submit to matching engine
             matches = self.matching_engine.match_order(order)
-            
+
             # Process matches
             for match in matches:
-                self._execute_trade(match['buy_order'], match['sell_order'], match['quantity'], match['price'])
-            
-            logger.info(f"Order {order.order_id} submitted successfully with {len(matches)} matches")
+                self._execute_trade(
+                    match["buy_order"],
+                    match["sell_order"],
+                    match["quantity"],
+                    match["price"],
+                )
+
+            logger.info(
+                f"Order {order.order_id} submitted successfully with {len(matches)} matches"
+            )
             return True
-            
+
         except Exception as e:
             logger.error(f"Failed to submit order {order.order_id}: {str(e)}")
             raise
-    
+
     def cancel_order(self, order: Order) -> bool:
         """
         Cancel order in trading engine
-        
+
         Args:
             order: Order to cancel
-            
+
         Returns:
             True if order cancelled successfully
         """
         try:
             # Remove from matching engine
             self.matching_engine.remove_order(order)
-            
+
             logger.info(f"Order {order.order_id} cancelled successfully")
             return True
-            
+
         except Exception as e:
             logger.error(f"Failed to cancel order {order.order_id}: {str(e)}")
             return False
-    
+
     def _validate_order(self, order: Order) -> bool:
         """Validate order parameters"""
         if order.quantity <= 0:
             return False
-        
-        if order.order_type in [OrderType.LIMIT, OrderType.STOP_LIMIT] and (not order.price or order.price <= 0):
+
+        if order.order_type in [OrderType.LIMIT, OrderType.STOP_LIMIT] and (
+            not order.price or order.price <= 0
+        ):
             return False
-        
-        if order.order_type in [OrderType.STOP, OrderType.STOP_LIMIT] and (not order.stop_price or order.stop_price <= 0):
+
+        if order.order_type in [OrderType.STOP, OrderType.STOP_LIMIT] and (
+            not order.stop_price or order.stop_price <= 0
+        ):
             return False
-        
+
         return True
-    
+
     def _check_sufficient_balance(self, order: Order) -> bool:
         """Check if user has sufficient balance for sell order"""
         # Get user's portfolio holdings
         portfolio = Portfolio.query.filter_by(
-            user_id=order.user_id,
-            portfolio_type=PortfolioType.TRADING,
-            is_active=True
+            user_id=order.user_id, portfolio_type=PortfolioType.TRADING, is_active=True
         ).first()
-        
+
         if not portfolio:
             return False
-        
+
         # Check specific credit holdings
         if order.project_id:
             holding = PortfolioHolding.query.filter_by(
-                portfolio_id=portfolio.id,
-                project_id=order.project_id
+                portfolio_id=portfolio.id, project_id=order.project_id
             ).first()
-            
+
             if not holding or holding.available_quantity < order.quantity:
                 return False
         else:
             # Check total holdings for credit type
-            total_available = db.session.query(func.sum(PortfolioHolding.available_quantity)).filter(
-                PortfolioHolding.portfolio_id == portfolio.id,
-                PortfolioHolding.credit_type == order.credit_type
-            ).scalar() or 0
-            
+            total_available = (
+                db.session.query(func.sum(PortfolioHolding.available_quantity))
+                .filter(
+                    PortfolioHolding.portfolio_id == portfolio.id,
+                    PortfolioHolding.credit_type == order.credit_type,
+                )
+                .scalar()
+                or 0
+            )
+
             if total_available < order.quantity:
                 return False
-        
+
         return True
-    
+
     def _check_sufficient_buying_power(self, order: Order) -> bool:
         """Check if user has sufficient buying power for buy order"""
         # Get user's available cash balance
         user = User.query.get(order.user_id)
         if not user:
             return False
-        
+
         # Calculate required amount
         if order.order_type == OrderType.MARKET:
             # For market orders, estimate based on current market price
-            estimated_price = self._get_estimated_market_price(order.credit_type, order.vintage_year)
+            estimated_price = self._get_estimated_market_price(
+                order.credit_type, order.vintage_year
+            )
             required_amount = order.quantity * estimated_price
         else:
             required_amount = order.quantity * order.price
-        
+
         # Add estimated fees
         estimated_fees = self._calculate_estimated_fees(required_amount)
         total_required = required_amount + estimated_fees
-        
+
         # Check available buying power
         available_buying_power = self._get_available_buying_power(order.user_id)
-        
+
         return available_buying_power >= total_required
-    
-    def _get_estimated_market_price(self, credit_type: str, vintage_year: Optional[int] = None) -> Decimal:
+
+    def _get_estimated_market_price(
+        self, credit_type: str, vintage_year: Optional[int] = None
+    ) -> Decimal:
         """Get estimated market price for credit type"""
         # Get recent trades for price estimation
         query = db.session.query(func.avg(Trade.price)).filter(
             Trade.status == TradeStatus.SETTLED,
-            Trade.executed_at >= datetime.utcnow() - timedelta(days=7)
+            Trade.executed_at >= datetime.utcnow() - timedelta(days=7),
         )
-        
+
         if vintage_year:
             query = query.filter(Trade.vintage_year == vintage_year)
-        
+
         avg_price = query.scalar()
-        return Decimal(str(avg_price)) if avg_price else Decimal('50.00')  # Default fallback price
-    
+        return (
+            Decimal(str(avg_price)) if avg_price else Decimal("50.00")
+        )  # Default fallback price
+
     def _calculate_estimated_fees(self, amount: Decimal) -> Decimal:
         """Calculate estimated trading fees"""
         # Standard fee structure: 0.5% of trade value
-        fee_rate = Decimal('0.005')
+        fee_rate = Decimal("0.005")
         return amount * fee_rate
-    
+
     def _get_available_buying_power(self, user_id: int) -> Decimal:
         """Get user's available buying power"""
         # This would integrate with a wallet/payment service
         # For now, return a default amount
-        return Decimal('100000.00')  # $100,000 default buying power
-    
-    def _execute_trade(self, buy_order: Order, sell_order: Order, quantity: Decimal, price: Decimal) -> Trade:
+        return Decimal("100000.00")  # $100,000 default buying power
+
+    def _execute_trade(
+        self, buy_order: Order, sell_order: Order, quantity: Decimal, price: Decimal
+    ) -> Trade:
         """Execute a trade between two orders"""
         try:
             # Create trade record
@@ -193,354 +219,405 @@ class TradingService:
                 quantity=quantity,
                 price=price,
                 vintage_year=buy_order.vintage_year or sell_order.vintage_year,
-                project_id=buy_order.project_id or sell_order.project_id
+                project_id=buy_order.project_id or sell_order.project_id,
             )
-            
+
             # Calculate fees
             trade_value = quantity * price
-            trade.buyer_fee = self._calculate_trading_fee(trade_value, 'buyer')
-            trade.seller_fee = self._calculate_trading_fee(trade_value, 'seller')
+            trade.buyer_fee = self._calculate_trading_fee(trade_value, "buyer")
+            trade.seller_fee = self._calculate_trading_fee(trade_value, "seller")
             trade.platform_fee = self._calculate_platform_fee(trade_value)
-            
+
             db.session.add(trade)
-            
+
             # Update orders
             buy_order.fill(quantity, price, trade.id)
             sell_order.fill(quantity, price, trade.id)
-            
+
             # Update portfolios
-            self._update_portfolio_holdings(buy_order.user_id, sell_order.user_id, trade)
-            
+            self._update_portfolio_holdings(
+                buy_order.user_id, sell_order.user_id, trade
+            )
+
             # Mark trade as confirmed
             trade.status = TradeStatus.CONFIRMED
-            
+
             db.session.commit()
-            
+
             # Log trade execution
             self.audit_service.log_event(
-                event_type='trade_executed',
-                event_category='trading',
-                event_description=f'Trade executed: {trade.trade_id}',
+                event_type="trade_executed",
+                event_category="trading",
+                event_description=f"Trade executed: {trade.trade_id}",
                 metadata={
-                    'trade_id': trade.trade_id,
-                    'quantity': float(quantity),
-                    'price': float(price),
-                    'buyer_id': buy_order.user_id,
-                    'seller_id': sell_order.user_id
+                    "trade_id": trade.trade_id,
+                    "quantity": float(quantity),
+                    "price": float(price),
+                    "buyer_id": buy_order.user_id,
+                    "seller_id": sell_order.user_id,
                 },
-                success=True
+                success=True,
             )
-            
+
             # Initiate settlement
             self.settlement_engine.initiate_settlement(trade)
-            
+
             return trade
-            
+
         except Exception as e:
             db.session.rollback()
             logger.error(f"Failed to execute trade: {str(e)}")
             raise
-    
+
     def _calculate_trading_fee(self, trade_value: Decimal, side: str) -> Decimal:
         """Calculate trading fee based on trade value and side"""
         # Tiered fee structure
         if trade_value <= 10000:
-            fee_rate = Decimal('0.005')  # 0.5%
+            fee_rate = Decimal("0.005")  # 0.5%
         elif trade_value <= 100000:
-            fee_rate = Decimal('0.003')  # 0.3%
+            fee_rate = Decimal("0.003")  # 0.3%
         else:
-            fee_rate = Decimal('0.002')  # 0.2%
-        
+            fee_rate = Decimal("0.002")  # 0.2%
+
         return trade_value * fee_rate
-    
+
     def _calculate_platform_fee(self, trade_value: Decimal) -> Decimal:
         """Calculate platform fee"""
-        platform_fee_rate = Decimal('0.001')  # 0.1%
+        platform_fee_rate = Decimal("0.001")  # 0.1%
         return trade_value * platform_fee_rate
-    
+
     def _update_portfolio_holdings(self, buyer_id: int, seller_id: int, trade: Trade):
         """Update portfolio holdings after trade execution"""
         # Update buyer's portfolio
         buyer_portfolio = self._get_or_create_portfolio(buyer_id)
         buyer_holding = self._get_or_create_holding(buyer_portfolio.id, trade)
         buyer_holding.add_position(trade.quantity, trade.price)
-        
+
         # Update seller's portfolio
         seller_portfolio = self._get_or_create_portfolio(seller_id)
         seller_holding = self._get_or_create_holding(seller_portfolio.id, trade)
         seller_holding.reduce_position(trade.quantity, trade.price)
-    
+
     def _get_or_create_portfolio(self, user_id: int) -> Portfolio:
         """Get or create user's trading portfolio"""
         portfolio = Portfolio.query.filter_by(
-            user_id=user_id,
-            portfolio_type=PortfolioType.TRADING,
-            is_active=True
+            user_id=user_id, portfolio_type=PortfolioType.TRADING, is_active=True
         ).first()
-        
+
         if not portfolio:
             portfolio = Portfolio(
                 user_id=user_id,
                 name="Trading Portfolio",
-                portfolio_type=PortfolioType.TRADING
+                portfolio_type=PortfolioType.TRADING,
             )
             db.session.add(portfolio)
-        
+
         return portfolio
-    
-    def _get_or_create_holding(self, portfolio_id: int, trade: Trade) -> PortfolioHolding:
+
+    def _get_or_create_holding(
+        self, portfolio_id: int, trade: Trade
+    ) -> PortfolioHolding:
         """Get or create portfolio holding for trade"""
         holding = PortfolioHolding.query.filter_by(
             portfolio_id=portfolio_id,
             project_id=trade.project_id,
-            vintage_year=trade.vintage_year
+            vintage_year=trade.vintage_year,
         ).first()
-        
+
         if not holding:
             holding = PortfolioHolding(
                 portfolio_id=portfolio_id,
                 project_id=trade.project_id,
                 vintage_year=trade.vintage_year,
-                quantity=Decimal('0'),
-                average_cost=Decimal('0')
+                quantity=Decimal("0"),
+                average_cost=Decimal("0"),
             )
             db.session.add(holding)
-        
+
         return holding
-    
+
     def get_market_statistics(self) -> Dict[str, Any]:
         """Get comprehensive market statistics"""
         try:
             # Calculate statistics for the last 24 hours
             yesterday = datetime.utcnow() - timedelta(days=1)
-            
+
             # Total volume
-            total_volume = db.session.query(func.sum(Trade.quantity)).filter(
-                Trade.status == TradeStatus.SETTLED,
-                Trade.executed_at >= yesterday
-            ).scalar() or 0
-            
+            total_volume = (
+                db.session.query(func.sum(Trade.quantity))
+                .filter(
+                    Trade.status == TradeStatus.SETTLED, Trade.executed_at >= yesterday
+                )
+                .scalar()
+                or 0
+            )
+
             # Total value
-            total_value = db.session.query(func.sum(Trade.total_value)).filter(
-                Trade.status == TradeStatus.SETTLED,
-                Trade.executed_at >= yesterday
-            ).scalar() or 0
-            
+            total_value = (
+                db.session.query(func.sum(Trade.total_value))
+                .filter(
+                    Trade.status == TradeStatus.SETTLED, Trade.executed_at >= yesterday
+                )
+                .scalar()
+                or 0
+            )
+
             # Number of trades
-            trade_count = db.session.query(func.count(Trade.id)).filter(
-                Trade.status == TradeStatus.SETTLED,
-                Trade.executed_at >= yesterday
-            ).scalar() or 0
-            
+            trade_count = (
+                db.session.query(func.count(Trade.id))
+                .filter(
+                    Trade.status == TradeStatus.SETTLED, Trade.executed_at >= yesterday
+                )
+                .scalar()
+                or 0
+            )
+
             # Average price
-            avg_price = db.session.query(func.avg(Trade.price)).filter(
-                Trade.status == TradeStatus.SETTLED,
-                Trade.executed_at >= yesterday
-            ).scalar() or 0
-            
+            avg_price = (
+                db.session.query(func.avg(Trade.price))
+                .filter(
+                    Trade.status == TradeStatus.SETTLED, Trade.executed_at >= yesterday
+                )
+                .scalar()
+                or 0
+            )
+
             # Price range
-            price_stats = db.session.query(
-                func.min(Trade.price),
-                func.max(Trade.price)
-            ).filter(
-                Trade.status == TradeStatus.SETTLED,
-                Trade.executed_at >= yesterday
-            ).first()
-            
+            price_stats = (
+                db.session.query(func.min(Trade.price), func.max(Trade.price))
+                .filter(
+                    Trade.status == TradeStatus.SETTLED, Trade.executed_at >= yesterday
+                )
+                .first()
+            )
+
             min_price = price_stats[0] if price_stats[0] else 0
             max_price = price_stats[1] if price_stats[1] else 0
-            
+
             # Active orders
-            active_orders = db.session.query(func.count(Order.id)).filter(
-                Order.status.in_([OrderStatus.OPEN, OrderStatus.PARTIALLY_FILLED])
-            ).scalar() or 0
-            
+            active_orders = (
+                db.session.query(func.count(Order.id))
+                .filter(
+                    Order.status.in_([OrderStatus.OPEN, OrderStatus.PARTIALLY_FILLED])
+                )
+                .scalar()
+                or 0
+            )
+
             return {
-                'volume_24h': float(total_volume),
-                'value_24h': float(total_value),
-                'trades_24h': trade_count,
-                'avg_price_24h': float(avg_price),
-                'min_price_24h': float(min_price),
-                'max_price_24h': float(max_price),
-                'active_orders': active_orders,
-                'timestamp': datetime.utcnow().isoformat()
+                "volume_24h": float(total_volume),
+                "value_24h": float(total_value),
+                "trades_24h": trade_count,
+                "avg_price_24h": float(avg_price),
+                "min_price_24h": float(min_price),
+                "max_price_24h": float(max_price),
+                "active_orders": active_orders,
+                "timestamp": datetime.utcnow().isoformat(),
             }
-            
+
         except Exception as e:
             logger.error(f"Error calculating market statistics: {str(e)}")
             return {}
-    
+
     def get_order_book_summary(self) -> Dict[str, Any]:
         """Get order book summary"""
         try:
             # Get top 10 buy orders (highest price first)
-            buy_orders = db.session.query(Order).filter(
-                Order.status.in_([OrderStatus.OPEN, OrderStatus.PARTIALLY_FILLED]),
-                Order.side == OrderSide.BUY,
-                Order.order_type.in_([OrderType.LIMIT, OrderType.STOP_LIMIT])
-            ).order_by(desc(Order.price)).limit(10).all()
-            
+            buy_orders = (
+                db.session.query(Order)
+                .filter(
+                    Order.status.in_([OrderStatus.OPEN, OrderStatus.PARTIALLY_FILLED]),
+                    Order.side == OrderSide.BUY,
+                    Order.order_type.in_([OrderType.LIMIT, OrderType.STOP_LIMIT]),
+                )
+                .order_by(desc(Order.price))
+                .limit(10)
+                .all()
+            )
+
             # Get top 10 sell orders (lowest price first)
-            sell_orders = db.session.query(Order).filter(
-                Order.status.in_([OrderStatus.OPEN, OrderStatus.PARTIALLY_FILLED]),
-                Order.side == OrderSide.SELL,
-                Order.order_type.in_([OrderType.LIMIT, OrderType.STOP_LIMIT])
-            ).order_by(Order.price).limit(10).all()
-            
+            sell_orders = (
+                db.session.query(Order)
+                .filter(
+                    Order.status.in_([OrderStatus.OPEN, OrderStatus.PARTIALLY_FILLED]),
+                    Order.side == OrderSide.SELL,
+                    Order.order_type.in_([OrderType.LIMIT, OrderType.STOP_LIMIT]),
+                )
+                .order_by(Order.price)
+                .limit(10)
+                .all()
+            )
+
             # Format order book data
             bids = []
             for order in buy_orders:
-                bids.append({
-                    'price': float(order.price),
-                    'quantity': float(order.remaining_quantity),
-                    'total': float(order.remaining_quantity * order.price)
-                })
-            
+                bids.append(
+                    {
+                        "price": float(order.price),
+                        "quantity": float(order.remaining_quantity),
+                        "total": float(order.remaining_quantity * order.price),
+                    }
+                )
+
             asks = []
             for order in sell_orders:
-                asks.append({
-                    'price': float(order.price),
-                    'quantity': float(order.remaining_quantity),
-                    'total': float(order.remaining_quantity * order.price)
-                })
-            
+                asks.append(
+                    {
+                        "price": float(order.price),
+                        "quantity": float(order.remaining_quantity),
+                        "total": float(order.remaining_quantity * order.price),
+                    }
+                )
+
             # Calculate spread
             spread = None
             if bids and asks:
-                spread = asks[0]['price'] - bids[0]['price']
-            
+                spread = asks[0]["price"] - bids[0]["price"]
+
             return {
-                'bids': bids,
-                'asks': asks,
-                'spread': spread,
-                'timestamp': datetime.utcnow().isoformat()
+                "bids": bids,
+                "asks": asks,
+                "spread": spread,
+                "timestamp": datetime.utcnow().isoformat(),
             }
-            
+
         except Exception as e:
             logger.error(f"Error getting order book summary: {str(e)}")
-            return {'bids': [], 'asks': [], 'spread': None}
-    
-    def get_price_history(self, credit_type: Optional[str] = None, 
-                         vintage_year: Optional[int] = None, 
-                         period: str = '30d') -> List[Dict[str, Any]]:
+            return {"bids": [], "asks": [], "spread": None}
+
+    def get_price_history(
+        self,
+        credit_type: Optional[str] = None,
+        vintage_year: Optional[int] = None,
+        period: str = "30d",
+    ) -> List[Dict[str, Any]]:
         """Get price history for specified parameters"""
         try:
             # Calculate date range
-            period_days = {
-                '1d': 1,
-                '7d': 7,
-                '30d': 30,
-                '90d': 90,
-                '1y': 365
-            }
-            
+            period_days = {"1d": 1, "7d": 7, "30d": 30, "90d": 90, "1y": 365}
+
             days = period_days.get(period, 30)
             start_date = datetime.utcnow() - timedelta(days=days)
-            
+
             # Build query
             query = db.session.query(Trade).filter(
-                Trade.status == TradeStatus.SETTLED,
-                Trade.executed_at >= start_date
+                Trade.status == TradeStatus.SETTLED, Trade.executed_at >= start_date
             )
-            
+
             if vintage_year:
                 query = query.filter(Trade.vintage_year == vintage_year)
-            
+
             # Get trades ordered by execution time
             trades = query.order_by(Trade.executed_at).all()
-            
+
             # Group trades by time intervals
             price_history = []
             current_date = start_date.date()
             end_date = datetime.utcnow().date()
-            
+
             while current_date <= end_date:
                 day_trades = [t for t in trades if t.executed_at.date() == current_date]
-                
+
                 if day_trades:
                     prices = [float(t.price) for t in day_trades]
                     volumes = [float(t.quantity) for t in day_trades]
-                    
-                    price_history.append({
-                        'date': current_date.isoformat(),
-                        'open': prices[0],
-                        'high': max(prices),
-                        'low': min(prices),
-                        'close': prices[-1],
-                        'volume': sum(volumes),
-                        'trades': len(day_trades)
-                    })
-                
+
+                    price_history.append(
+                        {
+                            "date": current_date.isoformat(),
+                            "open": prices[0],
+                            "high": max(prices),
+                            "low": min(prices),
+                            "close": prices[-1],
+                            "volume": sum(volumes),
+                            "trades": len(day_trades),
+                        }
+                    )
+
                 current_date += timedelta(days=1)
-            
+
             return price_history
-            
+
         except Exception as e:
             logger.error(f"Error getting price history: {str(e)}")
             return []
-    
-    def calculate_diversification_score(self, holdings: List[PortfolioHolding]) -> float:
+
+    def calculate_diversification_score(
+        self, holdings: List[PortfolioHolding]
+    ) -> float:
         """Calculate portfolio diversification score"""
         if not holdings:
             return 0.0
-        
+
         # Calculate Herfindahl-Hirschman Index (HHI) for diversification
-        total_value = sum(h.quantity * (h.current_price or h.average_cost) for h in holdings)
-        
+        total_value = sum(
+            h.quantity * (h.current_price or h.average_cost) for h in holdings
+        )
+
         if total_value == 0:
             return 0.0
-        
+
         # Calculate concentration ratios
         concentrations = []
         for holding in holdings:
-            holding_value = holding.quantity * (holding.current_price or holding.average_cost)
+            holding_value = holding.quantity * (
+                holding.current_price or holding.average_cost
+            )
             concentration = holding_value / total_value
-            concentrations.append(concentration ** 2)
-        
+            concentrations.append(concentration**2)
+
         hhi = sum(concentrations)
-        
+
         # Convert HHI to diversification score (0-100, higher is more diversified)
         diversification_score = max(0, (1 - hhi) * 100)
-        
+
         return round(diversification_score, 2)
-    
-    def calculate_performance_metrics(self, user_id: int, portfolio_id: int) -> Dict[str, Any]:
+
+    def calculate_performance_metrics(
+        self, user_id: int, portfolio_id: int
+    ) -> Dict[str, Any]:
         """Calculate comprehensive performance metrics"""
         try:
             # Get portfolio
             portfolio = Portfolio.query.get(portfolio_id)
             if not portfolio or portfolio.user_id != user_id:
                 return {}
-            
+
             # Get user's trades for the last year
             one_year_ago = datetime.utcnow() - timedelta(days=365)
-            
-            user_trades = db.session.query(Trade).join(
-                Order, or_(
-                    and_(Trade.buy_order_id == Order.id, Order.user_id == user_id),
-                    and_(Trade.sell_order_id == Order.id, Order.user_id == user_id)
+
+            user_trades = (
+                db.session.query(Trade)
+                .join(
+                    Order,
+                    or_(
+                        and_(Trade.buy_order_id == Order.id, Order.user_id == user_id),
+                        and_(Trade.sell_order_id == Order.id, Order.user_id == user_id),
+                    ),
                 )
-            ).filter(
-                Trade.status == TradeStatus.SETTLED,
-                Trade.executed_at >= one_year_ago
-            ).all()
-            
+                .filter(
+                    Trade.status == TradeStatus.SETTLED,
+                    Trade.executed_at >= one_year_ago,
+                )
+                .all()
+            )
+
             if not user_trades:
                 return {
-                    'total_return': 0.0,
-                    'annualized_return': 0.0,
-                    'volatility': 0.0,
-                    'sharpe_ratio': 0.0,
-                    'max_drawdown': 0.0,
-                    'win_rate': 0.0,
-                    'profit_factor': 0.0
+                    "total_return": 0.0,
+                    "annualized_return": 0.0,
+                    "volatility": 0.0,
+                    "sharpe_ratio": 0.0,
+                    "max_drawdown": 0.0,
+                    "win_rate": 0.0,
+                    "profit_factor": 0.0,
                 }
-            
+
             # Calculate returns
             returns = []
-            total_invested = Decimal('0')
-            total_proceeds = Decimal('0')
-            
+            total_invested = Decimal("0")
+            total_proceeds = Decimal("0")
+
             for trade in user_trades:
                 if trade.buyer_id == user_id:
                     # Buy trade - negative return
@@ -548,42 +625,48 @@ class TradingService:
                 else:
                     # Sell trade - positive return
                     total_proceeds += trade.total_value - trade.seller_fee
-            
+
             # Calculate total return
             if total_invested > 0:
-                total_return = float((total_proceeds - total_invested) / total_invested * 100)
+                total_return = float(
+                    (total_proceeds - total_invested) / total_invested * 100
+                )
             else:
                 total_return = 0.0
-            
+
             # Calculate annualized return (simplified)
             days_active = (datetime.utcnow() - user_trades[0].executed_at).days
             if days_active > 0:
                 annualized_return = total_return * (365 / days_active)
             else:
                 annualized_return = 0.0
-            
+
             # Calculate win rate
             profitable_trades = 0
             total_trade_pairs = len(user_trades) // 2  # Assuming buy-sell pairs
-            
+
             # This is a simplified calculation - in reality, you'd track individual positions
             if total_return > 0:
                 profitable_trades = total_trade_pairs
-            
-            win_rate = (profitable_trades / total_trade_pairs * 100) if total_trade_pairs > 0 else 0.0
-            
+
+            win_rate = (
+                (profitable_trades / total_trade_pairs * 100)
+                if total_trade_pairs > 0
+                else 0.0
+            )
+
             return {
-                'total_return': round(total_return, 2),
-                'annualized_return': round(annualized_return, 2),
-                'volatility': 15.0,  # Placeholder - would calculate from daily returns
-                'sharpe_ratio': 1.2,  # Placeholder - would calculate from returns and risk-free rate
-                'max_drawdown': 5.0,  # Placeholder - would calculate from portfolio value history
-                'win_rate': round(win_rate, 2),
-                'profit_factor': 1.5,  # Placeholder - would calculate from profitable vs losing trades
-                'total_trades': len(user_trades),
-                'days_active': days_active
+                "total_return": round(total_return, 2),
+                "annualized_return": round(annualized_return, 2),
+                "volatility": 15.0,  # Placeholder - would calculate from daily returns
+                "sharpe_ratio": 1.2,  # Placeholder - would calculate from returns and risk-free rate
+                "max_drawdown": 5.0,  # Placeholder - would calculate from portfolio value history
+                "win_rate": round(win_rate, 2),
+                "profit_factor": 1.5,  # Placeholder - would calculate from profitable vs losing trades
+                "total_trades": len(user_trades),
+                "days_active": days_active,
             }
-            
+
         except Exception as e:
             logger.error(f"Error calculating performance metrics: {str(e)}")
             return {}
@@ -591,54 +674,60 @@ class TradingService:
 
 class MatchingEngine:
     """Order matching engine for carbon credit trading"""
-    
+
     def __init__(self):
-        self.order_book = {'buy': [], 'sell': []}
-    
+        self.order_book = {"buy": [], "sell": []}
+
     def match_order(self, order: Order) -> List[Dict[str, Any]]:
         """Match incoming order against existing orders"""
         matches = []
-        
+
         if order.order_type == OrderType.MARKET:
             matches = self._match_market_order(order)
         elif order.order_type == OrderType.LIMIT:
             matches = self._match_limit_order(order)
-        
+
         return matches
-    
+
     def _match_market_order(self, order: Order) -> List[Dict[str, Any]]:
         """Match market order against best available prices"""
         matches = []
         remaining_quantity = order.quantity
-        
+
         # Get opposite side orders sorted by best price
         if order.side == OrderSide.BUY:
             opposite_orders = self._get_sell_orders_by_price()
         else:
             opposite_orders = self._get_buy_orders_by_price()
-        
+
         for opposite_order in opposite_orders:
             if remaining_quantity <= 0:
                 break
-            
+
             match_quantity = min(remaining_quantity, opposite_order.remaining_quantity)
-            
-            matches.append({
-                'buy_order': order if order.side == OrderSide.BUY else opposite_order,
-                'sell_order': opposite_order if order.side == OrderSide.BUY else order,
-                'quantity': match_quantity,
-                'price': opposite_order.price
-            })
-            
+
+            matches.append(
+                {
+                    "buy_order": (
+                        order if order.side == OrderSide.BUY else opposite_order
+                    ),
+                    "sell_order": (
+                        opposite_order if order.side == OrderSide.BUY else order
+                    ),
+                    "quantity": match_quantity,
+                    "price": opposite_order.price,
+                }
+            )
+
             remaining_quantity -= match_quantity
-        
+
         return matches
-    
+
     def _match_limit_order(self, order: Order) -> List[Dict[str, Any]]:
         """Match limit order against compatible orders"""
         matches = []
         remaining_quantity = order.quantity
-        
+
         # Get opposite side orders that can match
         if order.side == OrderSide.BUY:
             # Buy order matches with sell orders at or below the limit price
@@ -646,59 +735,87 @@ class MatchingEngine:
         else:
             # Sell order matches with buy orders at or above the limit price
             opposite_orders = self._get_buy_orders_at_or_above(order.price)
-        
+
         for opposite_order in opposite_orders:
             if remaining_quantity <= 0:
                 break
-            
+
             match_quantity = min(remaining_quantity, opposite_order.remaining_quantity)
-            match_price = opposite_order.price  # Price improvement for the incoming order
-            
-            matches.append({
-                'buy_order': order if order.side == OrderSide.BUY else opposite_order,
-                'sell_order': opposite_order if order.side == OrderSide.BUY else order,
-                'quantity': match_quantity,
-                'price': match_price
-            })
-            
+            match_price = (
+                opposite_order.price
+            )  # Price improvement for the incoming order
+
+            matches.append(
+                {
+                    "buy_order": (
+                        order if order.side == OrderSide.BUY else opposite_order
+                    ),
+                    "sell_order": (
+                        opposite_order if order.side == OrderSide.BUY else order
+                    ),
+                    "quantity": match_quantity,
+                    "price": match_price,
+                }
+            )
+
             remaining_quantity -= match_quantity
-        
+
         return matches
-    
+
     def _get_sell_orders_by_price(self) -> List[Order]:
         """Get sell orders sorted by price (lowest first)"""
-        return db.session.query(Order).filter(
-            Order.status.in_([OrderStatus.OPEN, OrderStatus.PARTIALLY_FILLED]),
-            Order.side == OrderSide.SELL,
-            Order.remaining_quantity > 0
-        ).order_by(Order.price).all()
-    
+        return (
+            db.session.query(Order)
+            .filter(
+                Order.status.in_([OrderStatus.OPEN, OrderStatus.PARTIALLY_FILLED]),
+                Order.side == OrderSide.SELL,
+                Order.remaining_quantity > 0,
+            )
+            .order_by(Order.price)
+            .all()
+        )
+
     def _get_buy_orders_by_price(self) -> List[Order]:
         """Get buy orders sorted by price (highest first)"""
-        return db.session.query(Order).filter(
-            Order.status.in_([OrderStatus.OPEN, OrderStatus.PARTIALLY_FILLED]),
-            Order.side == OrderSide.BUY,
-            Order.remaining_quantity > 0
-        ).order_by(desc(Order.price)).all()
-    
+        return (
+            db.session.query(Order)
+            .filter(
+                Order.status.in_([OrderStatus.OPEN, OrderStatus.PARTIALLY_FILLED]),
+                Order.side == OrderSide.BUY,
+                Order.remaining_quantity > 0,
+            )
+            .order_by(desc(Order.price))
+            .all()
+        )
+
     def _get_sell_orders_at_or_below(self, price: Decimal) -> List[Order]:
         """Get sell orders at or below specified price"""
-        return db.session.query(Order).filter(
-            Order.status.in_([OrderStatus.OPEN, OrderStatus.PARTIALLY_FILLED]),
-            Order.side == OrderSide.SELL,
-            Order.price <= price,
-            Order.remaining_quantity > 0
-        ).order_by(Order.price).all()
-    
+        return (
+            db.session.query(Order)
+            .filter(
+                Order.status.in_([OrderStatus.OPEN, OrderStatus.PARTIALLY_FILLED]),
+                Order.side == OrderSide.SELL,
+                Order.price <= price,
+                Order.remaining_quantity > 0,
+            )
+            .order_by(Order.price)
+            .all()
+        )
+
     def _get_buy_orders_at_or_above(self, price: Decimal) -> List[Order]:
         """Get buy orders at or above specified price"""
-        return db.session.query(Order).filter(
-            Order.status.in_([OrderStatus.OPEN, OrderStatus.PARTIALLY_FILLED]),
-            Order.side == OrderSide.BUY,
-            Order.price >= price,
-            Order.remaining_quantity > 0
-        ).order_by(desc(Order.price)).all()
-    
+        return (
+            db.session.query(Order)
+            .filter(
+                Order.status.in_([OrderStatus.OPEN, OrderStatus.PARTIALLY_FILLED]),
+                Order.side == OrderSide.BUY,
+                Order.price >= price,
+                Order.remaining_quantity > 0,
+            )
+            .order_by(desc(Order.price))
+            .all()
+        )
+
     def remove_order(self, order: Order):
         """Remove order from matching engine"""
         # In a real implementation, this would remove the order from in-memory order book
@@ -707,10 +824,10 @@ class MatchingEngine:
 
 class SettlementEngine:
     """Settlement engine for trade settlement and clearing"""
-    
+
     def __init__(self):
         self.audit_service = AuditService()
-    
+
     def initiate_settlement(self, trade: Trade):
         """Initiate settlement process for a trade"""
         try:
@@ -719,28 +836,27 @@ class SettlementEngine:
             # 2. Transfer payment from buyer to seller
             # 3. Update blockchain records
             # 4. Generate settlement confirmations
-            
+
             # For now, mark as settled immediately
             trade.status = TradeStatus.SETTLED
             trade.settlement_date = datetime.utcnow()
             trade.settlement_reference = f"SETTLE-{trade.trade_id}"
-            
+
             # Log settlement
             self.audit_service.log_event(
-                event_type='trade_settled',
-                event_category='settlement',
-                event_description=f'Trade settled: {trade.trade_id}',
+                event_type="trade_settled",
+                event_category="settlement",
+                event_description=f"Trade settled: {trade.trade_id}",
                 metadata={
-                    'trade_id': trade.trade_id,
-                    'settlement_reference': trade.settlement_reference
+                    "trade_id": trade.trade_id,
+                    "settlement_reference": trade.settlement_reference,
                 },
-                success=True
+                success=True,
             )
-            
+
             logger.info(f"Trade {trade.trade_id} settled successfully")
-            
+
         except Exception as e:
             logger.error(f"Settlement failed for trade {trade.trade_id}: {str(e)}")
             trade.status = TradeStatus.FAILED
             raise
-

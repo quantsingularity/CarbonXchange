@@ -2,14 +2,17 @@
 Carbon Credit models for CarbonXchange Backend
 Implements comprehensive carbon credit and project management with enhanced trading features
 """
-from datetime import datetime, timezone, timedelta
-from enum import Enum
-from decimal import Decimal
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Column, Integer, String, DateTime, Boolean, Text, Numeric, ForeignKey, Enum as SQLEnum, JSON
-from sqlalchemy.orm import relationship
-from sqlalchemy.ext.hybrid import hybrid_property
 import uuid
+from datetime import datetime, timedelta, timezone
+from decimal import Decimal
+from enum import Enum
+
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import JSON, Boolean, Column, DateTime
+from sqlalchemy import Enum as SQLEnum
+from sqlalchemy import ForeignKey, Integer, Numeric, String, Text
+from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.orm import relationship
 
 db = SQLAlchemy()
 
