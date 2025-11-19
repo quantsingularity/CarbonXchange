@@ -9,8 +9,8 @@ import hmac
 import logging
 import secrets
 import time
-from datetime import datetime, timezone
-from typing import Any, Callable, List, Optional
+from datetime import datetime
+from typing import Callable, Optional
 
 from flask import current_app, g, jsonify, request
 from flask_jwt_extended import get_jwt, get_jwt_identity, verify_jwt_in_request
@@ -25,19 +25,13 @@ logger = logging.getLogger(__name__)
 class SecurityError(Exception):
     """Base security exception"""
 
-    pass
-
 
 class InsufficientPermissions(SecurityError):
     """Raised when user lacks required permissions"""
 
-    pass
-
 
 class RateLimitExceeded(SecurityError):
     """Raised when rate limit is exceeded"""
-
-    pass
 
 
 def require_roles(*roles: UserRole):

@@ -13,7 +13,6 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import JSON, Boolean, Column, DateTime
 from sqlalchemy import Enum as SQLEnum
 from sqlalchemy import ForeignKey, Integer, Numeric, String, Text
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
 from werkzeug.security import check_password_hash, generate_password_hash

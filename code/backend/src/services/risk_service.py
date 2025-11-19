@@ -7,20 +7,13 @@ import logging
 from datetime import datetime, timedelta
 from decimal import Decimal
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
 from sqlalchemy import and_, desc, func, or_
 
 from ..models import db
-from ..models.carbon_credit import CarbonProject, ProjectType
-from ..models.trading import (
-    Order,
-    OrderSide,
-    Portfolio,
-    PortfolioHolding,
-    Trade,
-    TradeStatus,
-)
+from ..models.trading import (Order, Portfolio, PortfolioHolding, Trade,
+                              TradeStatus)
 from ..models.user import RiskLevel, User
 from .audit_service import AuditService
 

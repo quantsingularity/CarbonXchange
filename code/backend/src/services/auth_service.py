@@ -7,16 +7,16 @@ import hashlib
 import logging
 import secrets
 from datetime import datetime, timedelta
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, Optional
 
 import pyotp
 import redis
 from flask import current_app, request
-from flask_jwt_extended import create_access_token, create_refresh_token, decode_token
-from werkzeug.security import generate_password_hash
+from flask_jwt_extended import (create_access_token, create_refresh_token,
+                                decode_token)
 
 from ..models import db
-from ..models.user import User, UserAuditLog, UserSession, UserStatus
+from ..models.user import User, UserSession, UserStatus
 from .audit_service import AuditService
 
 logger = logging.getLogger(__name__)
@@ -25,13 +25,9 @@ logger = logging.getLogger(__name__)
 class AuthenticationError(Exception):
     """Custom authentication error"""
 
-    pass
-
 
 class AuthorizationError(Exception):
     """Custom authorization error"""
-
-    pass
 
 
 class AuthService:

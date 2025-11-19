@@ -7,7 +7,7 @@ import functools
 import json
 import logging
 import time
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from decimal import Decimal
 from typing import Any, Callable, Dict, List, Optional
 
@@ -536,7 +536,6 @@ def handle_api_error(error: Exception) -> tuple:
 
 def paginate_query(query, page: int = 1, per_page: int = 20, max_per_page: int = 100):
     """Enhanced pagination with result wrapper"""
-    from sqlalchemy.orm import Query
 
     class PaginationResult:
         def __init__(self, items, page, per_page, total):

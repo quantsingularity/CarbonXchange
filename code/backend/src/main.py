@@ -17,20 +17,11 @@ from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
-
 # Import configuration
 from src.config import get_config
-
 # Import database and models
 from src.models import db, migrate
-from src.models.carbon_credit import CarbonCredit, CarbonProject, CreditCertificate
-from src.models.compliance import ComplianceRecord, RegulatoryReport
-from src.models.market import MarketData, PriceHistory
-from src.models.trading import Order, Portfolio, PortfolioHolding, Trade
-from src.models.transaction import AuditLog, Transaction, TransactionLog
-from src.models.user import User, UserKYC, UserProfile
 from src.routes.admin import admin_bp
-
 # Import routes
 from src.routes.auth import auth_bp
 from src.routes.carbon_credits import carbon_credits_bp
@@ -73,7 +64,7 @@ def create_app(config_name=None):
     )
 
     # Initialize JWT
-    jwt = JWTManager(app)
+    JWTManager(app)
 
     # Initialize rate limiting
     try:

@@ -13,12 +13,11 @@ import pandas as pd
 from scipy import stats
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import StandardScaler
-from sqlalchemy import and_, desc, func, or_
+from sqlalchemy import desc
 
 from ..models import db
 from ..models.carbon_credit import CarbonCredit, CarbonProject, ProjectType
-from ..models.market import MarketData, PriceHistory
-from ..models.trading import Order, Trade, TradeStatus
+from ..models.trading import Trade, TradeStatus
 from .audit_service import AuditService
 
 logger = logging.getLogger(__name__)

@@ -5,9 +5,9 @@ Tests all trading algorithms, risk management, and portfolio optimization featur
 
 import os
 import sys
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from decimal import Decimal
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import Mock, patch
 
 import numpy as np
 import pandas as pd
@@ -16,16 +16,11 @@ import pytest
 # Add the src directory to the path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
-from models.market import MarketData
-from models.trading import Order, OrderSide, OrderStatus, OrderType
+from models.trading import OrderSide, OrderType
 from models.user import User
-from services.advanced_trading_service import (
-    AdvancedTradingService,
-    ExecutionStrategy,
-    RiskMetrics,
-    TradingAlgorithm,
-    TradingSignal,
-)
+from services.advanced_trading_service import (AdvancedTradingService,
+                                               RiskMetrics, TradingAlgorithm,
+                                               TradingSignal)
 
 
 class TestAdvancedTradingService:
@@ -492,7 +487,6 @@ class TestRiskMetrics:
 def test_database():
     """Set up test database for integration tests"""
     # This would set up a test database in a real implementation
-    pass
 
 
 class TestTradingServiceIntegration:
@@ -503,13 +497,11 @@ class TestTradingServiceIntegration:
         """Test complete trading workflow from signal generation to execution"""
         # This would be a comprehensive integration test
         # involving real database operations and multiple components
-        pass
 
     @pytest.mark.integration
     def test_risk_management_integration(self, trading_service, mock_user):
         """Test integration between trading service and risk management"""
         # This would test the integration with risk management systems
-        pass
 
 
 if __name__ == "__main__":

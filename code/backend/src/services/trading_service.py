@@ -6,24 +6,14 @@ Implements comprehensive trading engine with financial industry standards
 import logging
 from datetime import datetime, timedelta
 from decimal import Decimal
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
 from sqlalchemy import and_, desc, func, or_
-from sqlalchemy.exc import IntegrityError
 
 from ..models import db
-from ..models.carbon_credit import CarbonCredit, CarbonProject, CreditStatus
-from ..models.trading import (
-    Order,
-    OrderSide,
-    OrderStatus,
-    OrderType,
-    Portfolio,
-    PortfolioHolding,
-    PortfolioType,
-    Trade,
-    TradeStatus,
-)
+from ..models.trading import (Order, OrderSide, OrderStatus, OrderType,
+                              Portfolio, PortfolioHolding, PortfolioType,
+                              Trade, TradeStatus)
 from ..models.user import User
 from .audit_service import AuditService
 
@@ -622,7 +612,6 @@ class TradingService:
                 }
 
             # Calculate returns
-            returns = []
             total_invested = Decimal("0")
             total_proceeds = Decimal("0")
 
@@ -827,7 +816,6 @@ class MatchingEngine:
     def remove_order(self, order: Order):
         """Remove order from matching engine"""
         # In a real implementation, this would remove the order from in-memory order book
-        pass
 
 
 class SettlementEngine:

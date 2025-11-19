@@ -6,25 +6,16 @@ Implements sophisticated trading algorithms and risk management for financial ma
 import logging
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
-from decimal import ROUND_HALF_UP, Decimal
+from decimal import Decimal
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
-from flask import current_app
 from src.models import db
 from src.models.carbon_credit import CarbonCredit
 from src.models.market import MarketData, PriceHistory
-from src.models.trading import (
-    Order,
-    OrderSide,
-    OrderStatus,
-    OrderType,
-    Portfolio,
-    Trade,
-)
-from src.models.user import User
+from src.models.trading import Order, OrderSide, OrderType, Portfolio
 from src.services.pricing_service import PricingService
 from src.services.risk_service import RiskService
 
@@ -550,7 +541,7 @@ class AdvancedTradingService:
                 "aggressive": {"max_volatility": 0.25, "min_return": 0.12},
             }
 
-            params = risk_params.get(risk_tolerance, risk_params["moderate"])
+            risk_params.get(risk_tolerance, risk_params["moderate"])
 
             # Simple equal-weight optimization (placeholder for more sophisticated methods)
             num_assets = len(returns_data)

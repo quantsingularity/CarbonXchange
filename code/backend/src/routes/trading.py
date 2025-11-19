@@ -4,26 +4,16 @@ Implements comprehensive trading functionality with financial industry standards
 """
 
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime
 from decimal import Decimal, InvalidOperation
 
-from flask import Blueprint, current_app, jsonify, request
+from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from sqlalchemy import and_, asc, desc, or_
-from sqlalchemy.exc import IntegrityError
 
 from ..models import db
-from ..models.carbon_credit import CarbonCredit, CarbonProject, CreditStatus
-from ..models.trading import (
-    Order,
-    OrderSide,
-    OrderStatus,
-    OrderType,
-    Portfolio,
-    PortfolioHolding,
-    Trade,
-    TradeStatus,
-)
+from ..models.trading import (Order, OrderSide, OrderStatus, OrderType,
+                              Portfolio, PortfolioHolding, Trade, TradeStatus)
 from ..models.user import User
 from ..services.audit_service import AuditService
 from ..services.compliance_service import ComplianceService

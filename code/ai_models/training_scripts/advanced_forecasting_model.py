@@ -7,11 +7,10 @@ and market analysis with financial industry standards
 import json
 import logging
 import os
-import sys
 import warnings
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Dict, List, Tuple
 
 import joblib
 import numpy as np
@@ -21,24 +20,19 @@ import pandas as pd
 warnings.filterwarnings("ignore")
 
 # Machine Learning Libraries
-from sklearn.ensemble import (
-    GradientBoostingRegressor,
-    RandomForestRegressor,
-    VotingRegressor,
-)
-from sklearn.feature_selection import RFE, SelectKBest, f_regression
-from sklearn.linear_model import ElasticNet, Lasso, LinearRegression, Ridge
+from sklearn.ensemble import (GradientBoostingRegressor, RandomForestRegressor,
+                              VotingRegressor)
+from sklearn.feature_selection import SelectKBest, f_regression
+from sklearn.linear_model import ElasticNet
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
-from sklearn.model_selection import GridSearchCV, TimeSeriesSplit, cross_val_score
+from sklearn.model_selection import TimeSeriesSplit, cross_val_score
 from sklearn.neural_network import MLPRegressor
-from sklearn.preprocessing import MinMaxScaler, RobustScaler, StandardScaler
+from sklearn.preprocessing import RobustScaler
 from sklearn.svm import SVR
 
 # Time Series Libraries
 try:
-    from statsmodels.tsa.arima.model import ARIMA
-    from statsmodels.tsa.seasonal import seasonal_decompose
-    from statsmodels.tsa.stattools import adfuller
+    pass
 
     STATSMODELS_AVAILABLE = True
 except ImportError:
@@ -47,11 +41,7 @@ except ImportError:
 
 # Deep Learning (optional)
 try:
-    import tensorflow as tf
-    from tensorflow.keras.callbacks import EarlyStopping, ReduceLROnPlateau
-    from tensorflow.keras.layers import LSTM, BatchNormalization, Dense, Dropout
-    from tensorflow.keras.models import Sequential
-    from tensorflow.keras.optimizers import Adam
+    pass
 
     TENSORFLOW_AVAILABLE = True
 except ImportError:

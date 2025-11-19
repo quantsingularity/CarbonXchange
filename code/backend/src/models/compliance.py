@@ -6,7 +6,6 @@ Implements comprehensive compliance tracking and regulatory reporting
 import json
 import uuid
 from datetime import datetime, timezone
-from decimal import Decimal
 from enum import Enum
 
 from flask_sqlalchemy import SQLAlchemy

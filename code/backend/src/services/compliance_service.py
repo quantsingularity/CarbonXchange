@@ -7,14 +7,13 @@ import logging
 from datetime import datetime, timedelta
 from decimal import Decimal
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
 from sqlalchemy import and_, desc, func, or_
 
 from ..models import db
-from ..models.carbon_credit import CarbonCredit, CarbonProject, CreditStatus
-from ..models.trading import Order, OrderSide, Portfolio, Trade, TradeStatus
-from ..models.user import KYCStatus, User, UserStatus
+from ..models.trading import Order, Trade, TradeStatus
+from ..models.user import User, UserStatus
 from .audit_service import AuditService
 
 logger = logging.getLogger(__name__)

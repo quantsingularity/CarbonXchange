@@ -5,18 +5,15 @@ Implements sophisticated portfolio management, optimization, and analytics
 
 import logging
 from datetime import datetime, timedelta
-from decimal import ROUND_HALF_UP, Decimal
-from typing import Any, Dict, List, Optional, Tuple
+from decimal import Decimal
+from typing import Any, Dict, List, Optional
 
 import numpy as np
 import pandas as pd
-from scipy import stats
 from scipy.optimize import minimize
-from sqlalchemy import and_, desc, func, or_
 
 from ..models import db
-from ..models.carbon_credit import CarbonCredit, CarbonProject
-from ..models.trading import Order, Portfolio, PortfolioHolding, Trade, TradeStatus
+from ..models.trading import Portfolio, PortfolioHolding
 from ..models.user import User
 from .audit_service import AuditService
 from .pricing_service import PricingService

@@ -5,21 +5,13 @@ Tests all trading functionality with financial industry standards
 
 from datetime import datetime, timedelta
 from decimal import Decimal
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import patch
 
 import pytest
-from src.models.carbon_credit import CarbonProject, ProjectType
-from src.models.trading import (
-    Order,
-    OrderSide,
-    OrderStatus,
-    OrderType,
-    Trade,
-    TradeStatus,
-)
-from src.models.user import RiskLevel, User
+from src.models.trading import Order, OrderSide, OrderStatus, OrderType, Trade
+from src.models.user import User
 from src.services.trading_service import TradingService
-from tests.conftest import assert_datetime_close, assert_decimal_equal
+from tests.conftest import assert_decimal_equal
 
 
 class TestTradingService:
@@ -320,8 +312,8 @@ class TestTradingService:
             "vintage_year": 2023,
         }
 
-        buy_result = trading_service.create_order(sample_user.id, buy_order_data)
-        sell_result = trading_service.create_order(sample_user.id, sell_order_data)
+        trading_service.create_order(sample_user.id, buy_order_data)
+        trading_service.create_order(sample_user.id, sell_order_data)
 
         # Test filtering by side
         result = trading_service.get_user_orders(
@@ -660,7 +652,6 @@ class TestTradingService:
     ):
         """Test concurrent order creation handling"""
         import threading
-        import time
 
         results = []
         errors = []

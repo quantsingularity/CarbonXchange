@@ -5,21 +5,14 @@ Implements secure authentication with JWT, MFA, and audit logging
 
 import logging
 import re
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 
-from flask import Blueprint, current_app, jsonify, request
-from flask_jwt_extended import (
-    create_access_token,
-    create_refresh_token,
-    get_jwt,
-    get_jwt_identity,
-    jwt_required,
-    verify_jwt_in_request,
-)
+from flask import Blueprint, jsonify, request
+from flask_jwt_extended import (create_access_token, create_refresh_token,
+                                get_jwt_identity, jwt_required)
 from src.models import db
 from src.models.transaction import AuditAction, AuditLog
 from src.models.user import User, UserKYC, UserProfile, UserRole, UserStatus
-from werkzeug.security import check_password_hash
 
 logger = logging.getLogger(__name__)
 auth_bp = Blueprint("auth", __name__)

@@ -5,13 +5,12 @@ Implements comprehensive market data tracking and price analytics
 
 import uuid
 from datetime import datetime, timezone
-from decimal import Decimal
 from enum import Enum
 
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Boolean, Column, DateTime
+from sqlalchemy import Column, DateTime
 from sqlalchemy import Enum as SQLEnum
-from sqlalchemy import ForeignKey, Index, Integer, Numeric, String, Text
+from sqlalchemy import ForeignKey, Index, Integer, Numeric, String
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
 
