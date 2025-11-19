@@ -36,4 +36,3 @@ describe('MarketAnalysis Page', () => {
     // Add more tests if the page itself has specific logic, data fetching,
     // or interacts with route parameters, etc.
 });
-

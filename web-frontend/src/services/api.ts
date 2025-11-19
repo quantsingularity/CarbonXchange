@@ -22,20 +22,20 @@ export const connectSocket = (): Socket => {
       reconnectionAttempts: 5,
       reconnectionDelay: 1000,
     });
-    
+
     socket.on('connect', () => {
       console.log('Socket connected');
     });
-    
+
     socket.on('disconnect', () => {
       console.log('Socket disconnected');
     });
-    
+
     socket.on('error', (error: any) => {
       console.error('Socket error:', error);
     });
   }
-  
+
   return socket;
 };
 
@@ -51,10 +51,10 @@ export const disconnectSocket = () => {
 export const subscribeToMarketData = (callback: (data: any) => void) => {
   const socket = connectSocket();
   socket.on('market_data_update', callback);
-  
+
   // Request initial data
   socket.emit('subscribe_market_data');
-  
+
   return () => {
     socket.off('market_data_update', callback);
     socket.emit('unsubscribe_market_data');
@@ -65,10 +65,10 @@ export const subscribeToMarketData = (callback: (data: any) => void) => {
 export const subscribeToVolumeData = (callback: (data: any) => void) => {
   const socket = connectSocket();
   socket.on('volume_data_update', callback);
-  
+
   // Request initial data
   socket.emit('subscribe_volume_data');
-  
+
   return () => {
     socket.off('volume_data_update', callback);
     socket.emit('unsubscribe_volume_data');
@@ -99,8 +99,8 @@ export const getMarketForecast = async (params = {}) => {
 // Historical data API calls
 export const getHistoricalPriceData = async (timeframe: string) => {
   try {
-    const response = await apiClient.get('/market/historical/price', { 
-      params: { timeframe } 
+    const response = await apiClient.get('/market/historical/price', {
+      params: { timeframe }
     });
     return response.data;
   } catch (error) {
@@ -111,8 +111,8 @@ export const getHistoricalPriceData = async (timeframe: string) => {
 
 export const getHistoricalVolumeData = async (timeframe: string) => {
   try {
-    const response = await apiClient.get('/market/historical/volume', { 
-      params: { timeframe } 
+    const response = await apiClient.get('/market/historical/volume', {
+      params: { timeframe }
     });
     return response.data;
   } catch (error) {
@@ -141,7 +141,7 @@ export const getMockHistoricalData = (timeframe: string, dataType: 'price' | 'vo
   const points = [];
   let interval: number;
   let count: number;
-  
+
   // Set interval and count based on timeframe
   switch(timeframe) {
     case '1h':
@@ -164,25 +164,25 @@ export const getMockHistoricalData = (timeframe: string, dataType: 'price' | 'vo
       interval = 15 * 60 * 1000;
       count = 96;
   }
-  
+
   // Base price and volume with some randomness
   let basePrice = 25;
   let baseVolume = 2500;
-  
+
   // Generate data points
   for (let i = count - 1; i >= 0; i--) {
     const timestamp = now - (i * interval);
-    
+
     // Add some realistic price movements
     const priceChange = (Math.random() - 0.48) * 0.5;
     basePrice = Math.max(basePrice + priceChange, 10);
-    
+
     // Volume tends to be higher when price changes more dramatically
     const volumeMultiplier = 1 + Math.abs(priceChange) * 5;
     // Add some randomness to volume
     const volumeNoise = Math.random() * 0.4 + 0.8; // 0.8 to 1.2
     const volume = Math.floor(baseVolume * volumeMultiplier * volumeNoise);
-    
+
     // Add time-of-day patterns for volume (higher during market hours)
     const hour = new Date(timestamp).getHours();
     let timeOfDayFactor = 1;
@@ -191,14 +191,14 @@ export const getMockHistoricalData = (timeframe: string, dataType: 'price' | 'vo
     } else if (hour < 6 || hour > 20) { // Night hours
       timeOfDayFactor = 0.6;
     }
-    
+
     points.push({
       timestamp,
       price: parseFloat(basePrice.toFixed(2)),
       volume: Math.floor(volume * timeOfDayFactor)
     });
   }
-  
+
   return {
     success: true,
     data: {
@@ -213,20 +213,20 @@ export const getMockHistoricalData = (timeframe: string, dataType: 'price' | 'vo
 export class MockSocket {
   private callbacks: Record<string, Array<(data: any) => void>> = {};
   private intervalIds: Record<string, NodeJS.Timeout> = {};
-  
+
   on(event: string, callback: (data: any) => void) {
     if (!this.callbacks[event]) {
       this.callbacks[event] = [];
     }
     this.callbacks[event].push(callback);
   }
-  
+
   off(event: string, callback: (data: any) => void) {
     if (this.callbacks[event]) {
       this.callbacks[event] = this.callbacks[event].filter(cb => cb !== callback);
     }
   }
-  
+
   emit(event: string) {
     if (event === 'subscribe_market_data') {
       // Start sending mock market data updates
@@ -234,40 +234,40 @@ export class MockSocket {
         const lastPrice = 25 + Math.random() * 5;
         const priceChange = (Math.random() - 0.48) * 0.2;
         const newPrice = Math.max(lastPrice + priceChange, 10);
-        
+
         const update = {
           timestamp: Date.now(),
           price: parseFloat(newPrice.toFixed(2)),
           change: parseFloat(priceChange.toFixed(2))
         };
-        
+
         this.trigger('market_data_update', update);
       }, 5000);
     }
-    
+
     if (event === 'subscribe_volume_data') {
       // Start sending mock volume data updates
       this.intervalIds['volume_data'] = setInterval(() => {
         const baseVolume = 2500;
         const volumeNoise = Math.random() * 0.4 + 0.8;
         const volume = Math.floor(baseVolume * volumeNoise);
-        
+
         const update = {
           timestamp: Date.now(),
           volume: volume
         };
-        
+
         this.trigger('volume_data_update', update);
       }, 5000);
     }
-    
+
     if (event === 'unsubscribe_market_data') {
       if (this.intervalIds['market_data']) {
         clearInterval(this.intervalIds['market_data']);
         delete this.intervalIds['market_data'];
       }
     }
-    
+
     if (event === 'unsubscribe_volume_data') {
       if (this.intervalIds['volume_data']) {
         clearInterval(this.intervalIds['volume_data']);
@@ -275,13 +275,13 @@ export class MockSocket {
       }
     }
   }
-  
+
   trigger(event: string, data: any) {
     if (this.callbacks[event]) {
       this.callbacks[event].forEach(callback => callback(data));
     }
   }
-  
+
   disconnect() {
     // Clear all intervals
     Object.values(this.intervalIds).forEach(intervalId => clearInterval(intervalId));
@@ -312,6 +312,6 @@ export const getSocket = (): Socket | MockSocket => {
 
 // Export a function to determine if we're using mock data
 export const isUsingMockData = (): boolean => {
-  return process.env.REACT_APP_USE_MOCK_SOCKET === 'true' || 
+  return process.env.REACT_APP_USE_MOCK_SOCKET === 'true' ||
          process.env.NODE_ENV === 'development';
 };

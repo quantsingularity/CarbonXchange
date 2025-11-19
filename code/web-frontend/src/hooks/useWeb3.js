@@ -16,10 +16,10 @@ export const Web3Provider = ({ children }) => {
         const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
         setAccount(accounts[0]);
         setIsConnected(true);
-        
+
         // For demo purposes, set a sample balance
         setBalance(250);
-        
+
         return true;
       } catch (error) {
         console.error("Error connecting to wallet:", error);

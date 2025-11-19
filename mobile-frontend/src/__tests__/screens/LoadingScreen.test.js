@@ -27,11 +27,10 @@ describe("LoadingScreen", () => {
     // If LoadingScreen shows text like "Loading...", you can check for that.
     // For example, if it has a Text component: expect(queryByText("Loading...")).toBeTruthy();
     // As a placeholder, since the actual content of LoadingScreen is not known:
-    expect(true).toBe(true); 
+    expect(true).toBe(true);
   });
 
   // Add more tests if LoadingScreen has logic based on Redux state changes
   // For example, if it tries to check auth status and navigate.
   // This would require mocking navigation and potentially API calls if it dispatches actions.
 });
-

@@ -17,7 +17,7 @@ const mockNavigation = { navigate: jest.fn() };
 jest.mock("../../../services/api", () => ({
   getWalletBalance: jest.fn(),
   // Assuming there might be an API to get transaction history for the wallet
-  getWalletTransactions: jest.fn(), 
+  getWalletTransactions: jest.fn(),
 }));
 
 describe("WalletScreen", () => {
@@ -98,7 +98,7 @@ describe("WalletScreen", () => {
     api.getWalletTransactions.mockResolvedValue({ success: true, transactions: [] });
     const { findByText } = renderComponent();
     // Assuming a button with this text exists
-    const depositButton = await findByText("Deposit Funds"); 
+    const depositButton = await findByText("Deposit Funds");
     fireEvent.press(depositButton);
     // expect(mockNavigation.navigate).toHaveBeenCalledWith("DepositScreen"); // Or relevant screen name
     expect(true).toBe(true); // Placeholder if navigation target is unknown
@@ -109,7 +109,7 @@ describe("WalletScreen", () => {
     api.getWalletTransactions.mockResolvedValue({ success: true, transactions: [] });
     const { findByText } = renderComponent();
     // Assuming a button with this text exists
-    const withdrawButton = await findByText("Withdraw Funds"); 
+    const withdrawButton = await findByText("Withdraw Funds");
     fireEvent.press(withdrawButton);
     // expect(mockNavigation.navigate).toHaveBeenCalledWith("WithdrawScreen"); // Or relevant screen name
     expect(true).toBe(true); // Placeholder if navigation target is unknown
@@ -117,4 +117,3 @@ describe("WalletScreen", () => {
 
   // Add test for pull-to-refresh functionality if implemented for balance and transactions
 });
-

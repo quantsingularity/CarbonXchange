@@ -16,8 +16,7 @@ from sqlalchemy import and_, desc, func, or_
 
 from ..models import db
 from ..models.carbon_credit import CarbonCredit, CarbonProject
-from ..models.trading import (Order, Portfolio, PortfolioHolding, Trade,
-                              TradeStatus)
+from ..models.trading import Order, Portfolio, PortfolioHolding, Trade, TradeStatus
 from ..models.user import User
 from .audit_service import AuditService
 from .pricing_service import PricingService

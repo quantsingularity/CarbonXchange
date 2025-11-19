@@ -10,17 +10,17 @@ const Dashboard: React.FC = () => {
     <div className="container mx-auto p-4">
       <div className="flex flex-col space-y-4">
         <h1 className="text-3xl font-bold text-primary">CarbonXchange Dashboard</h1>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <MarketStats />
         </div>
-        
+
         <Tabs defaultValue="price" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="price">Carbon Credit Price</TabsTrigger>
             <TabsTrigger value="volume">Trading Volume</TabsTrigger>
           </TabsList>
-          
+
           <TabsContent value="price">
             <Card>
               <CardHeader>
@@ -36,7 +36,7 @@ const Dashboard: React.FC = () => {
               </CardContent>
             </Card>
           </TabsContent>
-          
+
           <TabsContent value="volume">
             <Card>
               <CardHeader>

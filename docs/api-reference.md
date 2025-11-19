@@ -229,4 +229,4 @@ const client = new CarbonXchange({
   apiKey: 'your_api_key',
   environment: 'production'
 });
-``` 
+```

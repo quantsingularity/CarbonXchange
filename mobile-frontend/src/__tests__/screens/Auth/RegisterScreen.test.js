@@ -123,7 +123,7 @@ describe("RegisterScreen", () => {
     const { queryByText, getByTestId } = renderComponent(loadingStore);
     expect(queryByText("Register")).toBeNull(); // Assuming button is hidden
     // Add testID="loading-indicator" to ActivityIndicator in RegisterScreen.js for this to work
-    // expect(getByTestId("loading-indicator")).toBeTruthy(); 
+    // expect(getByTestId("loading-indicator")).toBeTruthy();
   });
 
   it("displays error message if registration fails and resets error", async () => {
@@ -158,4 +158,3 @@ describe("RegisterScreen", () => {
     expect(authSlice.registerUser).toHaveBeenCalledWith({ username: "newuser", email: "new@example.com", password: "newpass123" });
   });
 });
-

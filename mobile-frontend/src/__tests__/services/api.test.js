@@ -11,7 +11,7 @@ jest.mock(
 // __mocks__/axios.js will be used automatically by Jest since we are importing "axios"
 // and there is no explicit jest.mock("axios", ...) in this file anymore.
 
-// Import the SUT (System Under Test). 
+// Import the SUT (System Under Test).
 // IMPORTANT: This must come AFTER jest.mock for SecureStore and implicitly after __mocks__/axios.js is set to be used.
 import {
   login,
@@ -25,12 +25,12 @@ import {
   getMarketStats,
   getMarketForecast,
   getWalletBalance
-} from "../../services/api"; 
+} from "../../services/api";
 
 // Import the mocked SecureStore to allow clearing/resetting its functions
-import * as SecureStore from "expo-secure-store"; 
+import * as SecureStore from "expo-secure-store";
 // Import the mocked axios to get references to the mock functions from __mocks__/axios.js
-import axios from "axios"; 
+import axios from "axios";
 
 describe("Mobile API Service", () => {
   // Get references to the mock functions from the auto-mocked axios instance.
@@ -46,11 +46,11 @@ describe("Mobile API Service", () => {
     // Clear/reset all mock functions before each test
     mockPost.mockClear().mockReset();
     mockGet.mockClear().mockReset();
-    
+
     // Reset mockRequestUse to its default successful behavior from __mocks__/axios.js
     // The implementation in __mocks__/axios.js is: (successCb, errorCb) => { if (successCb) return Promise.resolve(successCb({ headers: {} })); return Promise.resolve({ headers: {} }); }
     mockRequestUse.mockClear().mockImplementation((successCb, errorCb) => {
-        if (successCb) return Promise.resolve(successCb({ headers: {} })); 
+        if (successCb) return Promise.resolve(successCb({ headers: {} }));
         return Promise.resolve({ headers: {} });
     });
     mockResponseUse.mockClear(); // If you start using response interceptors
@@ -113,7 +113,7 @@ describe("Mobile API Service", () => {
   describe("Carbon Credits API", () => {
     it("getCredits should call API and return data", async () => {
       const mockCreditsData = [{ id: "1", name: "Credit A" }];
-      const mockResponse = { data: { success: true, credits: mockCreditsData } }; 
+      const mockResponse = { data: { success: true, credits: mockCreditsData } };
       mockGet.mockResolvedValue(mockResponse);
       SecureStore.getItemAsync.mockResolvedValue("some-token");
 
@@ -128,7 +128,7 @@ describe("Mobile API Service", () => {
     it("getCreditById should call API with ID and return data", async () => {
       const creditId = "123";
       const mockCreditData = { id: creditId, name: "Specific Credit" };
-      const mockResponse = { data: { success: true, credit: mockCreditData } }; 
+      const mockResponse = { data: { success: true, credit: mockCreditData } };
       mockGet.mockResolvedValue(mockResponse);
       SecureStore.getItemAsync.mockResolvedValue("some-token");
 
@@ -141,7 +141,7 @@ describe("Mobile API Service", () => {
     it("createCredit should call API with credit data and return response", async () => {
       const creditData = { name: "New Credit", tons: 100 };
       const mockResponseData = { ...creditData, id: "newId" };
-      const mockResponse = { data: { success: true, credit: mockResponseData } }; 
+      const mockResponse = { data: { success: true, credit: mockResponseData } };
       mockPost.mockResolvedValue(mockResponse);
       SecureStore.getItemAsync.mockResolvedValue("some-token");
 
@@ -224,7 +224,7 @@ describe("Mobile API Service", () => {
       const mockError = { response: { data: { success: false, message: "API Error" } } };
       if (method === "post") mockPost.mockRejectedValue(mockError);
       else mockGet.mockRejectedValue(mockError);
-      
+
       if (requiresAuth) {
         SecureStore.getItemAsync.mockResolvedValue("some-token");
       }
@@ -246,4 +246,3 @@ describe("Mobile API Service", () => {
   testApiFunctionError(getMarketForecast, "getMarketForecast");
   testApiFunctionError(getWalletBalance, "getWalletBalance");
 });
-

@@ -95,4 +95,3 @@ describe("TradeHistoryScreen", () => {
 
   // Add test for pull-to-refresh functionality if implemented
 });
-

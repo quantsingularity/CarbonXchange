@@ -231,4 +231,4 @@ The smart contracts have been audited by:
 3. **Deployment Process**
    - Multi-sig requirement for upgrades
    - Timelock for critical changes
-   - Testing on testnet first 
+   - Testing on testnet first

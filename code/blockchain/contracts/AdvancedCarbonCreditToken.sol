@@ -22,12 +22,12 @@ import "@openzeppelin/contracts/utils/Counters.sol";
  * - Risk management
  * - Regulatory reporting
  */
-contract AdvancedCarbonCreditToken is 
-    ERC20, 
-    ERC20Burnable, 
-    ERC20Pausable, 
-    AccessControl, 
-    ReentrancyGuard 
+contract AdvancedCarbonCreditToken is
+    ERC20,
+    ERC20Burnable,
+    ERC20Pausable,
+    AccessControl,
+    ReentrancyGuard
 {
     using SafeMath for uint256;
     using Counters for Counters.Counter;
@@ -122,7 +122,7 @@ contract AdvancedCarbonCreditToken is
     // Project and batch mappings
     mapping(address => uint256[]) public userBatches;
     mapping(uint256 => uint256[]) public projectBatches;
-    
+
     // Vintage year tracking
     mapping(uint256 => uint256) public vintageYearSupply;
     mapping(address => mapping(uint256 => uint256)) public userVintageBalance;
@@ -131,16 +131,16 @@ contract AdvancedCarbonCreditToken is
     uint256 public maxDailyTransactionAmount = 100000 * 10**decimals(); // 100k tokens
     uint256 public maxDailyTransactionCount = 50;
     uint256 public maxSingleTransactionAmount = 10000 * 10**decimals(); // 10k tokens
-    
+
     // Compliance parameters
     uint256 public complianceCheckInterval = 30 days;
     uint256 public riskAssessmentInterval = 90 days;
-    
+
     // Fee structure
     uint256 public transferFeeRate = 10; // 0.1% (10/10000)
     uint256 public retirementFeeRate = 5; // 0.05% (5/10000)
     address public feeRecipient;
-    
+
     // Events
     event ProjectRegistered(uint256 indexed projectId, string name, address developer);
     event ProjectVerified(uint256 indexed projectId, address verifier);
@@ -166,13 +166,13 @@ contract AdvancedCarbonCreditToken is
 
     modifier withinTransactionLimits(address user, uint256 amount) {
         require(amount <= maxSingleTransactionAmount, "Single transaction limit exceeded");
-        
+
         // Reset daily counters if new day
         if (block.timestamp - lastTransactionTime[user] >= 1 days) {
             dailyTransactionVolume[user] = 0;
             dailyTransactionCount[user] = 0;
         }
-        
+
         require(
             dailyTransactionVolume[user].add(amount) <= maxDailyTransactionAmount,
             "Daily transaction volume limit exceeded"
@@ -201,9 +201,9 @@ contract AdvancedCarbonCreditToken is
         _grantRole(MINTER_ROLE, admin);
         _grantRole(PAUSER_ROLE, admin);
         _grantRole(COMPLIANCE_ROLE, admin);
-        
+
         feeRecipient = feeRecipient_;
-        
+
         // Initialize counters
         _projectIdCounter.increment(); // Start from 1
         _batchIdCounter.increment();
@@ -299,9 +299,9 @@ contract AdvancedCarbonCreditToken is
 
         // Update project issued credits
         projects[projectId].issuedCredits = projects[projectId].issuedCredits.add(amount);
-        
+
         // Update vintage year supply
-        vintageYearSupply[projects[projectId].vintageYear] = 
+        vintageYearSupply[projects[projectId].vintageYear] =
             vintageYearSupply[projects[projectId].vintageYear].add(amount);
 
         // Add to project batches
@@ -309,9 +309,9 @@ contract AdvancedCarbonCreditToken is
 
         // Mint tokens to project developer
         _mint(projects[projectId].developer, amount);
-        
+
         // Update user vintage balance
-        userVintageBalance[projects[projectId].developer][projects[projectId].vintageYear] = 
+        userVintageBalance[projects[projectId].developer][projects[projectId].vintageYear] =
             userVintageBalance[projects[projectId].developer][projects[projectId].vintageYear].add(amount);
 
         emit BatchIssued(batchId, projectId, amount);
@@ -350,7 +350,7 @@ contract AdvancedCarbonCreditToken is
 
         // Burn the tokens
         _burn(msg.sender, netAmount);
-        
+
         // Transfer fee
         if (fee > 0) {
             _transfer(msg.sender, feeRecipient, fee);
@@ -421,13 +421,13 @@ contract AdvancedCarbonCreditToken is
     /**
      * @dev Enhanced transfer with compliance and fee collection
      */
-    function transfer(address to, uint256 amount) 
-        public 
-        override 
-        onlyCompliant(msg.sender) 
+    function transfer(address to, uint256 amount)
+        public
+        override
+        onlyCompliant(msg.sender)
         onlyCompliant(to)
         withinTransactionLimits(msg.sender, amount)
-        returns (bool) 
+        returns (bool)
     {
         // Calculate transfer fee
         uint256 fee = amount.mul(transferFeeRate).div(10000);
@@ -438,7 +438,7 @@ contract AdvancedCarbonCreditToken is
 
         // Transfer net amount
         bool success = super.transfer(to, netAmount);
-        
+
         // Transfer fee
         if (fee > 0 && success) {
             super.transfer(feeRecipient, fee);
@@ -468,7 +468,7 @@ contract AdvancedCarbonCreditToken is
 
         // Transfer net amount
         bool success = super.transferFrom(from, to, netAmount);
-        
+
         // Transfer fee
         if (fee > 0 && success) {
             super.transferFrom(from, feeRecipient, fee);
@@ -529,7 +529,7 @@ contract AdvancedCarbonCreditToken is
     ) external onlyRole(ADMIN_ROLE) {
         require(transferFee <= 100, "Transfer fee too high"); // Max 1%
         require(retirementFee <= 100, "Retirement fee too high"); // Max 1%
-        
+
         transferFeeRate = transferFee;
         retirementFeeRate = retirementFee;
     }
@@ -608,4 +608,3 @@ contract AdvancedCarbonCreditToken is
      */
     receive() external payable {}
 }
-

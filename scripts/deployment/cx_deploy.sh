@@ -47,14 +47,14 @@ log() {
     local level=$1
     local message=$2
     local color=$NC
-    
+
     case $level in
         "INFO") color=$GREEN ;;
         "WARNING") color=$YELLOW ;;
         "ERROR") color=$RED ;;
         "STEP") color=$BLUE ;;
     esac
-    
+
     echo -e "${color}[$level] $message${NC}"
 }
 
@@ -66,7 +66,7 @@ command_exists() {
 # Function to validate environment name
 validate_environment() {
     local env=$1
-    
+
     case $env in
         "dev"|"development")
             echo "dev"
@@ -87,31 +87,31 @@ validate_environment() {
 # Function to generate environment-specific configuration
 generate_config() {
     local env=$1
-    
+
     log "STEP" "Generating configuration for $env environment..."
-    
+
     if [ ! -d "$ENV_TEMPLATES_DIR" ]; then
         log "ERROR" "Environment templates directory not found at $ENV_TEMPLATES_DIR"
         return 1
     fi
-    
+
     # Create environment-specific config directory
     local config_dir="$DEPLOY_DIR/$env/config"
     mkdir -p "$config_dir"
-    
+
     # Process each template file
     for template in "$ENV_TEMPLATES_DIR"/*.template; do
         if [ -f "$template" ]; then
             local filename=$(basename "$template" .template)
             log "INFO" "Processing template: $filename"
-            
+
             # Replace environment variables in template
             envsubst < "$template" > "$config_dir/$filename"
-            
+
             log "INFO" "Generated $filename for $env environment"
         fi
     done
-    
+
     # Generate .env file for backend
     if [ -f "$ENV_TEMPLATES_DIR/.env.$env" ]; then
         log "INFO" "Copying .env file for backend..."
@@ -119,7 +119,7 @@ generate_config() {
     else
         log "WARNING" ".env.$env file not found in templates directory"
     fi
-    
+
     log "INFO" "Configuration generation completed for $env environment"
     return 0
 }
@@ -127,43 +127,43 @@ generate_config() {
 # Function to build backend for deployment
 build_backend() {
     local env=$1
-    
+
     log "STEP" "Building backend for $env environment..."
-    
+
     if [ ! -d "$BACKEND_DIR" ]; then
         log "ERROR" "Backend directory not found at $BACKEND_DIR"
         return 1
     fi
-    
+
     # Create deployment directory
     local deploy_backend_dir="$DEPLOY_DIR/$env/backend"
     mkdir -p "$deploy_backend_dir"
-    
+
     # Copy backend code
     log "INFO" "Copying backend code..."
     rsync -av --exclude="__pycache__" --exclude="*.pyc" --exclude=".pytest_cache" \
         "$BACKEND_DIR/" "$deploy_backend_dir/"
-    
+
     # Copy environment-specific configuration
     log "INFO" "Copying environment configuration..."
     cp "$DEPLOY_DIR/$env/config/.env" "$deploy_backend_dir/"
-    
+
     # Install dependencies in a virtual environment
     log "INFO" "Setting up virtual environment..."
     cd "$deploy_backend_dir"
     python3 -m venv venv
     source venv/bin/activate
     pip install -r requirements.txt
-    
+
     # Run database migrations if needed
     if [ -f "manage.py" ]; then
         log "INFO" "Running database migrations..."
         python manage.py migrate
     fi
-    
+
     # Deactivate virtual environment
     deactivate
-    
+
     log "INFO" "Backend build completed for $env environment"
     return 0
 }
@@ -171,33 +171,33 @@ build_backend() {
 # Function to build web frontend for deployment
 build_web_frontend() {
     local env=$1
-    
+
     log "STEP" "Building web frontend for $env environment..."
-    
+
     if [ ! -d "$WEB_FRONTEND_DIR" ]; then
         log "ERROR" "Web frontend directory not found at $WEB_FRONTEND_DIR"
         return 1
     fi
-    
+
     # Create deployment directory
     local deploy_frontend_dir="$DEPLOY_DIR/$env/web-frontend"
     mkdir -p "$deploy_frontend_dir"
-    
+
     # Copy frontend code
     log "INFO" "Copying web frontend code..."
     rsync -av --exclude="node_modules" --exclude="build" --exclude=".cache" \
         "$WEB_FRONTEND_DIR/" "$deploy_frontend_dir/"
-    
+
     # Copy environment-specific configuration
     log "INFO" "Setting up environment configuration..."
     cp "$DEPLOY_DIR/$env/config/frontend.env.js" "$deploy_frontend_dir/.env"
-    
+
     # Install dependencies and build
     log "INFO" "Installing dependencies and building web frontend..."
     cd "$deploy_frontend_dir"
     npm install
     npm run build
-    
+
     log "INFO" "Web frontend build completed for $env environment"
     return 0
 }
@@ -205,33 +205,33 @@ build_web_frontend() {
 # Function to build blockchain contracts for deployment
 build_blockchain() {
     local env=$1
-    
+
     log "STEP" "Building blockchain contracts for $env environment..."
-    
+
     if [ ! -d "$BLOCKCHAIN_DIR" ]; then
         log "ERROR" "Blockchain directory not found at $BLOCKCHAIN_DIR"
         return 1
     fi
-    
+
     # Create deployment directory
     local deploy_blockchain_dir="$DEPLOY_DIR/$env/blockchain"
     mkdir -p "$deploy_blockchain_dir"
-    
+
     # Copy blockchain code
     log "INFO" "Copying blockchain code..."
     rsync -av --exclude="node_modules" --exclude="build" \
         "$BLOCKCHAIN_DIR/" "$deploy_blockchain_dir/"
-    
+
     # Copy environment-specific configuration
     log "INFO" "Setting up environment configuration..."
     cp "$DEPLOY_DIR/$env/config/truffle-config.js" "$deploy_blockchain_dir/truffle-config.js"
-    
+
     # Install dependencies and compile contracts
     log "INFO" "Installing dependencies and compiling contracts..."
     cd "$deploy_blockchain_dir"
     npm install
     npx truffle compile
-    
+
     log "INFO" "Blockchain contracts build completed for $env environment"
     return 0
 }
@@ -239,22 +239,22 @@ build_blockchain() {
 # Function to deploy to environment
 deploy_to_environment() {
     local env=$1
-    
+
     log "STEP" "Deploying to $env environment..."
-    
+
     # Validate that builds exist
     if [ ! -d "$DEPLOY_DIR/$env" ]; then
         log "ERROR" "Build directory for $env not found. Run build first."
         return 1
     fi
-    
+
     # Create backup for rollback
     create_backup "$env"
-    
+
     # Deploy backend
     if [ -d "$DEPLOY_DIR/$env/backend" ]; then
         log "INFO" "Deploying backend..."
-        
+
         case $env in
             "dev")
                 # For dev, we might just use the local build
@@ -274,11 +274,11 @@ deploy_to_environment() {
                 ;;
         esac
     fi
-    
+
     # Deploy web frontend
     if [ -d "$DEPLOY_DIR/$env/web-frontend/build" ]; then
         log "INFO" "Deploying web frontend..."
-        
+
         case $env in
             "dev")
                 # For dev, we might just use the local build
@@ -298,11 +298,11 @@ deploy_to_environment() {
                 ;;
         esac
     fi
-    
+
     # Deploy blockchain contracts
     if [ -d "$DEPLOY_DIR/$env/blockchain" ]; then
         log "INFO" "Deploying blockchain contracts..."
-        
+
         case $env in
             "dev")
                 # For dev, deploy to local blockchain
@@ -324,12 +324,12 @@ deploy_to_environment() {
                 ;;
         esac
     fi
-    
+
     log "INFO" "Deployment to $env environment completed"
-    
+
     # Validate deployment
     validate_deployment "$env"
-    
+
     return 0
 }
 
@@ -337,37 +337,37 @@ deploy_to_environment() {
 create_backup() {
     local env=$1
     local timestamp=$(date +"%Y%m%d%H%M%S")
-    
+
     log "STEP" "Creating backup for $env environment..."
-    
+
     # Create backup directory
     local backup_dir="$BACKUP_DIR/${env}_${timestamp}"
     mkdir -p "$backup_dir"
-    
+
     # Backup backend
     if [ -d "$DEPLOY_DIR/$env/backend" ]; then
         log "INFO" "Backing up backend..."
         mkdir -p "$backup_dir/backend"
         rsync -av "$DEPLOY_DIR/$env/backend/" "$backup_dir/backend/"
     fi
-    
+
     # Backup web frontend
     if [ -d "$DEPLOY_DIR/$env/web-frontend" ]; then
         log "INFO" "Backing up web frontend..."
         mkdir -p "$backup_dir/web-frontend"
         rsync -av "$DEPLOY_DIR/$env/web-frontend/build/" "$backup_dir/web-frontend/"
     fi
-    
+
     # Backup blockchain contracts
     if [ -d "$DEPLOY_DIR/$env/blockchain" ]; then
         log "INFO" "Backing up blockchain contracts..."
         mkdir -p "$backup_dir/blockchain"
         rsync -av "$DEPLOY_DIR/$env/blockchain/build/" "$backup_dir/blockchain/"
     fi
-    
+
     # Save backup info
     echo "$timestamp" > "$DEPLOY_DIR/$env/last_backup"
-    
+
     log "INFO" "Backup created at $backup_dir"
     return 0
 }
@@ -375,13 +375,13 @@ create_backup() {
 # Function to validate deployment
 validate_deployment() {
     local env=$1
-    
+
     log "STEP" "Validating deployment for $env environment..."
-    
+
     # Define endpoints to check based on environment
     local backend_url=""
     local frontend_url=""
-    
+
     case $env in
         "dev")
             backend_url="http://localhost:5000/api/health"
@@ -396,7 +396,7 @@ validate_deployment() {
             frontend_url="https://carbonxchange.com"
             ;;
     esac
-    
+
     # Check backend health
     if [ -n "$backend_url" ]; then
         log "INFO" "Checking backend health at $backend_url..."
@@ -407,7 +407,7 @@ validate_deployment() {
             return 1
         fi
     fi
-    
+
     # Check frontend
     if [ -n "$frontend_url" ]; then
         log "INFO" "Checking frontend at $frontend_url..."
@@ -418,7 +418,7 @@ validate_deployment() {
             return 1
         fi
     fi
-    
+
     log "INFO" "Deployment validation completed successfully"
     return 0
 }
@@ -426,27 +426,27 @@ validate_deployment() {
 # Function to rollback deployment
 rollback_deployment() {
     local env=$1
-    
+
     log "STEP" "Rolling back deployment for $env environment..."
-    
+
     # Check if last backup exists
     if [ ! -f "$DEPLOY_DIR/$env/last_backup" ]; then
         log "ERROR" "No backup found for $env environment"
         return 1
     fi
-    
+
     local timestamp=$(cat "$DEPLOY_DIR/$env/last_backup")
     local backup_dir="$BACKUP_DIR/${env}_${timestamp}"
-    
+
     if [ ! -d "$backup_dir" ]; then
         log "ERROR" "Backup directory not found: $backup_dir"
         return 1
     fi
-    
+
     # Rollback backend
     if [ -d "$backup_dir/backend" ]; then
         log "INFO" "Rolling back backend..."
-        
+
         case $env in
             "dev")
                 # For dev, we might just restore the local backup
@@ -467,11 +467,11 @@ rollback_deployment() {
                 ;;
         esac
     fi
-    
+
     # Rollback web frontend
     if [ -d "$backup_dir/web-frontend" ]; then
         log "INFO" "Rolling back web frontend..."
-        
+
         case $env in
             "dev")
                 # For dev, we might just restore the local backup
@@ -492,15 +492,15 @@ rollback_deployment() {
                 ;;
         esac
     fi
-    
+
     # Note: Blockchain contracts typically can't be rolled back once deployed
     # We can only deploy a new version with fixes
-    
+
     log "INFO" "Rollback completed for $env environment"
-    
+
     # Validate rollback
     validate_deployment "$env"
-    
+
     return 0
 }
 
@@ -541,22 +541,22 @@ main() {
         show_help
         exit 0
     fi
-    
+
     local command=$1
     shift
-    
+
     case $command in
         "config")
             if [ $# -eq 0 ]; then
                 log "ERROR" "Environment required for config command"
                 exit 1
             fi
-            
+
             local env=$(validate_environment "$1")
             if [ $? -ne 0 ]; then
                 exit 1
             fi
-            
+
             generate_config "$env"
             ;;
         "build")
@@ -564,19 +564,19 @@ main() {
                 log "ERROR" "Environment required for build command"
                 exit 1
             fi
-            
+
             local env=$(validate_environment "$1")
             if [ $? -ne 0 ]; then
                 exit 1
             fi
-            
+
             shift
-            
+
             # Parse options
             local backend_only=false
             local frontend_only=false
             local blockchain_only=false
-            
+
             while [ $# -gt 0 ]; do
                 case "$1" in
                     --backend-only)
@@ -596,10 +596,10 @@ main() {
                 esac
                 shift
             done
-            
+
             # Generate config first
             generate_config "$env"
-            
+
             # Build components based on options
             if [ "$backend_only" = true ]; then
                 build_backend "$env"
@@ -619,12 +619,12 @@ main() {
                 log "ERROR" "Environment required for deploy command"
                 exit 1
             fi
-            
+
             local env=$(validate_environment "$1")
             if [ $? -ne 0 ]; then
                 exit 1
             fi
-            
+
             deploy_to_environment "$env"
             ;;
         "validate")
@@ -632,12 +632,12 @@ main() {
                 log "ERROR" "Environment required for validate command"
                 exit 1
             fi
-            
+
             local env=$(validate_environment "$1")
             if [ $? -ne 0 ]; then
                 exit 1
             fi
-            
+
             validate_deployment "$env"
             ;;
         "rollback")
@@ -645,12 +645,12 @@ main() {
                 log "ERROR" "Environment required for rollback command"
                 exit 1
             fi
-            
+
             local env=$(validate_environment "$1")
             if [ $? -ne 0 ]; then
                 exit 1
             fi
-            
+
             rollback_deployment "$env"
             ;;
         "help")

@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Box, 
-  Card, 
-  CardContent, 
-  Grid, 
-  Typography, 
-  Button, 
+import {
+  Box,
+  Card,
+  CardContent,
+  Grid,
+  Typography,
+  Button,
   Tabs,
   Tab,
   Paper,
@@ -18,10 +18,10 @@ import {
   CircularProgress
 } from '@mui/material';
 import useApi from '../hooks/useApi';
-import { 
-  PieChart, 
-  Pie, 
-  Cell, 
+import {
+  PieChart,
+  Pie,
+  Cell,
   ResponsiveContainer,
   Treemap,
   Tooltip,
@@ -144,8 +144,8 @@ export default function CreditVisualization() {
             <Typography variant="h4" component="h1" gutterBottom>
               Credit Visualization
             </Typography>
-            <Button 
-              variant="contained" 
+            <Button
+              variant="contained"
               color="primary"
               startIcon={<Refresh />}
               onClick={fetchCreditData}
@@ -180,8 +180,8 @@ export default function CreditVisualization() {
 
       {/* Tabs */}
       <Box sx={{ mb: 4 }}>
-        <Tabs 
-          value={tabValue} 
+        <Tabs
+          value={tabValue}
           onChange={handleTabChange}
           variant="fullWidth"
           sx={{
@@ -335,7 +335,7 @@ export default function CreditVisualization() {
                           width={width}
                           height={height}
                           style={{
-                            fill: depth < 2 
+                            fill: depth < 2
                               ? COLORS[Math.floor((index / root.children.length) * COLORS.length) % COLORS.length]
                               : COLORS[Math.floor((index / root.children.length) * COLORS.length) % COLORS.length] + '80',
                             stroke: '#fff',
@@ -359,13 +359,13 @@ export default function CreditVisualization() {
                     );
                   }}
                 >
-                  <Tooltip 
+                  <Tooltip
                     content={({ active, payload }) => {
                       if (active && payload && payload.length) {
                         return (
-                          <div style={{ 
-                            backgroundColor: '#fff', 
-                            padding: '10px', 
+                          <div style={{
+                            backgroundColor: '#fff',
+                            padding: '10px',
                             border: '1px solid #ccc',
                             borderRadius: '4px'
                           }}>

@@ -1,30 +1,30 @@
 import React, { useState } from 'react';
-import { 
-  AppBar, 
-  Box, 
-  CssBaseline, 
-  Drawer, 
-  IconButton, 
-  List, 
-  ListItem, 
-  ListItemButton, 
-  ListItemIcon, 
-  ListItemText, 
-  Toolbar, 
-  Typography, 
-  Button, 
-  Avatar, 
-  Menu, 
-  MenuItem, 
+import {
+  AppBar,
+  Box,
+  CssBaseline,
+  Drawer,
+  IconButton,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Toolbar,
+  Typography,
+  Button,
+  Avatar,
+  Menu,
+  MenuItem,
   Divider,
   useMediaQuery
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import { 
-  Menu as MenuIcon, 
-  Dashboard as DashboardIcon, 
-  ShowChart as ShowChartIcon, 
-  PieChart as PieChartIcon, 
+import {
+  Menu as MenuIcon,
+  Dashboard as DashboardIcon,
+  ShowChart as ShowChartIcon,
+  PieChart as PieChartIcon,
   AccountBalanceWallet as WalletIcon,
   Notifications as NotificationsIcon,
   Settings as SettingsIcon,
@@ -62,9 +62,9 @@ export default function MainLayout({ children }) {
 
   const drawer = (
     <div>
-      <Toolbar sx={{ 
-        display: 'flex', 
-        alignItems: 'center', 
+      <Toolbar sx={{
+        display: 'flex',
+        alignItems: 'center',
         justifyContent: 'center',
         padding: theme.spacing(2)
       }}>
@@ -76,8 +76,8 @@ export default function MainLayout({ children }) {
       <List>
         {menuItems.map((item) => (
           <ListItem key={item.text} disablePadding>
-            <ListItemButton 
-              component={Link} 
+            <ListItemButton
+              component={Link}
               to={item.path}
               selected={location.pathname === item.path}
               sx={{
@@ -93,14 +93,14 @@ export default function MainLayout({ children }) {
                 }
               }}
             >
-              <ListItemIcon sx={{ 
-                color: location.pathname === item.path ? theme.palette.primary.main : theme.palette.text.secondary 
+              <ListItemIcon sx={{
+                color: location.pathname === item.path ? theme.palette.primary.main : theme.palette.text.secondary
               }}>
                 {item.icon}
               </ListItemIcon>
-              <ListItemText 
-                primary={item.text} 
-                primaryTypographyProps={{ 
+              <ListItemText
+                primary={item.text}
+                primaryTypographyProps={{
                   fontWeight: location.pathname === item.path ? 600 : 400,
                   color: location.pathname === item.path ? theme.palette.primary.main : theme.palette.text.primary
                 }}
@@ -115,10 +115,10 @@ export default function MainLayout({ children }) {
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
-      <AppBar 
-        position="fixed" 
-        sx={{ 
-          width: { md: `calc(100% - ${drawerWidth}px)` }, 
+      <AppBar
+        position="fixed"
+        sx={{
+          width: { md: `calc(100% - ${drawerWidth}px)` },
           ml: { md: `${drawerWidth}px` },
           backgroundColor: 'white',
           color: theme.palette.text.primary,
@@ -136,10 +136,10 @@ export default function MainLayout({ children }) {
             <MenuIcon />
           </IconButton>
           <Box sx={{ flexGrow: 1 }} />
-          <Button 
-            variant="contained" 
+          <Button
+            variant="contained"
             color="primary"
-            sx={{ 
+            sx={{
               mr: 2,
               display: { xs: 'none', sm: 'block' }
             }}
@@ -216,8 +216,8 @@ export default function MainLayout({ children }) {
           }}
           sx={{
             display: { xs: 'block' },
-            '& .MuiDrawer-paper': { 
-              boxSizing: 'border-box', 
+            '& .MuiDrawer-paper': {
+              boxSizing: 'border-box',
               width: drawerWidth,
               borderRight: '1px solid rgba(0, 0, 0, 0.05)',
               boxShadow: 'none'
@@ -229,9 +229,9 @@ export default function MainLayout({ children }) {
       </Box>
       <Box
         component="main"
-        sx={{ 
-          flexGrow: 1, 
-          p: 3, 
+        sx={{
+          flexGrow: 1,
+          p: 3,
           width: { md: `calc(100% - ${drawerWidth}px)` },
           backgroundColor: theme.palette.background.default,
           minHeight: '100vh'

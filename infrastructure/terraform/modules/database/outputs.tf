@@ -378,4 +378,3 @@ output "resource_inventory" {
     proxy_count = var.create_db_proxy ? 1 : 0
   }
 }
-

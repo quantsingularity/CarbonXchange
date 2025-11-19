@@ -24,13 +24,13 @@ spec:
     - ALL
   allowedCapabilities:
     - NET_BIND_SERVICE
-  
+
   # Host controls
   hostNetwork: false
   hostIPC: false
   hostPID: false
   hostPorts: []
-  
+
   # Volume controls
   volumes:
     - 'configMap'
@@ -40,11 +40,11 @@ spec:
     - 'downwardAPI'
     - 'persistentVolumeClaim'
   allowedHostPaths: []
-  
+
   # Filesystem controls
   readOnlyRootFilesystem: true
   allowedFlexVolumes: []
-  
+
   # User and group controls
   runAsUser:
     rule: 'MustRunAsNonRoot'
@@ -63,15 +63,15 @@ spec:
     ranges:
       - min: 10001
         max: 65535
-  
+
   # SELinux controls
   seLinux:
     rule: 'RunAsAny'
-  
+
   # Forbidden sysctls
   forbiddenSysctls:
     - '*'
-  
+
   # Default security context
   defaultAllowPrivilegeEscalation: false
   defaultAddCapabilities: []
@@ -184,4 +184,3 @@ subjects:
 - kind: ServiceAccount
   name: carbonxchange-system-sa
   namespace: kube-system
-

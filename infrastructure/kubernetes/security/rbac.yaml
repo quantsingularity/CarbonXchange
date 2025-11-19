@@ -376,4 +376,3 @@ users:
 - system:serviceaccount:carbonxchange:carbonxchange-backend-sa
 - system:serviceaccount:carbonxchange:carbonxchange-frontend-sa
 - system:serviceaccount:carbonxchange:carbonxchange-worker-sa
-

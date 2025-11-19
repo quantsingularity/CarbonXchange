@@ -40,14 +40,14 @@ log() {
     local level=$1
     local message=$2
     local color=$NC
-    
+
     case $level in
         "INFO") color=$GREEN ;;
         "WARNING") color=$YELLOW ;;
         "ERROR") color=$RED ;;
         "STEP") color=$BLUE ;;
     esac
-    
+
     echo -e "${color}[$level] $message${NC}"
 }
 
@@ -59,24 +59,24 @@ command_exists() {
 # Function to generate API documentation
 generate_api_docs() {
     log "STEP" "Generating API documentation..."
-    
+
     if [ ! -d "$BACKEND_DIR" ]; then
         log "ERROR" "Backend directory not found at $BACKEND_DIR"
         return 1
     fi
-    
+
     # Create output directory
     local api_docs_dir="$OUTPUT_DIR/api"
     mkdir -p "$api_docs_dir"
-    
+
     # Check if Swagger/OpenAPI spec exists
     if [ -f "$BACKEND_DIR/openapi.yaml" ] || [ -f "$BACKEND_DIR/openapi.json" ]; then
         log "INFO" "Found OpenAPI specification"
-        
+
         # Check if Swagger UI is available
         if command_exists npx; then
             log "INFO" "Generating Swagger UI documentation..."
-            
+
             # Copy OpenAPI spec to output directory
             if [ -f "$BACKEND_DIR/openapi.yaml" ]; then
                 cp "$BACKEND_DIR/openapi.yaml" "$api_docs_dir/"
@@ -85,35 +85,35 @@ generate_api_docs() {
                 cp "$BACKEND_DIR/openapi.json" "$api_docs_dir/"
                 local spec_file="openapi.json"
             fi
-            
+
             # Generate Swagger UI
             cd "$api_docs_dir"
             npx swagger-ui-dist-package "$spec_file" > index.html
-            
+
             log "INFO" "Swagger UI documentation generated at $api_docs_dir/index.html"
         else
             log "WARNING" "npx not found, skipping Swagger UI generation"
-            
+
             # Just copy the OpenAPI spec
             if [ -f "$BACKEND_DIR/openapi.yaml" ]; then
                 cp "$BACKEND_DIR/openapi.yaml" "$api_docs_dir/"
             else
                 cp "$BACKEND_DIR/openapi.json" "$api_docs_dir/"
             fi
-            
+
             log "INFO" "OpenAPI specification copied to $api_docs_dir"
         fi
     else
         # Try to generate OpenAPI spec from code
         log "INFO" "No OpenAPI specification found, attempting to generate from code..."
-        
+
         # Check if backend uses Flask or FastAPI
         if grep -q "fastapi" "$BACKEND_DIR/requirements.txt" 2>/dev/null; then
             log "INFO" "FastAPI detected, generating OpenAPI spec..."
-            
+
             # Activate virtual environment
             source "$PROJECT_ROOT/venv/bin/activate"
-            
+
             # Run script to generate OpenAPI spec
             cd "$BACKEND_DIR"
             python -c "
@@ -129,13 +129,13 @@ except Exception as e:
     sys.exit(1)
 "
             local exit_code=$?
-            
+
             # Deactivate virtual environment
             deactivate
-            
+
             if [ $exit_code -eq 0 ]; then
                 log "INFO" "OpenAPI specification generated at $api_docs_dir/openapi.json"
-                
+
                 # Generate Swagger UI
                 if command_exists npx; then
                     log "INFO" "Generating Swagger UI documentation..."
@@ -148,16 +148,16 @@ except Exception as e:
             fi
         elif grep -q "flask" "$BACKEND_DIR/requirements.txt" 2>/dev/null; then
             log "INFO" "Flask detected, checking for Flask-RESTx or Flask-RESTPlus..."
-            
+
             if grep -q "flask-restx\|flask-restplus" "$BACKEND_DIR/requirements.txt" 2>/dev/null; then
                 log "INFO" "Flask-RESTx/RESTPlus detected, generating OpenAPI spec..."
-                
+
                 # Activate virtual environment
                 source "$PROJECT_ROOT/venv/bin/activate"
-                
+
                 # Install flask-swagger-ui if not already installed
                 pip install flask-swagger-ui
-                
+
                 # Run script to generate OpenAPI spec
                 cd "$BACKEND_DIR"
                 python -c "
@@ -176,13 +176,13 @@ except Exception as e:
     sys.exit(1)
 "
                 local exit_code=$?
-                
+
                 # Deactivate virtual environment
                 deactivate
-                
+
                 if [ $exit_code -eq 0 ]; then
                     log "INFO" "OpenAPI specification generated at $api_docs_dir/openapi.json"
-                    
+
                     # Generate Swagger UI
                     if command_exists npx; then
                         log "INFO" "Generating Swagger UI documentation..."
@@ -200,22 +200,22 @@ except Exception as e:
             log "WARNING" "Could not determine API framework, skipping OpenAPI spec generation"
         fi
     fi
-    
+
     # Generate API documentation from docstrings
     log "INFO" "Generating API documentation from docstrings..."
-    
+
     # Check if pdoc3 is installed
     if ! command_exists pdoc3; then
         log "INFO" "Installing pdoc3..."
         pip install pdoc3
     fi
-    
+
     # Generate documentation
     cd "$BACKEND_DIR"
     pdoc3 --html --output-dir "$api_docs_dir/docstrings" .
-    
+
     log "INFO" "API documentation from docstrings generated at $api_docs_dir/docstrings"
-    
+
     log "INFO" "API documentation generation completed"
     return 0
 }
@@ -223,14 +223,14 @@ except Exception as e:
 # Function to generate project status report
 generate_status_report() {
     log "STEP" "Generating project status report..."
-    
+
     # Create output directory
     local status_dir="$OUTPUT_DIR/status"
     mkdir -p "$status_dir"
-    
+
     # Create status report file
     local report_file="$status_dir/project_status.md"
-    
+
     # Write report header
     cat > "$report_file" << EOF
 # CarbonXchange Project Status Report
@@ -244,125 +244,125 @@ CarbonXchange is a blockchain-based carbon credit trading platform that leverage
 ## Component Status
 
 EOF
-    
+
     # Check backend status
     if [ -d "$BACKEND_DIR" ]; then
         echo "### Backend" >> "$report_file"
         echo "" >> "$report_file"
-        
+
         # Count Python files
         local py_files=$(find "$BACKEND_DIR" -name "*.py" | wc -l)
         echo "- Python files: $py_files" >> "$report_file"
-        
+
         # Check test coverage if pytest-cov is available
         if grep -q "pytest-cov" "$BACKEND_DIR/requirements.txt" 2>/dev/null; then
             echo "- Test coverage:" >> "$report_file"
-            
+
             # Activate virtual environment
             source "$PROJECT_ROOT/venv/bin/activate"
-            
+
             # Run pytest with coverage
             cd "$BACKEND_DIR"
             python -m pytest --cov=. --cov-report=term-missing > "$status_dir/backend_coverage.txt" 2>&1
-            
+
             # Extract coverage percentage
             local coverage=$(grep "TOTAL" "$status_dir/backend_coverage.txt" | awk '{print $NF}')
             echo "  - Overall coverage: $coverage" >> "$report_file"
-            
+
             # Deactivate virtual environment
             deactivate
         fi
-        
+
         echo "" >> "$report_file"
     fi
-    
+
     # Check web frontend status
     if [ -d "$WEB_FRONTEND_DIR" ]; then
         echo "### Web Frontend" >> "$report_file"
         echo "" >> "$report_file"
-        
+
         # Count JS/TS files
         local js_files=$(find "$WEB_FRONTEND_DIR" -name "*.js" -o -name "*.jsx" -o -name "*.ts" -o -name "*.tsx" | wc -l)
         echo "- JavaScript/TypeScript files: $js_files" >> "$report_file"
-        
+
         # Check test coverage if jest is available
         if grep -q "jest" "$WEB_FRONTEND_DIR/package.json" 2>/dev/null; then
             echo "- Test coverage:" >> "$report_file"
-            
+
             # Run jest with coverage
             cd "$WEB_FRONTEND_DIR"
             npm test -- --coverage --coverageReporters="text-summary" > "$status_dir/web_frontend_coverage.txt" 2>&1
-            
+
             # Extract coverage percentage
             local statements=$(grep "Statements" "$status_dir/web_frontend_coverage.txt" | awk '{print $NF}')
             local branches=$(grep "Branches" "$status_dir/web_frontend_coverage.txt" | awk '{print $NF}')
             local functions=$(grep "Functions" "$status_dir/web_frontend_coverage.txt" | awk '{print $NF}')
             local lines=$(grep "Lines" "$status_dir/web_frontend_coverage.txt" | awk '{print $NF}')
-            
+
             echo "  - Statements: $statements" >> "$report_file"
             echo "  - Branches: $branches" >> "$report_file"
             echo "  - Functions: $functions" >> "$report_file"
             echo "  - Lines: $lines" >> "$report_file"
         fi
-        
+
         echo "" >> "$report_file"
     fi
-    
+
     # Check blockchain status
     if [ -d "$BLOCKCHAIN_DIR" ]; then
         echo "### Blockchain" >> "$report_file"
         echo "" >> "$report_file"
-        
+
         # Count Solidity files
         local sol_files=$(find "$BLOCKCHAIN_DIR" -name "*.sol" | wc -l)
         echo "- Solidity files: $sol_files" >> "$report_file"
-        
+
         # Check test coverage if solidity-coverage is available
         if grep -q "solidity-coverage" "$BLOCKCHAIN_DIR/package.json" 2>/dev/null; then
             echo "- Test coverage: Available via solidity-coverage" >> "$report_file"
         fi
-        
+
         echo "" >> "$report_file"
     fi
-    
+
     # Check mobile frontend status
     if [ -d "$MOBILE_FRONTEND_DIR" ]; then
         echo "### Mobile Frontend" >> "$report_file"
         echo "" >> "$report_file"
-        
+
         # Count JS/TS files
         local js_files=$(find "$MOBILE_FRONTEND_DIR" -name "*.js" -o -name "*.jsx" -o -name "*.ts" -o -name "*.tsx" | wc -l)
         echo "- JavaScript/TypeScript files: $js_files" >> "$report_file"
-        
+
         echo "" >> "$report_file"
     fi
-    
+
     # Add git statistics
     echo "## Git Statistics" >> "$report_file"
     echo "" >> "$report_file"
-    
+
     # Total commits
     local total_commits=$(git -C "$PROJECT_ROOT" rev-list --count HEAD)
     echo "- Total commits: $total_commits" >> "$report_file"
-    
+
     # Contributors
     local contributors=$(git -C "$PROJECT_ROOT" shortlog -sn --no-merges | wc -l)
     echo "- Contributors: $contributors" >> "$report_file"
-    
+
     # Recent activity
     echo "- Recent activity:" >> "$report_file"
     git -C "$PROJECT_ROOT" log --pretty=format:"  - %ad: %s" --date=short -n 5 >> "$report_file"
-    
+
     echo "" >> "$report_file"
     echo "## TODO Items" >> "$report_file"
     echo "" >> "$report_file"
-    
+
     # Find TODO items in code
     find "$PROJECT_ROOT" -type f -name "*.py" -o -name "*.js" -o -name "*.jsx" -o -name "*.ts" -o -name "*.tsx" -o -name "*.sol" | xargs grep -l "TODO" | while read file; do
         echo "- $file:" >> "$report_file"
         grep -n "TODO" "$file" | sed 's/^/  - Line /' >> "$report_file"
     done
-    
+
     log "INFO" "Project status report generated at $report_file"
     return 0
 }
@@ -370,14 +370,14 @@ EOF
 # Function to generate changelog
 generate_changelog() {
     log "STEP" "Generating changelog..."
-    
+
     # Create output directory
     local changelog_dir="$OUTPUT_DIR/changelog"
     mkdir -p "$changelog_dir"
-    
+
     # Create changelog file
     local changelog_file="$changelog_dir/CHANGELOG.md"
-    
+
     # Write changelog header
     cat > "$changelog_file" << EOF
 # Changelog
@@ -388,59 +388,59 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 EOF
-    
+
     # Get git tags sorted by version
     local tags=$(git -C "$PROJECT_ROOT" tag -l | sort -V)
-    
+
     if [ -z "$tags" ]; then
         log "WARNING" "No git tags found, generating changelog from commits"
-        
+
         # Get all commits
         echo "## [Unreleased]" >> "$changelog_file"
         echo "" >> "$changelog_file"
-        
+
         # Group commits by type
         echo "### Added" >> "$changelog_file"
         git -C "$PROJECT_ROOT" log --pretty=format:"- %s" --grep="^add" --grep="^feat" -i >> "$changelog_file"
         echo "" >> "$changelog_file"
-        
+
         echo "### Changed" >> "$changelog_file"
         git -C "$PROJECT_ROOT" log --pretty=format:"- %s" --grep="^change" --grep="^update" --grep="^refactor" -i >> "$changelog_file"
         echo "" >> "$changelog_file"
-        
+
         echo "### Fixed" >> "$changelog_file"
         git -C "$PROJECT_ROOT" log --pretty=format:"- %s" --grep="^fix" --grep="^bug" -i >> "$changelog_file"
         echo "" >> "$changelog_file"
     else
         log "INFO" "Found git tags, generating changelog from tags"
-        
+
         # Get latest tag
         local latest_tag=$(echo "$tags" | tail -n 1)
-        
+
         # Add unreleased section
         echo "## [Unreleased]" >> "$changelog_file"
         echo "" >> "$changelog_file"
-        
+
         # Get commits since latest tag
         local unreleased_commits=$(git -C "$PROJECT_ROOT" log "$latest_tag"..HEAD --pretty=format:"- %s")
-        
+
         if [ -n "$unreleased_commits" ]; then
             echo "$unreleased_commits" >> "$changelog_file"
         else
             echo "No unreleased changes yet." >> "$changelog_file"
         fi
-        
+
         echo "" >> "$changelog_file"
-        
+
         # Process each tag
         local prev_tag=""
         for tag in $tags; do
             # Get tag date
             local tag_date=$(git -C "$PROJECT_ROOT" show -s --format=%ad --date=short "$tag^{commit}")
-            
+
             echo "## [$tag] - $tag_date" >> "$changelog_file"
             echo "" >> "$changelog_file"
-            
+
             if [ -z "$prev_tag" ]; then
                 # First tag, get all commits up to this tag
                 git -C "$PROJECT_ROOT" log --pretty=format:"- %s" "$tag" >> "$changelog_file"
@@ -448,12 +448,12 @@ EOF
                 # Get commits between previous tag and this tag
                 git -C "$PROJECT_ROOT" log --pretty=format:"- %s" "$prev_tag".."$tag" >> "$changelog_file"
             fi
-            
+
             echo "" >> "$changelog_file"
             prev_tag=$tag
         done
     fi
-    
+
     log "INFO" "Changelog generated at $changelog_file"
     return 0
 }
@@ -461,14 +461,14 @@ EOF
 # Function to validate documentation
 validate_documentation() {
     log "STEP" "Validating documentation..."
-    
+
     # Create output directory
     local validation_dir="$OUTPUT_DIR/validation"
     mkdir -p "$validation_dir"
-    
+
     # Create validation report file
     local report_file="$validation_dir/documentation_validation.md"
-    
+
     # Write report header
     cat > "$report_file" << EOF
 # Documentation Validation Report
@@ -478,7 +478,7 @@ Generated on: $(date)
 ## Documentation Coverage
 
 EOF
-    
+
     # Check if docs directory exists
     if [ ! -d "$DOCS_DIR" ]; then
         log "WARNING" "Docs directory not found at $DOCS_DIR"
@@ -488,18 +488,18 @@ EOF
         local md_files=$(find "$DOCS_DIR" -name "*.md" | wc -l)
         local rst_files=$(find "$DOCS_DIR" -name "*.rst" | wc -l)
         local total_files=$((md_files + rst_files))
-        
+
         echo "- Documentation files: $total_files ($md_files Markdown, $rst_files reStructuredText)" >> "$report_file"
-        
+
         # Check for README files
         echo "## README Files" >> "$report_file"
-        
+
         if [ -f "$PROJECT_ROOT/README.md" ]; then
             echo "- Main README.md: ✅ Present" >> "$report_file"
         else
             echo "- Main README.md: ❌ Missing" >> "$report_file"
         fi
-        
+
         # Check for component READMEs
         for dir in "$BACKEND_DIR" "$BLOCKCHAIN_DIR" "$WEB_FRONTEND_DIR" "$MOBILE_FRONTEND_DIR"; do
             if [ -d "$dir" ]; then
@@ -511,34 +511,34 @@ EOF
                 fi
             fi
         done
-        
+
         echo "" >> "$report_file"
         echo "## API Documentation" >> "$report_file"
-        
+
         # Check for API documentation
         if [ -f "$BACKEND_DIR/openapi.yaml" ] || [ -f "$BACKEND_DIR/openapi.json" ]; then
             echo "- OpenAPI Specification: ✅ Present" >> "$report_file"
         else
             echo "- OpenAPI Specification: ❌ Missing" >> "$report_file"
         fi
-        
+
         # Check for docstrings in Python files
         local py_files_with_docstrings=$(find "$BACKEND_DIR" -name "*.py" -exec grep -l '"""' {} \; | wc -l)
         local total_py_files=$(find "$BACKEND_DIR" -name "*.py" | wc -l)
-        
+
         if [ $total_py_files -gt 0 ]; then
             local docstring_percentage=$((py_files_with_docstrings * 100 / total_py_files))
             echo "- Python docstrings: $docstring_percentage% ($py_files_with_docstrings out of $total_py_files files)" >> "$report_file"
         else
             echo "- Python docstrings: N/A (no Python files found)" >> "$report_file"
         fi
-        
+
         echo "" >> "$report_file"
         echo "## Documentation Quality" >> "$report_file"
-        
+
         # Check for broken links in Markdown files
         echo "### Broken Links" >> "$report_file"
-        
+
         find "$DOCS_DIR" -name "*.md" -exec grep -l "\[.*\](.*)" {} \; | while read file; do
             local broken_links=$(grep -o "\[.*\](.*)" "$file" | grep -v "^http" | grep -v "^#" | grep -v "^mailto:")
             if [ -n "$broken_links" ]; then
@@ -546,16 +546,16 @@ EOF
                 echo "$broken_links" | sed 's/^/  - /' >> "$report_file"
             fi
         done
-        
+
         # Check for outdated documentation
         echo "### Potentially Outdated Documentation" >> "$report_file"
-        
+
         find "$DOCS_DIR" -name "*.md" -mtime +90 | while read file; do
             local last_modified=$(stat -c %y "$file" | cut -d ' ' -f 1)
             echo "- $file (Last modified: $last_modified)" >> "$report_file"
         done
     fi
-    
+
     log "INFO" "Documentation validation report generated at $report_file"
     return 0
 }
@@ -563,21 +563,21 @@ EOF
 # Function to generate component documentation
 generate_component_docs() {
     log "STEP" "Generating component documentation..."
-    
+
     # Create output directory
     local component_docs_dir="$OUTPUT_DIR/components"
     mkdir -p "$component_docs_dir"
-    
+
     # Backend documentation
     if [ -d "$BACKEND_DIR" ]; then
         log "INFO" "Generating backend component documentation..."
-        
+
         local backend_docs_dir="$component_docs_dir/backend"
         mkdir -p "$backend_docs_dir"
-        
+
         # Create backend documentation file
         local backend_doc_file="$backend_docs_dir/README.md"
-        
+
         # Write documentation header
         cat > "$backend_doc_file" << EOF
 # Backend Component Documentation
@@ -592,43 +592,43 @@ The backend component of CarbonXchange provides the API and core business logic 
 
 \`\`\`
 EOF
-        
+
         # Add directory structure
         find "$BACKEND_DIR" -type d | sort | sed "s|$BACKEND_DIR|.|" >> "$backend_doc_file"
-        
+
         # Close code block
         echo '```' >> "$backend_doc_file"
-        
+
         # Add module information
         echo "" >> "$backend_doc_file"
         echo "## Modules" >> "$backend_doc_file"
         echo "" >> "$backend_doc_file"
-        
+
         find "$BACKEND_DIR" -name "*.py" -not -path "*/\.*" -not -path "*/venv/*" | sort | while read file; do
             local rel_path=${file#$BACKEND_DIR/}
             echo "### $rel_path" >> "$backend_doc_file"
             echo "" >> "$backend_doc_file"
-            
+
             # Extract module docstring
             local docstring=$(grep -A 10 '"""' "$file" | grep -v '"""' | grep -B 10 -m 1 '"""' || echo "No docstring found.")
-            
+
             echo "```python" >> "$backend_doc_file"
             echo "$docstring" >> "$backend_doc_file"
             echo "```" >> "$backend_doc_file"
             echo "" >> "$backend_doc_file"
         done
     fi
-    
+
     # Web frontend documentation
     if [ -d "$WEB_FRONTEND_DIR" ]; then
         log "INFO" "Generating web frontend component documentation..."
-        
+
         local frontend_docs_dir="$component_docs_dir/web-frontend"
         mkdir -p "$frontend_docs_dir"
-        
+
         # Create frontend documentation file
         local frontend_doc_file="$frontend_docs_dir/README.md"
-        
+
         # Write documentation header
         cat > "$frontend_doc_file" << EOF
 # Web Frontend Component Documentation
@@ -643,33 +643,33 @@ The web frontend component of CarbonXchange provides the user interface for the 
 
 \`\`\`
 EOF
-        
+
         # Add directory structure
         find "$WEB_FRONTEND_DIR" -type d | sort | sed "s|$WEB_FRONTEND_DIR|.|" >> "$frontend_doc_file"
-        
+
         # Close code block
         echo '```' >> "$frontend_doc_file"
-        
+
         # Add component information
         echo "" >> "$frontend_doc_file"
         echo "## Components" >> "$frontend_doc_file"
         echo "" >> "$frontend_doc_file"
-        
+
         find "$WEB_FRONTEND_DIR/src" -name "*.jsx" -o -name "*.tsx" | sort | while read file; do
             local rel_path=${file#$WEB_FRONTEND_DIR/}
             echo "### $rel_path" >> "$frontend_doc_file"
             echo "" >> "$frontend_doc_file"
-            
+
             # Extract component description
             local description=$(grep -A 10 '/\*\*' "$file" | grep -v '/\*\*' | grep -B 10 -m 1 '\*/' || echo "No description found.")
-            
+
             echo "```jsx" >> "$frontend_doc_file"
             echo "$description" >> "$frontend_doc_file"
             echo "```" >> "$frontend_doc_file"
             echo "" >> "$frontend_doc_file"
         done
     fi
-    
+
     log "INFO" "Component documentation generated at $component_docs_dir"
     return 0
 }
@@ -700,14 +700,14 @@ main() {
         show_help
         exit 0
     fi
-    
+
     local gen_api=false
     local gen_status=false
     local gen_changelog=false
     local validate_docs=false
     local gen_components=false
     local gen_all=false
-    
+
     # Parse command line arguments
     while [ $# -gt 0 ]; do
         case "$1" in
@@ -741,7 +741,7 @@ main() {
         esac
         shift
     done
-    
+
     # If --all is specified, set all options to true
     if [ "$gen_all" = true ]; then
         gen_api=true
@@ -750,34 +750,34 @@ main() {
         validate_docs=true
         gen_components=true
     fi
-    
+
     # Print banner
     echo "========================================================"
     echo "  CarbonXchange Documentation Generator"
     echo "========================================================"
     echo ""
-    
+
     # Generate documentation based on options
     if [ "$gen_api" = true ]; then
         generate_api_docs
     fi
-    
+
     if [ "$gen_status" = true ]; then
         generate_status_report
     fi
-    
+
     if [ "$gen_changelog" = true ]; then
         generate_changelog
     fi
-    
+
     if [ "$validate_docs" = true ]; then
         validate_documentation
     fi
-    
+
     if [ "$gen_components" = true ]; then
         generate_component_docs
     fi
-    
+
     log "INFO" "Documentation generation completed"
     echo ""
     log "INFO" "Generated documentation available in: $OUTPUT_DIR"

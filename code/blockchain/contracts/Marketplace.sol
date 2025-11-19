@@ -11,10 +11,10 @@ contract Marketplace {
         uint256 amount;
         uint256 pricePerToken;
     }
-    
+
     IERC20 public token;
     Listing[] public listings;
-    
+
     event NewListing(uint256 listingId, address seller, uint256 amount);
     event Purchase(address buyer, uint256 listingId, uint256 amount);
 

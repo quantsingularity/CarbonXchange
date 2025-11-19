@@ -9,8 +9,14 @@ from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 from src.models.carbon_credit import CarbonProject, ProjectType
-from src.models.trading import (Order, OrderSide, OrderStatus, OrderType,
-                                Trade, TradeStatus)
+from src.models.trading import (
+    Order,
+    OrderSide,
+    OrderStatus,
+    OrderType,
+    Trade,
+    TradeStatus,
+)
 from src.models.user import RiskLevel, User
 from src.services.trading_service import TradingService
 from tests.conftest import assert_datetime_close, assert_decimal_equal

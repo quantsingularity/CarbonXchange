@@ -305,4 +305,3 @@ output "resource_inventory" {
     xray_sampling_rules_count = var.enable_xray_tracing ? 1 : 0
   }
 }
-

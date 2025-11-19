@@ -25,24 +25,24 @@ const MarketAnalytics = () => {
     const data = [];
     let basePrice = 85;
     let baseVolume = 10000;
-    
+
     for (let i = 0; i < days; i++) {
       const date = new Date();
       date.setDate(date.getDate() - (days - i));
-      
+
       // Add market cycles and trends
       const cycleFactor = Math.sin((i / days) * 4 * Math.PI) * 0.1;
       const trendFactor = (i / days) * 0.05;
       const randomFactor = (Math.random() - 0.5) * 0.08;
-      
+
       const priceChange = cycleFactor + trendFactor + randomFactor;
       basePrice *= (1 + priceChange);
       basePrice = Math.max(basePrice, 50);
-      
+
       const volumeChange = (Math.random() - 0.5) * 0.3;
       baseVolume *= (1 + volumeChange);
       baseVolume = Math.max(baseVolume, 5000);
-      
+
       // Calculate technical indicators
       const rsi = 30 + Math.random() * 40; // RSI between 30-70
       const macd = (Math.random() - 0.5) * 2;
@@ -51,7 +51,7 @@ const MarketAnalytics = () => {
         lower: basePrice * 0.98,
         middle: basePrice
       };
-      
+
       data.push({
         date: date.toISOString().split('T')[0],
         timestamp: date.getTime(),
@@ -72,7 +72,7 @@ const MarketAnalytics = () => {
         resistance: parseFloat((basePrice * 1.05).toFixed(2))
       });
     }
-    
+
     return data;
   }, [timeRange]);
 
@@ -80,19 +80,19 @@ const MarketAnalytics = () => {
   const generateCorrelationData = useMemo(() => {
     const assets = ['Carbon Credits', 'Renewable Energy', 'ESG Funds', 'Green Bonds', 'Clean Tech'];
     const correlations = [];
-    
+
     for (let i = 0; i < assets.length; i++) {
       for (let j = 0; j < assets.length; j++) {
         correlations.push({
           asset1: assets[i],
           asset2: assets[j],
           correlation: i === j ? 1 : (Math.random() * 2 - 1).toFixed(3),
-          strength: i === j ? 'Perfect' : Math.abs(Math.random() * 2 - 1) > 0.7 ? 'Strong' : 
+          strength: i === j ? 'Perfect' : Math.abs(Math.random() * 2 - 1) > 0.7 ? 'Strong' :
                    Math.abs(Math.random() * 2 - 1) > 0.3 ? 'Moderate' : 'Weak'
         });
       }
     }
-    
+
     return correlations;
   }, []);
 
@@ -111,18 +111,18 @@ const MarketAnalytics = () => {
   const generatePredictions = useMemo(() => {
     const lastPrice = generateAnalyticsData[generateAnalyticsData.length - 1]?.price || 85;
     const predictions = [];
-    
+
     for (let i = 1; i <= 30; i++) {
       const date = new Date();
       date.setDate(date.getDate() + i);
-      
+
       // Simple trend prediction with confidence intervals
       const trendFactor = 0.001 * i; // Slight upward trend
       const uncertainty = 0.02 * Math.sqrt(i); // Increasing uncertainty
-      
+
       const predictedPrice = lastPrice * (1 + trendFactor + (Math.random() - 0.5) * 0.01);
       const confidence = Math.max(0.5, 0.95 - (i * 0.01)); // Decreasing confidence
-      
+
       predictions.push({
         date: date.toISOString().split('T')[0],
         predicted: parseFloat(predictedPrice.toFixed(2)),
@@ -132,7 +132,7 @@ const MarketAnalytics = () => {
         model: i <= 7 ? 'LSTM' : i <= 14 ? 'ARIMA' : 'Ensemble'
       });
     }
-    
+
     return predictions;
   }, [generateAnalyticsData]);
 
@@ -155,12 +155,12 @@ const MarketAnalytics = () => {
           <Icon className={`w-6 h-6 text-${color}-600`} />
         </div>
         <div className={`flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-          trend === 'up' ? 'bg-green-100 text-green-800' : 
-          trend === 'down' ? 'bg-red-100 text-red-800' : 
+          trend === 'up' ? 'bg-green-100 text-green-800' :
+          trend === 'down' ? 'bg-red-100 text-red-800' :
           'bg-gray-100 text-gray-800'
         }`}>
-          {trend === 'up' ? <ArrowUpRight size={12} /> : 
-           trend === 'down' ? <ArrowDownRight size={12} /> : 
+          {trend === 'up' ? <ArrowUpRight size={12} /> :
+           trend === 'down' ? <ArrowDownRight size={12} /> :
            <Activity size={12} />}
           <span className="ml-1">{change}</span>
         </div>
@@ -307,7 +307,7 @@ const MarketAnalytics = () => {
               ))}
             </div>
           </div>
-          
+
           <ResponsiveContainer width="100%" height={400}>
             {selectedMetric === 'price' ? (
               <ComposedChart data={marketData}>
@@ -423,7 +423,7 @@ const MarketAnalytics = () => {
               description="Price above 20-day MA"
             />
           </div>
-          
+
           <div className="mt-6 p-4 bg-blue-50 rounded-lg">
             <div className="flex items-center mb-2">
               <CheckCircle className="text-blue-600 mr-2" size={20} />
@@ -522,7 +522,7 @@ const MarketAnalytics = () => {
               />
             </AreaChart>
           </ResponsiveContainer>
-          
+
           <div className="mt-4 grid grid-cols-3 gap-4 text-center">
             <div>
               <p className="text-sm text-gray-600">7-day Target</p>
@@ -591,4 +591,3 @@ function parsePrice(price) {
 }
 
 export default MarketAnalytics;
-

@@ -21,13 +21,15 @@ import pandas as pd
 warnings.filterwarnings("ignore")
 
 # Machine Learning Libraries
-from sklearn.ensemble import (GradientBoostingRegressor, RandomForestRegressor,
-                              VotingRegressor)
+from sklearn.ensemble import (
+    GradientBoostingRegressor,
+    RandomForestRegressor,
+    VotingRegressor,
+)
 from sklearn.feature_selection import RFE, SelectKBest, f_regression
 from sklearn.linear_model import ElasticNet, Lasso, LinearRegression, Ridge
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
-from sklearn.model_selection import (GridSearchCV, TimeSeriesSplit,
-                                     cross_val_score)
+from sklearn.model_selection import GridSearchCV, TimeSeriesSplit, cross_val_score
 from sklearn.neural_network import MLPRegressor
 from sklearn.preprocessing import MinMaxScaler, RobustScaler, StandardScaler
 from sklearn.svm import SVR
@@ -47,8 +49,7 @@ except ImportError:
 try:
     import tensorflow as tf
     from tensorflow.keras.callbacks import EarlyStopping, ReduceLROnPlateau
-    from tensorflow.keras.layers import (LSTM, BatchNormalization, Dense,
-                                         Dropout)
+    from tensorflow.keras.layers import LSTM, BatchNormalization, Dense, Dropout
     from tensorflow.keras.models import Sequential
     from tensorflow.keras.optimizers import Adam
 

@@ -19,9 +19,13 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 from models.market import MarketData
 from models.trading import Order, OrderSide, OrderStatus, OrderType
 from models.user import User
-from services.advanced_trading_service import (AdvancedTradingService,
-                                               ExecutionStrategy, RiskMetrics,
-                                               TradingAlgorithm, TradingSignal)
+from services.advanced_trading_service import (
+    AdvancedTradingService,
+    ExecutionStrategy,
+    RiskMetrics,
+    TradingAlgorithm,
+    TradingSignal,
+)
 
 
 class TestAdvancedTradingService:

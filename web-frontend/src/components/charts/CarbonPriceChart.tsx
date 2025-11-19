@@ -32,7 +32,7 @@ const CarbonPriceChart: React.FC = () => {
     const points: DataPoint[] = [];
     let interval: number;
     let count: number;
-    
+
     // Set interval and count based on timeframe
     switch(timeframe) {
       case '1h':
@@ -55,27 +55,27 @@ const CarbonPriceChart: React.FC = () => {
         interval = 15 * 60 * 1000;
         count = 96;
     }
-    
+
     // Base price with some randomness
     let basePrice = 25;
-    
+
     // Generate data points
     for (let i = count - 1; i >= 0; i--) {
       const timestamp = now - (i * interval);
-      
+
       // Add some realistic price movements
       // More volatility for shorter timeframes
       const volatility = timeframe === '1h' ? 0.2 : timeframe === '24h' ? 0.5 : 1;
       const change = (Math.random() - 0.48) * volatility; // Slight upward bias
       basePrice = Math.max(basePrice + change, 10); // Ensure price doesn't go below 10
-      
+
       points.push({
         timestamp,
         price: parseFloat(basePrice.toFixed(2)),
         volume: Math.floor(1000 + Math.random() * 5000)
       });
     }
-    
+
     return points;
   }, []);
 
@@ -97,29 +97,29 @@ const CarbonPriceChart: React.FC = () => {
   // Function to add a new data point (for live updates)
   const addDataPoint = useCallback(() => {
     if (!isLive) return;
-    
+
     setData(prevData => {
       if (!prevData.length) return prevData;
-      
+
       const lastPoint = prevData[prevData.length - 1];
       const lastPrice = lastPoint.price;
-      
+
       // Calculate new price with realistic movement
       const change = (Math.random() - 0.48) * 0.2; // Slight upward bias
       const newPrice = Math.max(lastPrice + change, 10);
-      
+
       // Add new point and remove oldest if needed
       const newData = [...prevData, {
         timestamp: Date.now(),
         price: parseFloat(newPrice.toFixed(2)),
         volume: Math.floor(1000 + Math.random() * 5000)
       }];
-      
+
       // Keep the array at a reasonable size
       if (newData.length > 100) {
         return newData.slice(1);
       }
-      
+
       return newData;
     });
   }, [isLive]);
@@ -134,21 +134,21 @@ const CarbonPriceChart: React.FC = () => {
     const intervalId = setInterval(() => {
       addDataPoint();
     }, 5000); // Update every 5 seconds
-    
+
     return () => clearInterval(intervalId);
   }, [addDataPoint]);
 
   // Format timestamp for display
   const formatXAxis = (timestamp: number) => {
     const date = new Date(timestamp);
-    
+
     switch(timeframe) {
       case '1h':
         return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       case '24h':
         return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       case '7d':
-        return date.toLocaleDateString([], { month: 'short', day: 'numeric' }) + ' ' + 
+        return date.toLocaleDateString([], { month: 'short', day: 'numeric' }) + ' ' +
                date.toLocaleTimeString([], { hour: '2-digit' });
       case '30d':
         return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
@@ -177,37 +177,37 @@ const CarbonPriceChart: React.FC = () => {
     <div className="w-full h-full">
       <div className="flex justify-between items-center mb-4">
         <div className="flex space-x-2">
-          <Button 
-            variant={timeframe === '1h' ? "default" : "outline"} 
+          <Button
+            variant={timeframe === '1h' ? "default" : "outline"}
             size="sm"
             onClick={() => setTimeframe('1h')}
           >
             1H
           </Button>
-          <Button 
-            variant={timeframe === '24h' ? "default" : "outline"} 
+          <Button
+            variant={timeframe === '24h' ? "default" : "outline"}
             size="sm"
             onClick={() => setTimeframe('24h')}
           >
             24H
           </Button>
-          <Button 
-            variant={timeframe === '7d' ? "default" : "outline"} 
+          <Button
+            variant={timeframe === '7d' ? "default" : "outline"}
             size="sm"
             onClick={() => setTimeframe('7d')}
           >
             7D
           </Button>
-          <Button 
-            variant={timeframe === '30d' ? "default" : "outline"} 
+          <Button
+            variant={timeframe === '30d' ? "default" : "outline"}
             size="sm"
             onClick={() => setTimeframe('30d')}
           >
             30D
           </Button>
         </div>
-        <Button 
-          variant={isLive ? "default" : "outline"} 
+        <Button
+          variant={isLive ? "default" : "outline"}
           size="sm"
           onClick={() => setIsLive(!isLive)}
           className={isLive ? "bg-green-600 hover:bg-green-700" : ""}
@@ -215,7 +215,7 @@ const CarbonPriceChart: React.FC = () => {
           {isLive ? "Live" : "Paused"}
         </Button>
       </div>
-      
+
       {loading ? (
         <div className="flex items-center justify-center h-[300px]">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -228,13 +228,13 @@ const CarbonPriceChart: React.FC = () => {
               margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
             >
               <CartesianGrid strokeDasharray="3 3" stroke="#444" opacity={0.1} />
-              <XAxis 
-                dataKey="timestamp" 
-                tickFormatter={formatXAxis} 
+              <XAxis
+                dataKey="timestamp"
+                tickFormatter={formatXAxis}
                 tick={{ fontSize: 12 }}
                 stroke="#888"
               />
-              <YAxis 
+              <YAxis
                 domain={['auto', 'auto']}
                 tick={{ fontSize: 12 }}
                 stroke="#888"
@@ -252,9 +252,9 @@ const CarbonPriceChart: React.FC = () => {
                 activeDot={{ r: 6 }}
                 isAnimationActive={!isLive}
               />
-              <Brush 
-                dataKey="timestamp" 
-                height={30} 
+              <Brush
+                dataKey="timestamp"
+                height={30}
                 stroke="#888"
                 tickFormatter={formatXAxis}
                 startIndex={Math.max(0, data.length - 30)}
@@ -263,7 +263,7 @@ const CarbonPriceChart: React.FC = () => {
           </ResponsiveContainer>
         </div>
       )}
-      
+
       <div className="mt-4">
         <h3 className="text-sm font-medium mb-2">Price Overview</h3>
         <div className="grid grid-cols-3 gap-4">

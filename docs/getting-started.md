@@ -126,4 +126,4 @@ Before you begin, ensure you have the following installed:
 
 - Check our [Troubleshooting Guide](./troubleshooting.md)
 - Open an issue on GitHub
-- Contact the development team 
+- Contact the development team

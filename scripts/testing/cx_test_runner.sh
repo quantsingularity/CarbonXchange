@@ -41,14 +41,14 @@ log() {
     local level=$1
     local message=$2
     local color=$NC
-    
+
     case $level in
         "INFO") color=$GREEN ;;
         "WARNING") color=$YELLOW ;;
         "ERROR") color=$RED ;;
         "STEP") color=$BLUE ;;
     esac
-    
+
     echo -e "${color}[$level] $message${NC}"
 }
 
@@ -60,23 +60,23 @@ command_exists() {
 # Function to run backend tests
 run_backend_tests() {
     local test_type=$1  # unit, integration, or all
-    
+
     log "STEP" "Running backend $test_type tests..."
-    
+
     if [ ! -d "$BACKEND_DIR" ]; then
         log "ERROR" "Backend directory not found at $BACKEND_DIR"
         return 1
     fi
-    
+
     cd "$BACKEND_DIR"
-    
+
     # Activate virtual environment
     source "$PROJECT_ROOT/venv/bin/activate"
-    
+
     # Create test report directory
     local report_dir="$REPORT_DIR/backend"
     mkdir -p "$report_dir"
-    
+
     # Run tests based on type
     case $test_type in
         "unit")
@@ -96,70 +96,70 @@ run_backend_tests() {
             return 1
             ;;
     esac
-    
+
     local exit_code=$?
-    
+
     # Deactivate virtual environment
     deactivate
-    
+
     if [ $exit_code -eq 0 ]; then
         log "INFO" "Backend $test_type tests completed successfully"
     else
         log "ERROR" "Backend $test_type tests failed with exit code $exit_code"
         return $exit_code
     fi
-    
+
     return 0
 }
 
 # Function to run blockchain tests
 run_blockchain_tests() {
     log "STEP" "Running blockchain tests..."
-    
+
     if [ ! -d "$BLOCKCHAIN_DIR" ]; then
         log "ERROR" "Blockchain directory not found at $BLOCKCHAIN_DIR"
         return 1
     fi
-    
+
     cd "$BLOCKCHAIN_DIR"
-    
+
     # Create test report directory
     local report_dir="$REPORT_DIR/blockchain"
     mkdir -p "$report_dir"
-    
+
     # Run tests
     log "INFO" "Running blockchain tests with Truffle..."
     npx truffle test --reporter mocha-junit-reporter --reporter-options mochaFile="$report_dir/blockchain-tests.xml"
-    
+
     local exit_code=$?
-    
+
     if [ $exit_code -eq 0 ]; then
         log "INFO" "Blockchain tests completed successfully"
     else
         log "ERROR" "Blockchain tests failed with exit code $exit_code"
         return $exit_code
     fi
-    
+
     return 0
 }
 
 # Function to run web frontend tests
 run_web_frontend_tests() {
     local test_type=$1  # unit, integration, or all
-    
+
     log "STEP" "Running web frontend $test_type tests..."
-    
+
     if [ ! -d "$WEB_FRONTEND_DIR" ]; then
         log "ERROR" "Web frontend directory not found at $WEB_FRONTEND_DIR"
         return 1
     fi
-    
+
     cd "$WEB_FRONTEND_DIR"
-    
+
     # Create test report directory
     local report_dir="$REPORT_DIR/web-frontend"
     mkdir -p "$report_dir"
-    
+
     # Run tests based on type
     case $test_type in
         "unit")
@@ -179,126 +179,126 @@ run_web_frontend_tests() {
             return 1
             ;;
     esac
-    
+
     local exit_code=$?
-    
+
     if [ $exit_code -eq 0 ]; then
         log "INFO" "Web frontend $test_type tests completed successfully"
     else
         log "ERROR" "Web frontend $test_type tests failed with exit code $exit_code"
         return $exit_code
     fi
-    
+
     return 0
 }
 
 # Function to run mobile frontend tests
 run_mobile_frontend_tests() {
     log "STEP" "Running mobile frontend tests..."
-    
+
     if [ ! -d "$MOBILE_FRONTEND_DIR" ]; then
         log "ERROR" "Mobile frontend directory not found at $MOBILE_FRONTEND_DIR"
         return 1
     fi
-    
+
     cd "$MOBILE_FRONTEND_DIR"
-    
+
     # Create test report directory
     local report_dir="$REPORT_DIR/mobile-frontend"
     mkdir -p "$report_dir"
-    
+
     # Run tests
     log "INFO" "Running mobile frontend tests..."
     yarn test --json --outputFile="$report_dir/mobile-tests.json"
-    
+
     local exit_code=$?
-    
+
     if [ $exit_code -eq 0 ]; then
         log "INFO" "Mobile frontend tests completed successfully"
     else
         log "ERROR" "Mobile frontend tests failed with exit code $exit_code"
         return $exit_code
     fi
-    
+
     return 0
 }
 
 # Function to run AI model tests
 run_ai_model_tests() {
     log "STEP" "Running AI model tests..."
-    
+
     if [ ! -d "$AI_MODELS_DIR" ]; then
         log "ERROR" "AI models directory not found at $AI_MODELS_DIR"
         return 1
     fi
-    
+
     cd "$AI_MODELS_DIR"
-    
+
     # Activate virtual environment
     source "$PROJECT_ROOT/venv/bin/activate"
-    
+
     # Create test report directory
     local report_dir="$REPORT_DIR/ai-models"
     mkdir -p "$report_dir"
-    
+
     # Run tests
     log "INFO" "Running AI model tests..."
     python -m pytest tests --junitxml="$report_dir/ai-model-tests.xml" -v
-    
+
     local exit_code=$?
-    
+
     # Deactivate virtual environment
     deactivate
-    
+
     if [ $exit_code -eq 0 ]; then
         log "INFO" "AI model tests completed successfully"
     else
         log "ERROR" "AI model tests failed with exit code $exit_code"
         return $exit_code
     fi
-    
+
     return 0
 }
 
 # Function to run end-to-end tests
 run_e2e_tests() {
     log "STEP" "Running end-to-end tests..."
-    
+
     # Create test report directory
     local report_dir="$REPORT_DIR/e2e"
     mkdir -p "$report_dir"
-    
+
     # Check if Cypress is installed
     if ! command_exists npx cypress; then
         log "WARNING" "Cypress not found. Installing..."
         npm install -g cypress
     fi
-    
+
     # Run Cypress tests
     log "INFO" "Running end-to-end tests with Cypress..."
     cd "$PROJECT_ROOT"
     npx cypress run --reporter junit --reporter-options "mochaFile=$report_dir/e2e-tests.xml"
-    
+
     local exit_code=$?
-    
+
     if [ $exit_code -eq 0 ]; then
         log "INFO" "End-to-end tests completed successfully"
     else
         log "ERROR" "End-to-end tests failed with exit code $exit_code"
         return $exit_code
     fi
-    
+
     return 0
 }
 
 # Function to generate test coverage report
 generate_coverage_report() {
     log "STEP" "Generating test coverage reports..."
-    
+
     # Create coverage report directory
     local coverage_dir="$REPORT_DIR/coverage"
     mkdir -p "$coverage_dir"
-    
+
     # Backend coverage
     if [ -d "$BACKEND_DIR" ]; then
         log "INFO" "Generating backend coverage report..."
@@ -307,38 +307,38 @@ generate_coverage_report() {
         python -m pytest --cov=. --cov-report=xml:$coverage_dir/backend-coverage.xml tests/
         deactivate
     fi
-    
+
     # Web frontend coverage
     if [ -d "$WEB_FRONTEND_DIR" ]; then
         log "INFO" "Generating web frontend coverage report..."
         cd "$WEB_FRONTEND_DIR"
         npm test -- --coverage --coverageDirectory="$coverage_dir/web-frontend"
     fi
-    
+
     # Mobile frontend coverage
     if [ -d "$MOBILE_FRONTEND_DIR" ]; then
         log "INFO" "Generating mobile frontend coverage report..."
         cd "$MOBILE_FRONTEND_DIR"
         yarn test --coverage --coverageDirectory="$coverage_dir/mobile-frontend"
     fi
-    
+
     log "INFO" "Coverage reports generated in $coverage_dir"
 }
 
 # Function to set up pre-commit hooks
 setup_pre_commit_hooks() {
     log "STEP" "Setting up pre-commit hooks..."
-    
+
     # Check if git is initialized
     if [ ! -d "$PROJECT_ROOT/.git" ]; then
         log "ERROR" "Git repository not found at $PROJECT_ROOT"
         return 1
     fi
-    
+
     # Create hooks directory if it doesn't exist
     local hooks_dir="$PROJECT_ROOT/.git/hooks"
     mkdir -p "$hooks_dir"
-    
+
     # Create pre-commit hook
     log "INFO" "Creating pre-commit hook..."
     cat > "$hooks_dir/pre-commit" << 'EOF'
@@ -373,43 +373,43 @@ fi
 echo "Pre-commit checks passed!"
 exit 0
 EOF
-    
+
     # Make the hook executable
     chmod +x "$hooks_dir/pre-commit"
-    
+
     log "INFO" "Pre-commit hook set up successfully"
 }
 
 # Function to run unit tests only
 run_unit_tests_only() {
     log "STEP" "Running unit tests for all components..."
-    
+
     local exit_code=0
-    
+
     # Run backend unit tests
     run_backend_tests "unit"
     if [ $? -ne 0 ]; then
         exit_code=1
     fi
-    
+
     # Run web frontend unit tests
     run_web_frontend_tests "unit"
     if [ $? -ne 0 ]; then
         exit_code=1
     fi
-    
+
     # Run blockchain tests (usually only unit tests)
     run_blockchain_tests
     if [ $? -ne 0 ]; then
         exit_code=1
     fi
-    
+
     # Run mobile frontend tests (usually only unit tests)
     run_mobile_frontend_tests
     if [ $? -ne 0 ]; then
         exit_code=1
     fi
-    
+
     return $exit_code
 }
 
@@ -445,7 +445,7 @@ main() {
         show_help
         exit 0
     fi
-    
+
     local run_all=false
     local run_unit_only=false
     local run_integration_only=false
@@ -457,7 +457,7 @@ main() {
     local run_ai_models=false
     local gen_coverage=false
     local setup_hooks=false
-    
+
     # Parse command line arguments
     while [ $# -gt 0 ]; do
         case "$1" in
@@ -506,19 +506,19 @@ main() {
         esac
         shift
     done
-    
+
     # Print banner
     echo "========================================================"
     echo "  CarbonXchange Test Automation Suite"
     echo "========================================================"
     echo ""
-    
+
     # Set up pre-commit hooks if requested
     if [ "$setup_hooks" = true ]; then
         setup_pre_commit_hooks
         exit $?
     fi
-    
+
     # Run tests based on options
     if [ "$run_all" = true ]; then
         # Run all tests
@@ -543,29 +543,29 @@ main() {
         if [ "$run_backend" = true ]; then
             run_backend_tests "all"
         fi
-        
+
         if [ "$run_blockchain" = true ]; then
             run_blockchain_tests
         fi
-        
+
         if [ "$run_web_frontend" = true ]; then
             run_web_frontend_tests "all"
         fi
-        
+
         if [ "$run_mobile_frontend" = true ]; then
             run_mobile_frontend_tests
         fi
-        
+
         if [ "$run_ai_models" = true ]; then
             run_ai_model_tests
         fi
     fi
-    
+
     # Generate coverage reports if requested
     if [ "$gen_coverage" = true ]; then
         generate_coverage_report
     fi
-    
+
     log "INFO" "Test automation completed"
     echo ""
     log "INFO" "Test reports available in: $REPORT_DIR"

@@ -32,14 +32,14 @@ const LoginScreen = ({ navigation }) => {
   }, [error, dispatch]);
 
   return (
-    <KeyboardAvoidingView 
-      behavior={Platform.OS === "ios" ? "padding" : "height"} 
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.container}
     >
       <View style={styles.innerContainer}>
         <Text style={styles.title}>Welcome Back!</Text>
         <Text style={styles.subtitle}>Login to CarbonXchange</Text>
-        
+
         <TextInput
           style={styles.input}
           placeholder="Email"
@@ -66,9 +66,9 @@ const LoginScreen = ({ navigation }) => {
           </TouchableOpacity>
         )}
 
-        <TouchableOpacity 
-          style={[styles.button, styles.buttonSecondary]} 
-          onPress={() => navigation.navigate('Register')} 
+        <TouchableOpacity
+          style={[styles.button, styles.buttonSecondary]}
+          onPress={() => navigation.navigate('Register')}
           disabled={isLoading}
         >
           <Text style={styles.buttonSecondaryText}>Don't have an account? Register</Text>
@@ -120,4 +120,3 @@ const styles = StyleSheet.create({
 });
 
 export default LoginScreen;
-

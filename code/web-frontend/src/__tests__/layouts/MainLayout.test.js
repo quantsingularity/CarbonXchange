@@ -76,4 +76,3 @@ describe('MainLayout Component', () => {
     // Add more tests if MainLayout has specific logic, props, or state
     // For example, if it handles a sidebar toggle, theme changes, etc.
 });
-

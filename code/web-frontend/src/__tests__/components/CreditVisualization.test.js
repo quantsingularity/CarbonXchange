@@ -62,4 +62,3 @@ describe('CreditVisualization Component', () => {
     // Add more tests for specific props, interactions, or conditional rendering logic
     // For example, if the chart type or colors can be customized via props.
 });
-

@@ -12,7 +12,7 @@ resource "aws_kms_key" "main" {
   description             = "KMS key for ${var.app_name} ${var.environment} encryption"
   deletion_window_in_days = var.kms_deletion_window
   enable_key_rotation     = true
-  
+
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -834,7 +834,7 @@ resource "aws_ssm_parameter" "app_config" {
   name  = "/${var.app_name}/${var.environment}/${each.key}"
   type  = each.value.type
   value = each.value.value
-  
+
   key_id = each.value.type == "SecureString" ? aws_kms_key.main.arn : null
 
   tags = merge(var.common_tags, {
@@ -842,4 +842,3 @@ resource "aws_ssm_parameter" "app_config" {
     Type = "configuration"
   })
 }
-

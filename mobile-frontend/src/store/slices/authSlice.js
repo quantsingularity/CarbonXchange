@@ -10,7 +10,7 @@ export const loginUser = createAsyncThunk(
       // Assuming API returns { success: true, token: '...', user: {...} }
       if (response.success) {
         // Store token securely (e.g., AsyncStorage) - Placeholder
-        console.log('Login successful, token:', response.token); 
+        console.log('Login successful, token:', response.token);
         return { user: response.user, token: response.token };
       } else {
         return rejectWithValue(response.error || 'Login failed');
@@ -108,4 +108,3 @@ const authSlice = createSlice({
 
 export const { logout, resetAuthError } = authSlice.actions;
 export default authSlice.reducer;
-

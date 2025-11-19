@@ -176,4 +176,3 @@ aiohttp==3.9.1
 # Development and Debugging
 flask-debugtoolbar==0.13.1
 werkzeug-profiler==0.1.1
-

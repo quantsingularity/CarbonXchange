@@ -114,7 +114,7 @@ const CreditsListScreen = ({ navigation }) => {
       </View>
       <View style={styles.itemRow}>
         <Text style={styles.itemLabel}>Price:</Text>
-        {/* Ensure price is formatted correctly */} 
+        {/* Ensure price is formatted correctly */}
         <Text style={styles.itemValue}>{item.price !== undefined ? `$${parseFloat(item.price).toFixed(2)}` : 'N/A'}</Text>
       </View>
     </TouchableOpacity>
@@ -135,20 +135,20 @@ const CreditsListScreen = ({ navigation }) => {
   const renderEmpty = () => {
     // Don't show empty/error message while initial loading or refreshing
     if (isLoading || isRefreshing) return null;
-    
-    const message = error 
-        ? error 
-        : debouncedSearchQuery 
-            ? `No credits found matching "${debouncedSearchQuery}".` 
+
+    const message = error
+        ? error
+        : debouncedSearchQuery
+            ? `No credits found matching "${debouncedSearchQuery}".`
             : 'No carbon credits available.';
-            
+
     const isError = !!error;
 
     return (
       <View style={styles.centeredMessageContainer}>
         <Text style={isError ? styles.errorText : styles.emptyText}>{message}</Text>
-        <TouchableOpacity 
-            style={[theme.components.button, styles.retryButton]} 
+        <TouchableOpacity
+            style={[theme.components.button, styles.retryButton]}
             onPress={onRefresh} // Use onRefresh to retry (fetches page 1 with current search)
         >
            <Text style={theme.components.buttonText}>Retry</Text>
@@ -295,4 +295,3 @@ const styles = StyleSheet.create({
 });
 
 export default CreditsListScreen;
-

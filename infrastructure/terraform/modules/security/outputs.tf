@@ -263,4 +263,3 @@ output "security_metrics" {
     }
   }
 }
-

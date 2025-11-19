@@ -16,8 +16,14 @@ from flask import current_app
 from src.models import db
 from src.models.carbon_credit import CarbonCredit
 from src.models.market import MarketData, PriceHistory
-from src.models.trading import (Order, OrderSide, OrderStatus, OrderType,
-                                Portfolio, Trade)
+from src.models.trading import (
+    Order,
+    OrderSide,
+    OrderStatus,
+    OrderType,
+    Portfolio,
+    Trade,
+)
 from src.models.user import User
 from src.services.pricing_service import PricingService
 from src.services.risk_service import RiskService

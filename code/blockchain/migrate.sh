@@ -35,4 +35,3 @@ else
 fi
 
 exit $MIGRATE_EXIT_CODE
-

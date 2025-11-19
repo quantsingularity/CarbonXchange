@@ -146,4 +146,3 @@ describe('TradingDashboard Component', () => {
     // Add tests for input fields for buy/sell amounts if they exist within this component
     // Add tests for error handling or feedback messages
 });
-

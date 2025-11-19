@@ -22,16 +22,16 @@ const MarketStats: React.FC<MarketStatsProps> = ({ className }) => {
   useEffect(() => {
     // Initial data fetch
     fetchMarketStats();
-    
+
     // Set up real-time updates
     const unsubscribe = subscribeToMarketData((data) => {
       if (data && data.price) {
         setStats(prevStats => {
           if (!prevStats) return null;
-          
+
           // Calculate new average based on incoming data
           const newAvgPrice = (prevStats.averagePrice * 0.95) + (data.price * 0.05);
-          
+
           return {
             ...prevStats,
             averagePrice: newAvgPrice,
@@ -41,12 +41,12 @@ const MarketStats: React.FC<MarketStatsProps> = ({ className }) => {
         });
       }
     });
-    
+
     // Set up interval for periodic full refreshes
     const intervalId = setInterval(() => {
       fetchMarketStats();
     }, 60000); // Full refresh every minute
-    
+
     return () => {
       unsubscribe();
       clearInterval(intervalId);
@@ -57,13 +57,13 @@ const MarketStats: React.FC<MarketStatsProps> = ({ className }) => {
     setLoading(true);
     try {
       let response;
-      
+
       if (isUsingMockData()) {
         response = getMockMarketStats();
       } else {
         response = await getMarketStats();
       }
-      
+
       if (response.success && response.data) {
         setStats(response.data);
       }

@@ -269,4 +269,4 @@ npx hardhat console --verbose
 3. Documentation
    - Keep docs updated
    - Document known issues
-   - Maintain changelog 
+   - Maintain changelog

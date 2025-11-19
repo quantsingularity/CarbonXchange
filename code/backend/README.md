@@ -376,7 +376,7 @@ The system uses PostgreSQL with the following optimizations:
 
 1. **Server Requirements:**
    - CPU: 4+ cores
-   - RAM: 8GB+ 
+   - RAM: 8GB+
    - Storage: 100GB+ SSD
    - Network: 1Gbps+
 
@@ -436,10 +436,10 @@ upstream carbonxchange_backend {
 server {
     listen 443 ssl;
     server_name api.carbonxchange.com;
-    
+
     ssl_certificate /path/to/certificate.crt;
     ssl_certificate_key /path/to/private.key;
-    
+
     location / {
         proxy_pass http://carbonxchange_backend;
         proxy_set_header Host $host;

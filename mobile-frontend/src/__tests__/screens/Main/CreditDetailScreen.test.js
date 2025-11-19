@@ -117,4 +117,3 @@ describe("CreditDetailScreen", () => {
     expect(await findByText("Credit not found.")).toBeTruthy();
   });
 });
-

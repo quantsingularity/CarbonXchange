@@ -373,4 +373,3 @@ spec:
         - name: ndots
           value: "2"
         - name: edns0
-

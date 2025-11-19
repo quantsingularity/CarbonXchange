@@ -51,7 +51,7 @@ describe('useApi Hook', () => {
             await act(async () => {
                 response = await result.current.get('/test-endpoint');
             });
-            
+
             // await waitFor(() => expect(result.current.loading).toBe(false)); // Wait for loading to be false
 
             expect(result.current.loading).toBe(false);
@@ -121,4 +121,3 @@ describe('useApi Hook', () => {
     // Example for DELETE:
     // describe('DELETE requests', () => { ... });
 });
-

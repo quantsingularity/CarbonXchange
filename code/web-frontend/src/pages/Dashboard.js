@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Box, 
-  Card, 
-  CardContent, 
-  Grid, 
-  Typography, 
-  Button, 
+import {
+  Box,
+  Card,
+  CardContent,
+  Grid,
+  Typography,
+  Button,
   Divider,
   Paper,
   Avatar,
@@ -14,11 +14,11 @@ import {
   useTheme,
   CircularProgress
 } from '@mui/material';
-import { 
-  TrendingUp, 
-  TrendingDown, 
-  MoreVert, 
-  ArrowUpward, 
+import {
+  TrendingUp,
+  TrendingDown,
+  MoreVert,
+  ArrowUpward,
   ArrowDownward,
   Refresh
 } from '@mui/icons-material';
@@ -67,7 +67,7 @@ export default function Dashboard() {
         // Fetch listings from API
         const listingsData = await api.getListings();
         setListings(listingsData || []);
-        
+
         // Fetch credit distribution from API
         const distributionData = await api.getCreditDistribution();
         setCreditDistribution(distributionData || []);
@@ -91,7 +91,7 @@ export default function Dashboard() {
         setLoading(true);
         const listingsData = await api.getListings();
         setListings(listingsData || []);
-        
+
         const distributionData = await api.getCreditDistribution();
         setCreditDistribution(distributionData || []);
       } catch (error) {
@@ -116,8 +116,8 @@ export default function Dashboard() {
             <Typography variant="h4" component="h1" gutterBottom>
               Dashboard
         </Typography>
-        <Button 
-          variant="contained" 
+        <Button
+          variant="contained"
           color="primary"
           startIcon={<Refresh />}
           onClick={refreshData}
@@ -342,12 +342,12 @@ export default function Dashboard() {
               </Box>
               {listings.length > 0 ? (
                 listings.map((listing) => (
-                  <Box 
-                    key={listing.id} 
-                    sx={{ 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      p: 2, 
+                  <Box
+                    key={listing.id}
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      p: 2,
                       borderBottom: `1px solid ${theme.palette.divider}`,
                       '&:hover': {
                         backgroundColor: theme.palette.action.hover,

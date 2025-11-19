@@ -427,4 +427,3 @@ variable "monitoring_integrations" {
     splunk_enabled    = false
   }
 }
-

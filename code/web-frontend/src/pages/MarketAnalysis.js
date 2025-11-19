@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Box, 
-  Card, 
-  CardContent, 
-  Grid, 
-  Typography, 
-  Button, 
+import {
+  Box,
+  Card,
+  CardContent,
+  Grid,
+  Typography,
+  Button,
   TextField,
   MenuItem,
   InputAdornment,
@@ -15,15 +15,15 @@ import {
   useTheme,
   CircularProgress
 } from '@mui/material';
-import { 
-  LineChart, 
-  Line, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  Legend, 
-  ResponsiveContainer 
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer
 } from 'recharts';
 import { Search as SearchIcon, TrendingUp } from '@mui/icons-material';
 import useApi from '../hooks/useApi';
@@ -70,7 +70,7 @@ export default function MarketAnalysis() {
         confidence: confidenceLevel,
         // Add other features as needed
       };
-      
+
       const result = await api.getForecast(features);
       if (result && result.forecast) {
         setForecastResult(result.forecast);
@@ -99,8 +99,8 @@ export default function MarketAnalysis() {
             <Typography variant="h4" component="h1" gutterBottom>
               Market Analysis
             </Typography>
-            <Button 
-              variant="contained" 
+            <Button
+              variant="contained"
               color="primary"
               startIcon={<TrendingUp />}
               onClick={fetchForecastData}
@@ -179,23 +179,23 @@ export default function MarketAnalysis() {
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Line 
-                  type="monotone" 
-                  dataKey="actual" 
-                  stroke={theme.palette.primary.main} 
+                <Line
+                  type="monotone"
+                  dataKey="actual"
+                  stroke={theme.palette.primary.main}
                   strokeWidth={2}
                   dot={{ r: 4 }}
                   activeDot={{ r: 8 }}
-                  name="Historical Price" 
+                  name="Historical Price"
                 />
-                <Line 
-                  type="monotone" 
-                  dataKey="forecast" 
-                  stroke={theme.palette.secondary.main} 
+                <Line
+                  type="monotone"
+                  dataKey="forecast"
+                  stroke={theme.palette.secondary.main}
                   strokeWidth={2}
                   strokeDasharray="5 5"
                   dot={{ r: 4 }}
-                  name="Forecasted Price" 
+                  name="Forecasted Price"
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -246,7 +246,7 @@ export default function MarketAnalysis() {
                 Market Factors
               </Typography>
               <Divider sx={{ my: 2 }} />
-              
+
               <Box sx={{ mb: 3 }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                   <Typography variant="body2">Policy Impact</Typography>
@@ -256,7 +256,7 @@ export default function MarketAnalysis() {
                   <Box sx={{ width: '85%', bgcolor: theme.palette.primary.main, height: 8, borderRadius: 4 }} />
                 </Box>
               </Box>
-              
+
               <Box sx={{ mb: 3 }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                   <Typography variant="body2">Corporate Demand</Typography>
@@ -266,7 +266,7 @@ export default function MarketAnalysis() {
                   <Box sx={{ width: '92%', bgcolor: theme.palette.primary.main, height: 8, borderRadius: 4 }} />
                 </Box>
               </Box>
-              
+
               <Box sx={{ mb: 3 }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                   <Typography variant="body2">Project Availability</Typography>
@@ -276,7 +276,7 @@ export default function MarketAnalysis() {
                   <Box sx={{ width: '60%', bgcolor: theme.palette.primary.main, height: 8, borderRadius: 4 }} />
                 </Box>
               </Box>
-              
+
               <Box sx={{ mb: 3 }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                   <Typography variant="body2">Market Volatility</Typography>
@@ -286,7 +286,7 @@ export default function MarketAnalysis() {
                   <Box sx={{ width: '30%', bgcolor: theme.palette.primary.main, height: 8, borderRadius: 4 }} />
                 </Box>
               </Box>
-              
+
               <Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                   <Typography variant="body2">Price Trend Confidence</Typography>

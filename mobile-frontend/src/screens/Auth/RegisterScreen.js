@@ -41,7 +41,7 @@ const RegisterScreen = ({ navigation }) => {
       password,
       fullName,
       // Only include walletAddress if it's not empty, or adjust based on API requirements
-      ...(walletAddress && { walletAddress }), 
+      ...(walletAddress && { walletAddress }),
     };
     dispatch(registerUser(userData));
     // Navigation handled by App.js based on state
@@ -56,15 +56,15 @@ const RegisterScreen = ({ navigation }) => {
   }, [error, dispatch]);
 
   return (
-    <KeyboardAvoidingView 
-      behavior={Platform.OS === "ios" ? "padding" : "height"} 
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.container}
     >
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.innerContainer}>
           <Text style={styles.title}>Create Account</Text>
           <Text style={styles.subtitle}>Join CarbonXchange</Text>
-          
+
           <TextInput
             style={styles.input}
             placeholder="Full Name"
@@ -114,9 +114,9 @@ const RegisterScreen = ({ navigation }) => {
             </TouchableOpacity>
           )}
 
-          <TouchableOpacity 
-            style={[styles.button, styles.buttonSecondary]} 
-            onPress={() => navigation.navigate('Login')} 
+          <TouchableOpacity
+            style={[styles.button, styles.buttonSecondary]}
+            onPress={() => navigation.navigate('Login')}
             disabled={isLoading}
           >
             <Text style={styles.buttonSecondaryText}>Already have an account? Login</Text>
@@ -171,4 +171,3 @@ const styles = StyleSheet.create({
 });
 
 export default RegisterScreen;
-

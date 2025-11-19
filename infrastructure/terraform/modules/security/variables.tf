@@ -343,4 +343,3 @@ variable "environment_config" {
     }
   }
 }
-

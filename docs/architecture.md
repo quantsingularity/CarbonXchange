@@ -262,4 +262,4 @@ npx hardhat compile
 - Zero-knowledge proofs
 - Improved consensus mechanisms
 - Advanced market making
-- Automated verification 
+- Automated verification

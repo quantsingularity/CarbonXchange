@@ -46,7 +46,7 @@ describe('Dashboard Page', () => {
         // This test depends on how DashboardPage fetches and uses data.
         // If it uses the mocked useApi hook:
         const mockApiGet = jest.requireMock('../../../hooks/useApi').default().get;
-        mockApiGet.mockResolvedValueOnce({ 
+        mockApiGet.mockResolvedValueOnce({
             data: {
                 userStats: { credits: 150, trades: 10 },
                 marketSummary: { totalVolume: 10000 }
@@ -75,4 +75,3 @@ describe('Dashboard Page', () => {
     // not covered by individual component tests.
     // For example, if there are filters or actions at the page level.
 });
-

@@ -618,4 +618,3 @@ variable "network_encryption_enabled" {
   type        = bool
   default     = true
 }
-

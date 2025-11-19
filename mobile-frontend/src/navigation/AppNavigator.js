@@ -11,7 +11,7 @@ import TradeHistoryScreen from '../screens/Main/TradeHistoryScreen'; // Import t
 import theme from '../styles/theme'; // Import theme for styling
 
 // Import icons (placeholder - install expo vector icons if needed)
-// import { Ionicons } from '@expo/vector-icons'; 
+// import { Ionicons } from '@expo/vector-icons';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -57,25 +57,25 @@ function MainTabs() {
         },
       })}
     >
-      <Tab.Screen 
-        name="Credits" 
-        component={CreditsListScreen} 
-        options={{ title: 'Credits' }} 
+      <Tab.Screen
+        name="Credits"
+        component={CreditsListScreen}
+        options={{ title: 'Credits' }}
       />
-      <Tab.Screen 
-        name="Market" 
-        component={MarketDataScreen} 
-        options={{ title: 'Market' }} 
+      <Tab.Screen
+        name="Market"
+        component={MarketDataScreen}
+        options={{ title: 'Market' }}
       />
-      <Tab.Screen 
-        name="Wallet" 
-        component={WalletScreen} 
-        options={{ title: 'Wallet' }} 
+      <Tab.Screen
+        name="Wallet"
+        component={WalletScreen}
+        options={{ title: 'Wallet' }}
       />
-      <Tab.Screen 
-        name="History" 
-        component={TradeHistoryScreen} 
-        options={{ title: 'History' }} 
+      <Tab.Screen
+        name="History"
+        component={TradeHistoryScreen}
+        options={{ title: 'History' }}
       />
     </Tab.Navigator>
   );
@@ -84,8 +84,8 @@ function MainTabs() {
 // App Navigator using a Stack to contain Tabs and other screens
 const AppNavigator = () => {
   return (
-    <Stack.Navigator 
-      initialRouteName="MainTabs" 
+    <Stack.Navigator
+      initialRouteName="MainTabs"
       screenOptions={{
         headerStyle: {
           backgroundColor: theme.colors.surface,
@@ -97,23 +97,23 @@ const AppNavigator = () => {
         headerBackTitleVisible: false, // Hide back button text on iOS
       }}
     >
-      <Stack.Screen 
-        name="MainTabs" 
-        component={MainTabs} 
+      <Stack.Screen
+        name="MainTabs"
+        component={MainTabs}
         options={{ headerShown: false }} // Hide header for the tab container itself
       />
-      <Stack.Screen 
-        name="CreditDetail" 
-        component={CreditDetailScreen} 
+      <Stack.Screen
+        name="CreditDetail"
+        component={CreditDetailScreen}
         options={{ title: 'Credit Details' }} // Header title for this screen
       />
-      <Stack.Screen 
-        name="Trading" 
-        component={TradingScreen} 
-        options={{ 
-          title: 'Initiate Trade', 
+      <Stack.Screen
+        name="Trading"
+        component={TradingScreen}
+        options={{
+          title: 'Initiate Trade',
           presentation: 'modal', // Example: Open Trading screen as a modal
-        }} 
+        }}
       />
       {/* Add other non-tab screens here if needed */}
     </Stack.Navigator>
@@ -121,4 +121,3 @@ const AppNavigator = () => {
 };
 
 export default AppNavigator;
-

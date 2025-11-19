@@ -110,14 +110,14 @@ describe('useWeb3 Hook', () => {
             window.ethereum.request.mockResolvedValueOnce(['0x123']);
             mockWeb3Instance.eth.getAccounts.mockResolvedValueOnce(['0x123']);
             mockWeb3Instance.eth.getBalance.mockResolvedValueOnce('100');
-            
+
             const { result } = renderHook(() => useWeb3());
-            
+
             act(() => {
                 result.current.connectWallet(); // Don't await here to check intermediate loading state
             });
             expect(result.current.loading).toBe(true);
-            
+
             // Wait for connectWallet to complete
             await act(async () => {
                 await new Promise(resolve => setTimeout(resolve, 0)); // Allow promises to resolve
@@ -143,7 +143,7 @@ describe('useWeb3 Hook', () => {
             act(() => {
                 result.current.getContractInstance(mockAbi, mockAddress);
             });
-            
+
             expect(mockWeb3Instance.eth.Contract).toHaveBeenCalledWith(mockAbi, mockAddress);
         });
 
@@ -158,4 +158,3 @@ describe('useWeb3 Hook', () => {
     // Add tests for accountChanged and chainChanged listeners if implemented in the hook
     // This would involve mocking window.ethereum.on and simulating events.
 });
-

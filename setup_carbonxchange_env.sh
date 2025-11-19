@@ -222,7 +222,7 @@ echo ""
 echo "Remember to check for any specific Node.js or Python version requirements if you encounter issues during runtime."
 
 # Make the script executable (though it's already being run if this line is reached by the user manually)
-# chmod +x ./setup_carbonxchange_env.sh 
+# chmod +x ./setup_carbonxchange_env.sh
 # echo "Made the script executable: ./setup_carbonxchange_env.sh"
 
 echo "Setup script created at ./setup_carbonxchange_env.sh"

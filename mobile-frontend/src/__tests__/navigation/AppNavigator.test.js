@@ -46,13 +46,13 @@ describe("AppNavigator", () => {
     // For example, if tabs have titles:
     // expect(getByText("Credits")).toBeTruthy(); // Assuming a tab named "Credits" for CreditsListScreen
     // expect(getByText("Market")).toBeTruthy(); // Assuming a tab named "Market" for MarketDataScreen
-    
+
     // This is a placeholder, as direct text matching for mocked screens is not reliable.
     // The key is that the navigator structure for logged-in users is rendered without errors.
-    expect(true).toBe(true); 
+    expect(true).toBe(true);
   });
 
-  // Note: AppNavigator itself doesn't handle the loggedOut state; 
+  // Note: AppNavigator itself doesn't handle the loggedOut state;
   // that logic is typically in a higher-level navigator (e.g., a root navigator switching between Auth and App navigators).
   // So, testing AppNavigator usually assumes isLoggedIn is true.
 
@@ -61,4 +61,3 @@ describe("AppNavigator", () => {
   // 2. Testing navigation between tabs (would require more setup to simulate tab presses).
   // 3. Testing navigation to stack screens within a tab (e.g., CreditDetailScreen from CreditsListScreen).
 });
-

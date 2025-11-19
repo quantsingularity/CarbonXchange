@@ -35,4 +35,3 @@ describe("AuthNavigator", () => {
   // Add more tests here, for example, to check navigation between Login and Register screens
   // This would require a more sophisticated setup with mockNavigate from @react-navigation/native
 });
-

@@ -133,7 +133,7 @@ const WalletScreen = ({ navigation }) => {
           <View>
             <View style={styles.balanceRow}>
               <Text style={styles.balanceLabel}>Token Balance:</Text>
-              {/* Assuming token balance needs formatting */} 
+              {/* Assuming token balance needs formatting */}
               <Text style={styles.balanceValue}>{balance.tokenBalance?.toLocaleString() || '0'} TOK</Text>
             </View>
             <View style={styles.balanceRow}>
@@ -297,4 +297,3 @@ const styles = StyleSheet.create({
 });
 
 export default WalletScreen;
-

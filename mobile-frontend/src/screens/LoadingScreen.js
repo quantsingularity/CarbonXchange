@@ -25,7 +25,7 @@ const LoadingScreen = ({ navigation }) => {
         console.error('Error checking auth status:', error);
         // Handle error, maybe navigate to login
         // dispatch(setInitialAuthState({ isLoggedIn: false, token: null }));
-      } 
+      }
       // The actual navigation switch will happen in App.js based on the store's state
     };
 
@@ -48,4 +48,3 @@ const styles = StyleSheet.create({
 });
 
 export default LoadingScreen;
-

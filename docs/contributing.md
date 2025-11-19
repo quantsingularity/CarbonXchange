@@ -231,4 +231,4 @@ Closes #123
 - Report security issues privately
 - Follow responsible disclosure
 - Use security tools provided
-- Regular security reviews 
+- Regular security reviews

@@ -121,7 +121,7 @@ describe("authSlice reducers", () => {
       expect(state.error).toEqual(mockError);
     });
   });
-  
+
   describe("logout action/thunk", () => {
     // If logout is a simple action creator that results in specific state changes handled by extraReducers or a reducer case
     // Or if it's a thunk that dispatches actions leading to reset state
@@ -141,11 +141,11 @@ describe("authSlice reducers", () => {
       // The actual implementation of logout in authSlice.js determines how this test is written.
       // For simplicity, if logout directly leads to initial state like properties:
       const state = authReducer(loggedInState, action); // This might need to be logout.fulfilled if it's a thunk
-      
+
       // A more common pattern for logout thunk is it dispatches multiple actions
       // e.g. api.logoutUser() then dispatch(setUser(null)), dispatch(setToken(null)), dispatch(setLoggedIn(false))
       // In that case, you'd test the thunk itself (see below) or the individual reducers for those dispatched actions.
-      
+
       // For now, let's assume a simple reducer case for 'logout' or similar action type
       // that resets to initial-like state for logged out user.
       expect(state.isLoggedIn).toBe(false);
@@ -224,4 +224,3 @@ describe("authSlice thunks direct invocation", () => {
     // Add other actions that logout thunk is supposed to dispatch
   });
 });
-

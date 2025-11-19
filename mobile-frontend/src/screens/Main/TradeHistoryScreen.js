@@ -103,8 +103,8 @@ const TradeHistoryScreen = ({ navigation }) => {
     return (
       <View style={styles.centeredMessageContainer}>
         <Text style={isError ? styles.errorText : styles.emptyText}>{message}</Text>
-        <TouchableOpacity 
-            style={[theme.components.button, styles.retryButton]} 
+        <TouchableOpacity
+            style={[theme.components.button, styles.retryButton]}
             onPress={onRefresh} // Use onRefresh to retry
         >
            <Text style={theme.components.buttonText}>Retry</Text>
@@ -116,7 +116,7 @@ const TradeHistoryScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Trade History</Text>
-      
+
       {isLoading && trades.length === 0 && (
           <ActivityIndicator style={{ marginTop: theme.spacing.xl }} size="large" color={theme.colors.primary} />
       )}
@@ -238,4 +238,3 @@ const styles = StyleSheet.create({
 });
 
 export default TradeHistoryScreen;
-

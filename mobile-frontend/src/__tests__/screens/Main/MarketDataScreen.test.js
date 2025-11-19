@@ -105,4 +105,3 @@ describe("MarketDataScreen", () => {
     expect(true).toBe(true); // Placeholder
   });
 });
-

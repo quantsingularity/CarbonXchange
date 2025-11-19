@@ -42,15 +42,15 @@ const MarketDataScreen = () => {
       const response = await getMarketForecast({ timeframe, type: 'price' });
       if (response.success && response.data) {
         // Basic validation for chart data structure
-        if (response.data.labels && response.data.labels.length > 0 && 
-            response.data.datasets && response.data.datasets.length > 0 && 
+        if (response.data.labels && response.data.labels.length > 0 &&
+            response.data.datasets && response.data.datasets.length > 0 &&
             response.data.datasets[0]?.data && response.data.datasets[0].data.length > 0 &&
             response.data.labels.length === response.data.datasets[0].data.length) {
            setForecast({ timeframe, type: 'price', data: response.data });
         } else {
            console.warn('Forecast API response format might not be suitable for chart or contains no data:', response.data);
            // Set a default structure to avoid crashes, but show error
-           setForecast({ timeframe, type: 'price', data: { labels: ['N/A'], datasets: [{ data: [0] }] } }); 
+           setForecast({ timeframe, type: 'price', data: { labels: ['N/A'], datasets: [{ data: [0] }] } });
            setErrorForecast('Received forecast data in unexpected format or it was empty.');
         }
       } else {
@@ -102,8 +102,8 @@ const MarketDataScreen = () => {
       {
         data: [0],
         // Optional: Define color and strokeWidth directly in dataset if needed
-        // color: (opacity = 1) => `rgba(134, 65, 244, ${opacity})`, 
-        // strokeWidth: 2 
+        // color: (opacity = 1) => `rgba(134, 65, 244, ${opacity})`,
+        // strokeWidth: 2
       }
     ],
     legend: ['Price Trend'] // Optional legend
@@ -188,7 +188,7 @@ const MarketDataScreen = () => {
               bezier // Makes the line smooth
               style={styles.chartStyle}
               // Optional: Hide points if too cluttered
-              // withDots={forecast.data.labels.length < 15} 
+              // withDots={forecast.data.labels.length < 15}
               // Optional: Hide labels if too cluttered
               // withHorizontalLabels={forecast.data.labels.length < 10}
               // withVerticalLabels={forecast.data.labels.length < 10}
@@ -317,4 +317,3 @@ const styles = StyleSheet.create({
 });
 
 export default MarketDataScreen;
-

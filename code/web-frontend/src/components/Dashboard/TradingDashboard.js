@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-  LineChart, Line, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, 
+  LineChart, Line, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell
 } from 'recharts';
 import {
-  TrendingUp, TrendingDown, DollarSign, Activity, Users, 
+  TrendingUp, TrendingDown, DollarSign, Activity, Users,
   BarChart3, PieChart as PieChartIcon, Settings, Bell,
   ArrowUpRight, ArrowDownRight, Zap, Shield, Globe
 } from 'lucide-react';
@@ -331,8 +331,8 @@ const TradingDashboard = () => {
                   </div>
                 </div>
                 <div className={`px-2 py-1 rounded text-xs font-medium ${
-                  activity.type === 'buy' 
-                    ? 'bg-green-100 text-green-800' 
+                  activity.type === 'buy'
+                    ? 'bg-green-100 text-green-800'
                     : 'bg-red-100 text-red-800'
                 }`}>
                   {activity.type.toUpperCase()}
@@ -369,4 +369,3 @@ const TradingDashboard = () => {
 };
 
 export default TradingDashboard;
-

@@ -56,4 +56,3 @@ describe('MarketAnalysis Component', () => {
     // Add tests for different data keys if the component is configurable
     // e.g., if `dataKey` for Bar is a prop
 });
-

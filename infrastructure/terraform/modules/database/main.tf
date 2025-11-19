@@ -163,7 +163,7 @@ resource "aws_db_option_group" "main" {
     for_each = var.db_options
     content {
       option_name = option.value.option_name
-      
+
       dynamic "option_settings" {
         for_each = option.value.option_settings
         content {
@@ -187,7 +187,7 @@ resource "aws_db_instance" "main" {
   engine         = var.engine
   engine_version = var.engine_version
   instance_class = var.db_instance_class
-  
+
   # Storage Configuration
   allocated_storage     = var.allocated_storage
   max_allocated_storage = var.max_allocated_storage
@@ -201,7 +201,7 @@ resource "aws_db_instance" "main" {
   db_name  = var.db_name
   username = var.db_username
   password = var.manage_master_user_password ? null : (var.db_password != "" ? var.db_password : random_password.master_password[0].result)
-  
+
   # Master User Password Management (AWS managed)
   manage_master_user_password = var.manage_master_user_password
   master_user_secret_kms_key_id = var.manage_master_user_password ? (var.kms_key_id != "" ? var.kms_key_id : aws_kms_key.database[0].arn) : null
@@ -237,7 +237,7 @@ resource "aws_db_instance" "main" {
   # Monitoring and Logging
   monitoring_interval = var.enhanced_monitoring_interval
   monitoring_role_arn = var.enhanced_monitoring_interval > 0 ? aws_iam_role.enhanced_monitoring[0].arn : null
-  
+
   performance_insights_enabled          = var.performance_insights_enabled
   performance_insights_kms_key_id      = var.performance_insights_enabled ? (var.kms_key_id != "" ? var.kms_key_id : aws_kms_key.database[0].arn) : null
   performance_insights_retention_period = var.performance_insights_enabled ? var.performance_insights_retention_period : null
@@ -273,13 +273,13 @@ resource "aws_db_instance" "main" {
 # Read Replica for disaster recovery and read scaling
 resource "aws_db_instance" "read_replica" {
   count = var.create_read_replica ? var.read_replica_count : 0
-  
+
   identifier = "${var.db_name}-${var.environment}-replica-${count.index + 1}"
-  
+
   # Replica Configuration
   replicate_source_db = aws_db_instance.main.identifier
   instance_class      = var.read_replica_instance_class
-  
+
   # Storage (inherited from source but can be modified)
   allocated_storage     = var.read_replica_allocated_storage
   max_allocated_storage = var.read_replica_max_allocated_storage
@@ -294,7 +294,7 @@ resource "aws_db_instance" "read_replica" {
   # Monitoring
   monitoring_interval = var.read_replica_monitoring_interval
   monitoring_role_arn = var.read_replica_monitoring_interval > 0 ? aws_iam_role.enhanced_monitoring[0].arn : null
-  
+
   performance_insights_enabled          = var.read_replica_performance_insights_enabled
   performance_insights_kms_key_id      = var.read_replica_performance_insights_enabled ? (var.kms_key_id != "" ? var.kms_key_id : aws_kms_key.database[0].arn) : null
   performance_insights_retention_period = var.read_replica_performance_insights_enabled ? var.performance_insights_retention_period : null
@@ -357,7 +357,7 @@ resource "aws_db_proxy" "main" {
     auth_scheme = "SECRETS"
     secret_arn  = aws_secretsmanager_secret.db_credentials.arn
   }
-  
+
   role_arn               = aws_iam_role.db_proxy[0].arn
   vpc_subnet_ids         = var.private_subnet_ids
   require_tls           = true
@@ -479,7 +479,7 @@ resource "aws_secretsmanager_secret_version" "db_credentials" {
 # CloudWatch Log Groups for database logs
 resource "aws_cloudwatch_log_group" "database_logs" {
   for_each = toset(var.enabled_cloudwatch_logs_exports)
-  
+
   name              = "/aws/rds/instance/${aws_db_instance.main.identifier}/${each.value}"
   retention_in_days = var.log_retention_days
   kms_key_id        = var.kms_key_id != "" ? var.kms_key_id : aws_kms_key.database[0].arn
@@ -570,4 +570,3 @@ resource "aws_s3_bucket_public_access_block" "database_backups" {
   ignore_public_acls      = true
   restrict_public_buckets = true
 }
-

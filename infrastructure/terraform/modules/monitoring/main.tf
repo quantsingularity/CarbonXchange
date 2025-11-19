@@ -621,4 +621,3 @@ resource "aws_xray_sampling_rule" "main" {
     Type = "monitoring"
   })
 }
-

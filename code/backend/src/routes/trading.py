@@ -14,8 +14,16 @@ from sqlalchemy.exc import IntegrityError
 
 from ..models import db
 from ..models.carbon_credit import CarbonCredit, CarbonProject, CreditStatus
-from ..models.trading import (Order, OrderSide, OrderStatus, OrderType,
-                              Portfolio, PortfolioHolding, Trade, TradeStatus)
+from ..models.trading import (
+    Order,
+    OrderSide,
+    OrderStatus,
+    OrderType,
+    Portfolio,
+    PortfolioHolding,
+    Trade,
+    TradeStatus,
+)
 from ..models.user import User
 from ..services.audit_service import AuditService
 from ..services.compliance_service import ComplianceService

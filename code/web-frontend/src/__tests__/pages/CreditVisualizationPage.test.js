@@ -36,4 +36,3 @@ describe('CreditVisualization Page', () => {
     // Add more tests if the page itself has specific logic, data fetching (though unlikely for a simple wrapper page),
     // or interacts with route parameters, etc.
 });
-

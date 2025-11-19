@@ -152,8 +152,7 @@ describe("LoginScreen", () => {
     // LoginScreen's handleSubmit should call resetAuthError if error was present
     // This depends on the exact implementation of handleSubmit in LoginScreen.js
     // If handleSubmit itself calls resetAuthError before loginUser:
-    expect(authSlice.resetAuthError).toHaveBeenCalledTimes(1); 
+    expect(authSlice.resetAuthError).toHaveBeenCalledTimes(1);
     expect(authSlice.loginUser).toHaveBeenCalledWith({ email: "test@example.com", password: "password123" });
   });
 });
-

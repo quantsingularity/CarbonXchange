@@ -36,7 +36,7 @@ const TradingVolumeChart: React.FC = () => {
     const points: DataPoint[] = [];
     let interval: number;
     let count: number;
-    
+
     // Set interval and count based on timeframe
     switch(timeframe) {
       case '1h':
@@ -59,25 +59,25 @@ const TradingVolumeChart: React.FC = () => {
         interval = 15 * 60 * 1000;
         count = 96;
     }
-    
+
     // Base price and volume with some randomness
     let basePrice = 25;
     let baseVolume = 2500;
-    
+
     // Generate data points
     for (let i = count - 1; i >= 0; i--) {
       const timestamp = now - (i * interval);
-      
+
       // Add some realistic price movements
       const priceChange = (Math.random() - 0.48) * 0.5;
       basePrice = Math.max(basePrice + priceChange, 10);
-      
+
       // Volume tends to be higher when price changes more dramatically
       const volumeMultiplier = 1 + Math.abs(priceChange) * 5;
       // Add some randomness to volume
       const volumeNoise = Math.random() * 0.4 + 0.8; // 0.8 to 1.2
       const volume = Math.floor(baseVolume * volumeMultiplier * volumeNoise);
-      
+
       // Add time-of-day patterns for volume (higher during market hours)
       const hour = new Date(timestamp).getHours();
       let timeOfDayFactor = 1;
@@ -86,14 +86,14 @@ const TradingVolumeChart: React.FC = () => {
       } else if (hour < 6 || hour > 20) { // Night hours
         timeOfDayFactor = 0.6;
       }
-      
+
       points.push({
         timestamp,
         volume: Math.floor(volume * timeOfDayFactor),
         price: parseFloat(basePrice.toFixed(2))
       });
     }
-    
+
     return points;
   }, []);
 
@@ -115,24 +115,24 @@ const TradingVolumeChart: React.FC = () => {
   // Function to add a new data point (for live updates)
   const addDataPoint = useCallback(() => {
     if (!isLive) return;
-    
+
     setData(prevData => {
       if (!prevData.length) return prevData;
-      
+
       const lastPoint = prevData[prevData.length - 1];
       const lastPrice = lastPoint.price || 25;
-      
+
       // Calculate new price with realistic movement
       const priceChange = (Math.random() - 0.48) * 0.2;
       const newPrice = Math.max(lastPrice + priceChange, 10);
-      
+
       // Volume tends to be higher when price changes more dramatically
       const volumeMultiplier = 1 + Math.abs(priceChange) * 5;
       // Add some randomness to volume
       const volumeNoise = Math.random() * 0.4 + 0.8; // 0.8 to 1.2
       const baseVolume = 2500;
       const volume = Math.floor(baseVolume * volumeMultiplier * volumeNoise);
-      
+
       // Add time-of-day patterns for volume
       const hour = new Date().getHours();
       let timeOfDayFactor = 1;
@@ -141,19 +141,19 @@ const TradingVolumeChart: React.FC = () => {
       } else if (hour < 6 || hour > 20) { // Night hours
         timeOfDayFactor = 0.6;
       }
-      
+
       // Add new point and remove oldest if needed
       const newData = [...prevData, {
         timestamp: Date.now(),
         volume: Math.floor(volume * timeOfDayFactor),
         price: parseFloat(newPrice.toFixed(2))
       }];
-      
+
       // Keep the array at a reasonable size
       if (newData.length > 100) {
         return newData.slice(1);
       }
-      
+
       return newData;
     });
   }, [isLive]);
@@ -168,21 +168,21 @@ const TradingVolumeChart: React.FC = () => {
     const intervalId = setInterval(() => {
       addDataPoint();
     }, 5000); // Update every 5 seconds
-    
+
     return () => clearInterval(intervalId);
   }, [addDataPoint]);
 
   // Format timestamp for display
   const formatXAxis = (timestamp: number) => {
     const date = new Date(timestamp);
-    
+
     switch(timeframe) {
       case '1h':
         return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       case '24h':
         return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       case '7d':
-        return date.toLocaleDateString([], { month: 'short', day: 'numeric' }) + ' ' + 
+        return date.toLocaleDateString([], { month: 'short', day: 'numeric' }) + ' ' +
                date.toLocaleTimeString([], { hour: '2-digit' });
       case '30d':
         return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
@@ -221,29 +221,29 @@ const TradingVolumeChart: React.FC = () => {
     <div className="w-full h-full">
       <div className="flex justify-between items-center mb-4">
         <div className="flex space-x-2">
-          <Button 
-            variant={timeframe === '1h' ? "default" : "outline"} 
+          <Button
+            variant={timeframe === '1h' ? "default" : "outline"}
             size="sm"
             onClick={() => setTimeframe('1h')}
           >
             1H
           </Button>
-          <Button 
-            variant={timeframe === '24h' ? "default" : "outline"} 
+          <Button
+            variant={timeframe === '24h' ? "default" : "outline"}
             size="sm"
             onClick={() => setTimeframe('24h')}
           >
             24H
           </Button>
-          <Button 
-            variant={timeframe === '7d' ? "default" : "outline"} 
+          <Button
+            variant={timeframe === '7d' ? "default" : "outline"}
             size="sm"
             onClick={() => setTimeframe('7d')}
           >
             7D
           </Button>
-          <Button 
-            variant={timeframe === '30d' ? "default" : "outline"} 
+          <Button
+            variant={timeframe === '30d' ? "default" : "outline"}
             size="sm"
             onClick={() => setTimeframe('30d')}
           >
@@ -251,22 +251,22 @@ const TradingVolumeChart: React.FC = () => {
           </Button>
         </div>
         <div className="flex space-x-2">
-          <Button 
-            variant={chartType === 'bar' ? "default" : "outline"} 
+          <Button
+            variant={chartType === 'bar' ? "default" : "outline"}
             size="sm"
             onClick={() => setChartType('bar')}
           >
             Bar
           </Button>
-          <Button 
-            variant={chartType === 'area' ? "default" : "outline"} 
+          <Button
+            variant={chartType === 'area' ? "default" : "outline"}
             size="sm"
             onClick={() => setChartType('area')}
           >
             Area
           </Button>
-          <Button 
-            variant={isLive ? "default" : "outline"} 
+          <Button
+            variant={isLive ? "default" : "outline"}
             size="sm"
             onClick={() => setIsLive(!isLive)}
             className={isLive ? "bg-green-600 hover:bg-green-700" : ""}
@@ -275,7 +275,7 @@ const TradingVolumeChart: React.FC = () => {
           </Button>
         </div>
       </div>
-      
+
       {loading ? (
         <div className="flex items-center justify-center h-[300px]">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -289,13 +289,13 @@ const TradingVolumeChart: React.FC = () => {
                 margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
               >
                 <CartesianGrid strokeDasharray="3 3" stroke="#444" opacity={0.1} />
-                <XAxis 
-                  dataKey="timestamp" 
-                  tickFormatter={formatXAxis} 
+                <XAxis
+                  dataKey="timestamp"
+                  tickFormatter={formatXAxis}
                   tick={{ fontSize: 12 }}
                   stroke="#888"
                 />
-                <YAxis 
+                <YAxis
                   domain={['auto', 'auto']}
                   tick={{ fontSize: 12 }}
                   stroke="#888"
@@ -303,15 +303,15 @@ const TradingVolumeChart: React.FC = () => {
                 />
                 <Tooltip content={<CustomTooltip />} />
                 <Legend />
-                <Bar 
-                  dataKey="volume" 
-                  name="Trading Volume" 
-                  fill="#8884d8" 
+                <Bar
+                  dataKey="volume"
+                  name="Trading Volume"
+                  fill="#8884d8"
                   isAnimationActive={!isLive}
                 />
-                <Brush 
-                  dataKey="timestamp" 
-                  height={30} 
+                <Brush
+                  dataKey="timestamp"
+                  height={30}
                   stroke="#888"
                   tickFormatter={formatXAxis}
                   startIndex={Math.max(0, data.length - 30)}
@@ -323,20 +323,20 @@ const TradingVolumeChart: React.FC = () => {
                 margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
               >
                 <CartesianGrid strokeDasharray="3 3" stroke="#444" opacity={0.1} />
-                <XAxis 
-                  dataKey="timestamp" 
-                  tickFormatter={formatXAxis} 
+                <XAxis
+                  dataKey="timestamp"
+                  tickFormatter={formatXAxis}
                   tick={{ fontSize: 12 }}
                   stroke="#888"
                 />
-                <YAxis 
+                <YAxis
                   yAxisId="left"
                   domain={['auto', 'auto']}
                   tick={{ fontSize: 12 }}
                   stroke="#8884d8"
                   tickFormatter={formatVolume}
                 />
-                <YAxis 
+                <YAxis
                   yAxisId="right"
                   orientation="right"
                   domain={['auto', 'auto']}
@@ -365,9 +365,9 @@ const TradingVolumeChart: React.FC = () => {
                   dot={false}
                   isAnimationActive={!isLive}
                 />
-                <Brush 
-                  dataKey="timestamp" 
-                  height={30} 
+                <Brush
+                  dataKey="timestamp"
+                  height={30}
                   stroke="#888"
                   tickFormatter={formatXAxis}
                   startIndex={Math.max(0, data.length - 30)}
@@ -377,7 +377,7 @@ const TradingVolumeChart: React.FC = () => {
           </ResponsiveContainer>
         </div>
       )}
-      
+
       <div className="mt-4">
         <h3 className="text-sm font-medium mb-2">Volume Overview</h3>
         <div className="grid grid-cols-3 gap-4">
