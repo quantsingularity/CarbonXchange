@@ -8,8 +8,12 @@ import re
 from datetime import datetime, timezone
 
 from flask import Blueprint, jsonify, request
-from flask_jwt_extended import (create_access_token, create_refresh_token,
-                                get_jwt_identity, jwt_required)
+from flask_jwt_extended import (
+    create_access_token,
+    create_refresh_token,
+    get_jwt_identity,
+    jwt_required,
+)
 from src.models import db
 from src.models.transaction import AuditAction, AuditLog
 from src.models.user import User, UserKYC, UserProfile, UserRole, UserStatus

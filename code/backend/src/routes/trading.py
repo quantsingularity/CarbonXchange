@@ -12,8 +12,16 @@ from flask_jwt_extended import get_jwt_identity, jwt_required
 from sqlalchemy import and_, asc, desc, or_
 
 from ..models import db
-from ..models.trading import (Order, OrderSide, OrderStatus, OrderType,
-                              Portfolio, PortfolioHolding, Trade, TradeStatus)
+from ..models.trading import (
+    Order,
+    OrderSide,
+    OrderStatus,
+    OrderType,
+    Portfolio,
+    PortfolioHolding,
+    Trade,
+    TradeStatus,
+)
 from ..models.user import User
 from ..services.audit_service import AuditService
 from ..services.compliance_service import ComplianceService
