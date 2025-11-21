@@ -4,8 +4,7 @@ Implements comprehensive carbon credit and project management with enhanced trad
 """
 
 import uuid
-from datetime import datetime, timedelta, timezone
-from decimal import Decimal
+from datetime import datetime, timezone
 from enum import Enum
 
 from flask_sqlalchemy import SQLAlchemy
