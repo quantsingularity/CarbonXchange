@@ -58,33 +58,33 @@ Content-Type: application/json
 
 ### HTTP Status Codes
 
-| Code | Description |
-|------|-------------|
-| 200 | OK - Request successful |
-| 201 | Created - Resource created successfully |
-| 400 | Bad Request - Invalid request data |
-| 401 | Unauthorized - Authentication required |
-| 403 | Forbidden - Insufficient permissions |
-| 404 | Not Found - Resource not found |
-| 409 | Conflict - Resource already exists |
-| 422 | Unprocessable Entity - Validation failed |
-| 429 | Too Many Requests - Rate limit exceeded |
-| 500 | Internal Server Error - Server error |
+| Code | Description                              |
+| ---- | ---------------------------------------- |
+| 200  | OK - Request successful                  |
+| 201  | Created - Resource created successfully  |
+| 400  | Bad Request - Invalid request data       |
+| 401  | Unauthorized - Authentication required   |
+| 403  | Forbidden - Insufficient permissions     |
+| 404  | Not Found - Resource not found           |
+| 409  | Conflict - Resource already exists       |
+| 422  | Unprocessable Entity - Validation failed |
+| 429  | Too Many Requests - Rate limit exceeded  |
+| 500  | Internal Server Error - Server error     |
 
 ### Error Codes
 
-| Code | Description |
-|------|-------------|
-| `AUTHENTICATION_FAILED` | Invalid credentials |
-| `TOKEN_EXPIRED` | Access token has expired |
-| `INSUFFICIENT_PERMISSIONS` | User lacks required permissions |
-| `VALIDATION_ERROR` | Request data validation failed |
-| `RESOURCE_NOT_FOUND` | Requested resource not found |
-| `DUPLICATE_RESOURCE` | Resource already exists |
-| `RATE_LIMIT_EXCEEDED` | Too many requests |
-| `COMPLIANCE_VIOLATION` | Action violates compliance rules |
-| `INSUFFICIENT_BALANCE` | Insufficient account balance |
-| `MARKET_CLOSED` | Trading market is closed |
+| Code                       | Description                      |
+| -------------------------- | -------------------------------- |
+| `AUTHENTICATION_FAILED`    | Invalid credentials              |
+| `TOKEN_EXPIRED`            | Access token has expired         |
+| `INSUFFICIENT_PERMISSIONS` | User lacks required permissions  |
+| `VALIDATION_ERROR`         | Request data validation failed   |
+| `RESOURCE_NOT_FOUND`       | Requested resource not found     |
+| `DUPLICATE_RESOURCE`       | Resource already exists          |
+| `RATE_LIMIT_EXCEEDED`      | Too many requests                |
+| `COMPLIANCE_VIOLATION`     | Action violates compliance rules |
+| `INSUFFICIENT_BALANCE`     | Insufficient account balance     |
+| `MARKET_CLOSED`            | Trading market is closed         |
 
 ## Authentication Endpoints
 
@@ -93,6 +93,7 @@ Content-Type: application/json
 Register a new user account.
 
 **Request Body:**
+
 ```json
 {
   "email": "user@example.com",
@@ -107,6 +108,7 @@ Register a new user account.
 ```
 
 **Response (201):**
+
 ```json
 {
   "user": {
@@ -131,6 +133,7 @@ Register a new user account.
 Authenticate user and receive access tokens.
 
 **Request Body:**
+
 ```json
 {
   "email": "user@example.com",
@@ -139,6 +142,7 @@ Authenticate user and receive access tokens.
 ```
 
 **Response (200):**
+
 ```json
 {
   "user": {
@@ -162,11 +166,13 @@ Authenticate user and receive access tokens.
 Refresh access token using refresh token.
 
 **Headers:**
+
 ```http
 Authorization: Bearer <refresh_token>
 ```
 
 **Response (200):**
+
 ```json
 {
   "tokens": {
@@ -182,11 +188,13 @@ Authorization: Bearer <refresh_token>
 Logout user and invalidate tokens.
 
 **Headers:**
+
 ```http
 Authorization: Bearer <access_token>
 ```
 
 **Response (200):**
+
 ```json
 {
   "message": "Successfully logged out"
@@ -198,11 +206,13 @@ Authorization: Bearer <access_token>
 Get current user information.
 
 **Headers:**
+
 ```http
 Authorization: Bearer <access_token>
 ```
 
 **Response (200):**
+
 ```json
 {
   "user": {
@@ -237,11 +247,13 @@ Authorization: Bearer <access_token>
 Get user profile information.
 
 **Headers:**
+
 ```http
 Authorization: Bearer <access_token>
 ```
 
 **Response (200):**
+
 ```json
 {
   "profile": {
@@ -267,11 +279,13 @@ Authorization: Bearer <access_token>
 Update user profile information.
 
 **Headers:**
+
 ```http
 Authorization: Bearer <access_token>
 ```
 
 **Request Body:**
+
 ```json
 {
   "first_name": "John",
@@ -287,6 +301,7 @@ Authorization: Bearer <access_token>
 ```
 
 **Response (200):**
+
 ```json
 {
   "message": "Profile updated successfully",
@@ -311,11 +326,13 @@ Authorization: Bearer <access_token>
 Get KYC verification status.
 
 **Headers:**
+
 ```http
 Authorization: Bearer <access_token>
 ```
 
 **Response (200):**
+
 ```json
 {
   "kyc": {
@@ -338,12 +355,14 @@ Authorization: Bearer <access_token>
 Submit KYC verification documents.
 
 **Headers:**
+
 ```http
 Authorization: Bearer <access_token>
 Content-Type: multipart/form-data
 ```
 
 **Request Body (Form Data):**
+
 ```
 document_type: passport
 document_number: A12345678
@@ -354,6 +373,7 @@ selfie: [file]
 ```
 
 **Response (201):**
+
 ```json
 {
   "message": "KYC documents submitted successfully",
@@ -376,11 +396,13 @@ selfie: [file]
 Get list of carbon projects.
 
 **Headers:**
+
 ```http
 Authorization: Bearer <access_token>
 ```
 
 **Query Parameters:**
+
 - `page` (integer): Page number (default: 1)
 - `per_page` (integer): Items per page (default: 20, max: 100)
 - `project_type` (string): Filter by project type
@@ -391,6 +413,7 @@ Authorization: Bearer <access_token>
 - `search` (string): Search in project name and description
 
 **Response (200):**
+
 ```json
 {
   "projects": [
@@ -408,7 +431,7 @@ Authorization: Bearer <access_token>
       },
       "total_credits": 1000000.0,
       "available_credits": 750000.0,
-      "price_per_credit": 45.50,
+      "price_per_credit": 45.5,
       "vintage_year": 2023,
       "verification_standard": "VCS",
       "registry_id": "VCS-12345",
@@ -435,11 +458,13 @@ Authorization: Bearer <access_token>
 Get detailed information about a specific project.
 
 **Headers:**
+
 ```http
 Authorization: Bearer <access_token>
 ```
 
 **Response (200):**
+
 ```json
 {
   "project": {
@@ -459,7 +484,7 @@ Authorization: Bearer <access_token>
     "available_credits": 750000.0,
     "issued_credits": 250000.0,
     "retired_credits": 0.0,
-    "price_per_credit": 45.50,
+    "price_per_credit": 45.5,
     "vintage_year": 2023,
     "verification_standard": "VCS",
     "registry_id": "VCS-12345",
@@ -491,11 +516,13 @@ Authorization: Bearer <access_token>
 Get list of available carbon credits.
 
 **Headers:**
+
 ```http
 Authorization: Bearer <access_token>
 ```
 
 **Query Parameters:**
+
 - `page` (integer): Page number (default: 1)
 - `per_page` (integer): Items per page (default: 20, max: 100)
 - `project_id` (integer): Filter by project ID
@@ -506,6 +533,7 @@ Authorization: Bearer <access_token>
 - `max_price` (float): Maximum price filter
 
 **Response (200):**
+
 ```json
 {
   "credits": [
@@ -528,3 +556,4 @@ Authorization: Bearer <access_token>
         "country": "BR"
       },
       "create
+```

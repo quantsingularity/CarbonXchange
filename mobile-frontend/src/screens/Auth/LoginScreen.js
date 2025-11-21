@@ -1,22 +1,32 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
-import { loginUser, resetAuthError } from '../../store/slices/authSlice';
-import theme from '../../styles/theme'; // Import the theme
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
+import { useDispatch, useSelector } from "react-redux";
+import { loginUser, resetAuthError } from "../../store/slices/authSlice";
+import theme from "../../styles/theme"; // Import the theme
 
 const LoginScreen = ({ navigation }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const dispatch = useDispatch();
   const { isLoading, error } = useSelector((state) => state.auth);
 
   const handleLogin = () => {
     if (error) {
-        dispatch(resetAuthError()); // Reset error before new attempt
+      dispatch(resetAuthError()); // Reset error before new attempt
     }
     if (!email || !password) {
-        Alert.alert('Error', 'Please enter both email and password.');
-        return;
+      Alert.alert("Error", "Please enter both email and password.");
+      return;
     }
     dispatch(loginUser({ email, password }));
     // Navigation to AppNavigator will be handled in App.js based on isLoggedIn state
@@ -25,8 +35,11 @@ const LoginScreen = ({ navigation }) => {
   React.useEffect(() => {
     if (error) {
       // Use a more user-friendly error message if possible
-      const message = error.message || (error.response?.data?.message) || 'Login failed. Please check your credentials.';
-      Alert.alert('Login Failed', message);
+      const message =
+        error.message ||
+        error.response?.data?.message ||
+        "Login failed. Please check your credentials.";
+      Alert.alert("Login Failed", message);
       dispatch(resetAuthError()); // Reset error after showing it
     }
   }, [error, dispatch]);
@@ -59,19 +72,29 @@ const LoginScreen = ({ navigation }) => {
         />
 
         {isLoading ? (
-          <ActivityIndicator size="large" color={theme.colors.primary} style={{ marginVertical: theme.spacing.md }} />
+          <ActivityIndicator
+            size="large"
+            color={theme.colors.primary}
+            style={{ marginVertical: theme.spacing.md }}
+          />
         ) : (
-          <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={isLoading}>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={handleLogin}
+            disabled={isLoading}
+          >
             <Text style={styles.buttonText}>Login</Text>
           </TouchableOpacity>
         )}
 
         <TouchableOpacity
           style={[styles.button, styles.buttonSecondary]}
-          onPress={() => navigation.navigate('Register')}
+          onPress={() => navigation.navigate("Register")}
           disabled={isLoading}
         >
-          <Text style={styles.buttonSecondaryText}>Don't have an account? Register</Text>
+          <Text style={styles.buttonSecondaryText}>
+            Don't have an account? Register
+          </Text>
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
@@ -86,19 +109,19 @@ const styles = StyleSheet.create({
   },
   innerContainer: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: "center",
     padding: theme.spacing.lg, // Use theme spacing
   },
   title: {
     ...theme.typography.h1, // Use theme typography
-    textAlign: 'center',
+    textAlign: "center",
     color: theme.colors.primary, // Use theme primary color
     marginBottom: theme.spacing.sm,
   },
   subtitle: {
     ...theme.typography.body1,
     color: theme.colors.textSecondary,
-    textAlign: 'center',
+    textAlign: "center",
     marginBottom: theme.spacing.xl, // More space after subtitle
   },
   input: {

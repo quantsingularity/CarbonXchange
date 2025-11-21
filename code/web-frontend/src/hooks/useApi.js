@@ -1,41 +1,41 @@
-import React from 'react';
-import axios from 'axios';
+import React from "react";
+import axios from "axios";
 
 // Create a custom hook for API calls
 export const useApi = () => {
   const apiClient = axios.create({
-    baseURL: process.env.REACT_APP_API_URL || 'http://localhost:5000',
+    baseURL: process.env.REACT_APP_API_URL || "http://localhost:5000",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
   });
 
   const getListings = async () => {
     try {
-      const response = await apiClient.get('/api/listings');
+      const response = await apiClient.get("/api/listings");
       return response.data;
     } catch (error) {
-      console.error('Error fetching listings:', error);
+      console.error("Error fetching listings:", error);
       throw error;
     }
   };
 
   const getCreditDistribution = async () => {
     try {
-      const response = await apiClient.get('/api/credit-distribution');
+      const response = await apiClient.get("/api/credit-distribution");
       return response.data;
     } catch (error) {
-      console.error('Error fetching credit distribution:', error);
+      console.error("Error fetching credit distribution:", error);
       throw error;
     }
   };
 
   const getForecast = async (features) => {
     try {
-      const response = await apiClient.post('/api/forecast', features);
+      const response = await apiClient.post("/api/forecast", features);
       return response.data;
     } catch (error) {
-      console.error('Error fetching forecast:', error);
+      console.error("Error fetching forecast:", error);
       throw error;
     }
   };
@@ -45,7 +45,7 @@ export const useApi = () => {
       const response = await apiClient.get(`/api/user/${walletAddress}`);
       return response.data;
     } catch (error) {
-      console.error('Error fetching user info:', error);
+      console.error("Error fetching user info:", error);
       throw error;
     }
   };

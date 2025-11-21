@@ -42,7 +42,7 @@ describe("CreditDetailScreen", () => {
         <NavigationContainer>
           <CreditDetailScreen navigation={mockNavigation} route={route} />
         </NavigationContainer>
-      </Provider>
+      </Provider>,
     );
   };
 
@@ -59,7 +59,8 @@ describe("CreditDetailScreen", () => {
     const mockCredit = {
       id: "credit123",
       name: "Amazon Reforestation Project",
-      description: "A project focused on reforesting a significant area of the Amazon.",
+      description:
+        "A project focused on reforesting a significant area of the Amazon.",
       tons: 5000,
       pricePerTon: 18,
       location: "Brazil",
@@ -68,35 +69,52 @@ describe("CreditDetailScreen", () => {
       imageUrl: "https://example.com/amazon.jpg", // Assuming an image URL is part of the data
       vintageYear: 2022,
       projectType: "ARR (Afforestation, Reforestation, Revegetation)",
-      registry: "Verra VCS"
+      registry: "Verra VCS",
     };
     api.getCreditById.mockResolvedValue({ success: true, credit: mockCredit });
 
     const { findByText, getByText } = renderComponent();
 
-    await waitFor(() => expect(api.getCreditById).toHaveBeenCalledWith("credit123"));
+    await waitFor(() =>
+      expect(api.getCreditById).toHaveBeenCalledWith("credit123"),
+    );
 
     expect(await findByText("Amazon Reforestation Project")).toBeTruthy();
-    expect(getByText("A project focused on reforesting a significant area of the Amazon.")).toBeTruthy();
+    expect(
+      getByText(
+        "A project focused on reforesting a significant area of the Amazon.",
+      ),
+    ).toBeTruthy();
     expect(getByText("Available Tons: 5000")).toBeTruthy();
     expect(getByText("Price: $18.00 / Ton")).toBeTruthy();
     expect(getByText("Location: Brazil")).toBeTruthy();
     expect(getByText("Type: Forestry")).toBeTruthy();
     expect(getByText("Seller: EcoFuture Ltd.")).toBeTruthy();
     expect(getByText("Vintage: 2022")).toBeTruthy();
-    expect(getByText("Project Type: ARR (Afforestation, Reforestation, Revegetation)")).toBeTruthy();
+    expect(
+      getByText(
+        "Project Type: ARR (Afforestation, Reforestation, Revegetation)",
+      ),
+    ).toBeTruthy();
     expect(getByText("Registry: Verra VCS")).toBeTruthy();
     // Add check for image if it's rendered and identifiable
   });
 
   it("displays error message if fetching credit details fails", async () => {
-    api.getCreditById.mockRejectedValue(new Error("Failed to fetch credit details"));
+    api.getCreditById.mockRejectedValue(
+      new Error("Failed to fetch credit details"),
+    );
     const { findByText } = renderComponent();
     expect(await findByText(/Failed to load credit details/i)).toBeTruthy();
   });
 
   it("navigates to TradingScreen when 'Trade this Credit' button is pressed", async () => {
-    const mockCredit = { id: "credit123", name: "Test Credit", tons: 100, pricePerTon: 20 };
+    const mockCredit = {
+      id: "credit123",
+      name: "Test Credit",
+      tons: 100,
+      pricePerTon: 20,
+    };
     api.getCreditById.mockResolvedValue({ success: true, credit: mockCredit });
 
     const { findByText } = renderComponent();
@@ -112,7 +130,10 @@ describe("CreditDetailScreen", () => {
   });
 
   it("displays 'Credit not found' if API returns no credit", async () => {
-    api.getCreditById.mockResolvedValue({ success: false, message: "Credit not found" }); // Or success: true, credit: null
+    api.getCreditById.mockResolvedValue({
+      success: false,
+      message: "Credit not found",
+    }); // Or success: true, credit: null
     const { findByText } = renderComponent();
     expect(await findByText("Credit not found.")).toBeTruthy();
   });

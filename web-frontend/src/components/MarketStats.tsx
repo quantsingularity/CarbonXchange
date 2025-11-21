@@ -1,7 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { subscribeToMarketData, getMarketStats, getMockMarketStats, isUsingMockData } from '../services/api';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { ArrowUpIcon, ArrowDownIcon } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import {
+  subscribeToMarketData,
+  getMarketStats,
+  getMockMarketStats,
+  isUsingMockData,
+} from "../services/api";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { ArrowUpIcon, ArrowDownIcon } from "lucide-react";
 
 interface MarketStatsProps {
   className?: string;
@@ -26,17 +31,20 @@ const MarketStats: React.FC<MarketStatsProps> = ({ className }) => {
     // Set up real-time updates
     const unsubscribe = subscribeToMarketData((data) => {
       if (data && data.price) {
-        setStats(prevStats => {
+        setStats((prevStats) => {
           if (!prevStats) return null;
 
           // Calculate new average based on incoming data
-          const newAvgPrice = (prevStats.averagePrice * 0.95) + (data.price * 0.05);
+          const newAvgPrice = prevStats.averagePrice * 0.95 + data.price * 0.05;
 
           return {
             ...prevStats,
             averagePrice: newAvgPrice,
-            priceChange24h: data.change !== undefined ? data.change : prevStats.priceChange24h,
-            lastUpdated: new Date().toISOString()
+            priceChange24h:
+              data.change !== undefined
+                ? data.change
+                : prevStats.priceChange24h,
+            lastUpdated: new Date().toISOString(),
           };
         });
       }
@@ -68,7 +76,7 @@ const MarketStats: React.FC<MarketStatsProps> = ({ className }) => {
         setStats(response.data);
       }
     } catch (error) {
-      console.error('Error fetching market stats:', error);
+      console.error("Error fetching market stats:", error);
     } finally {
       setLoading(false);
     }
@@ -86,7 +94,9 @@ const MarketStats: React.FC<MarketStatsProps> = ({ className }) => {
               <div className="animate-pulse h-6 w-20 bg-muted rounded"></div>
             </div>
           ) : (
-            <div className="text-2xl font-bold">${stats?.averagePrice.toFixed(2)}</div>
+            <div className="text-2xl font-bold">
+              ${stats?.averagePrice.toFixed(2)}
+            </div>
           )}
         </CardContent>
       </Card>
@@ -102,7 +112,9 @@ const MarketStats: React.FC<MarketStatsProps> = ({ className }) => {
             </div>
           ) : (
             <div className="flex items-center">
-              <span className={`text-2xl font-bold ${stats?.priceChange24h && stats.priceChange24h >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+              <span
+                className={`text-2xl font-bold ${stats?.priceChange24h && stats.priceChange24h >= 0 ? "text-green-500" : "text-red-500"}`}
+              >
                 {stats?.priceChange24h.toFixed(2)}%
               </span>
               {stats?.priceChange24h && stats.priceChange24h >= 0 ? (
@@ -125,7 +137,9 @@ const MarketStats: React.FC<MarketStatsProps> = ({ className }) => {
               <div className="animate-pulse h-6 w-20 bg-muted rounded"></div>
             </div>
           ) : (
-            <div className="text-2xl font-bold">{stats?.volume24h.toLocaleString()} tCO2e</div>
+            <div className="text-2xl font-bold">
+              {stats?.volume24h.toLocaleString()} tCO2e
+            </div>
           )}
         </CardContent>
       </Card>

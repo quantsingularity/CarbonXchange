@@ -21,6 +21,7 @@ The mobile-frontend directory is organized as follows:
 ### Root Configuration Files
 
 Several configuration files exist at the root level:
+
 - `app.json`: Contains Expo configuration settings for the application
 - `package.json` and `package-lock.json`: Define dependencies and scripts for the Node.js ecosystem
 - `.eslintrc.js`: Contains ESLint configuration for code quality enforcement
@@ -45,6 +46,7 @@ The `src` directory contains the main application code, organized into several s
 ### Assets
 
 The `assets` directory contains static resources used by the application:
+
 - Images and icons
 - Fonts
 - Animation files

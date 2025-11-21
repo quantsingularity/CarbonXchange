@@ -10,9 +10,15 @@ import AppNavigator from "../../../navigation/AppNavigator";
 jest.mock("../../../screens/Main/CreditsListScreen", () => "CreditsListScreen");
 jest.mock("../../../screens/Main/MarketDataScreen", () => "MarketDataScreen");
 jest.mock("../../../screens/Main/TradingScreen", () => "TradingScreen");
-jest.mock("../../../screens/Main/TradeHistoryScreen", () => "TradeHistoryScreen");
+jest.mock(
+  "../../../screens/Main/TradeHistoryScreen",
+  () => "TradeHistoryScreen",
+);
 jest.mock("../../../screens/Main/WalletScreen", () => "WalletScreen");
-jest.mock("../../../screens/Main/CreditDetailScreen", () => "CreditDetailScreen");
+jest.mock(
+  "../../../screens/Main/CreditDetailScreen",
+  () => "CreditDetailScreen",
+);
 
 // Mock navigation parts that are not part of AppNavigator itself but might be expected by its children
 const mockNavigate = jest.fn();
@@ -30,14 +36,16 @@ const createTestStore = (initialState) => {
 
 describe("AppNavigator", () => {
   it("renders the main tab navigator when user is logged in", () => {
-    const store = createTestStore({ auth: { isLoggedIn: true, user: { id: "1" }, token: "test-token" } });
+    const store = createTestStore({
+      auth: { isLoggedIn: true, user: { id: "1" }, token: "test-token" },
+    });
 
     const { getByText, queryByText } = render(
       <Provider store={store}>
         <NavigationContainer>
           <AppNavigator />
         </NavigationContainer>
-      </Provider>
+      </Provider>,
     );
 
     // Check for tab names or icons if they are simple text or have accessibility labels

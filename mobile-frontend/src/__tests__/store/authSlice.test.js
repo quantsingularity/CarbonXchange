@@ -44,7 +44,9 @@ describe("authSlice reducers", () => {
 
   it("should handle setLoggedIn", () => {
     expect(authReducer(initialState, setLoggedIn(true)).isLoggedIn).toBe(true);
-    expect(authReducer(initialState, setLoggedIn(false)).isLoggedIn).toBe(false);
+    expect(authReducer(initialState, setLoggedIn(false)).isLoggedIn).toBe(
+      false,
+    );
   });
 
   it("should handle setUser", () => {
@@ -54,7 +56,10 @@ describe("authSlice reducers", () => {
   });
 
   it("should handle resetAuthError", () => {
-    const stateWithError = { ...initialState, error: { message: "Some error" } };
+    const stateWithError = {
+      ...initialState,
+      error: { message: "Some error" },
+    };
     expect(authReducer(stateWithError, resetAuthError()).error).toBeNull();
   });
 
@@ -69,7 +74,10 @@ describe("authSlice reducers", () => {
     it("should handle loginUser.fulfilled", () => {
       const mockUserData = { id: "1", name: "Test User" };
       const mockToken = "test-token";
-      const action = { type: loginUser.fulfilled.type, payload: { user: mockUserData, token: mockToken } };
+      const action = {
+        type: loginUser.fulfilled.type,
+        payload: { user: mockUserData, token: mockToken },
+      };
       const state = authReducer(initialState, action);
       expect(state.isLoading).toBe(false);
       expect(state.isLoggedIn).toBe(true);
@@ -101,7 +109,10 @@ describe("authSlice reducers", () => {
     it("should handle registerUser.fulfilled", () => {
       const mockUserData = { id: "2", name: "New User" };
       const mockToken = "new-token";
-      const action = { type: registerUser.fulfilled.type, payload: { user: mockUserData, token: mockToken } };
+      const action = {
+        type: registerUser.fulfilled.type,
+        payload: { user: mockUserData, token: mockToken },
+      };
       const state = authReducer(initialState, action);
       expect(state.isLoading).toBe(false);
       expect(state.isLoggedIn).toBe(true);
@@ -178,10 +189,23 @@ describe("authSlice thunks direct invocation", () => {
 
     await loginUser(credentials)(mockDispatch, mockGetState, undefined);
 
-    expect(mockDispatch).toHaveBeenCalledWith(expect.objectContaining({ type: loginUser.pending.type }));
-    expect(api.login).toHaveBeenCalledWith(credentials.email, credentials.password);
-    expect(require("expo-secure-store").setItemAsync).toHaveBeenCalledWith("userToken", responseData.token);
-    expect(mockDispatch).toHaveBeenCalledWith(expect.objectContaining({ type: loginUser.fulfilled.type, payload: responseData }));
+    expect(mockDispatch).toHaveBeenCalledWith(
+      expect.objectContaining({ type: loginUser.pending.type }),
+    );
+    expect(api.login).toHaveBeenCalledWith(
+      credentials.email,
+      credentials.password,
+    );
+    expect(require("expo-secure-store").setItemAsync).toHaveBeenCalledWith(
+      "userToken",
+      responseData.token,
+    );
+    expect(mockDispatch).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: loginUser.fulfilled.type,
+        payload: responseData,
+      }),
+    );
   });
 
   it("loginUser thunk dispatches pending and rejected on failed API call", async () => {
@@ -191,23 +215,47 @@ describe("authSlice thunks direct invocation", () => {
 
     await loginUser(credentials)(mockDispatch, mockGetState, undefined);
 
-    expect(mockDispatch).toHaveBeenCalledWith(expect.objectContaining({ type: loginUser.pending.type }));
-    expect(api.login).toHaveBeenCalledWith(credentials.email, credentials.password);
-    expect(mockDispatch).toHaveBeenCalledWith(expect.objectContaining({ type: loginUser.rejected.type, payload: error }));
+    expect(mockDispatch).toHaveBeenCalledWith(
+      expect.objectContaining({ type: loginUser.pending.type }),
+    );
+    expect(api.login).toHaveBeenCalledWith(
+      credentials.email,
+      credentials.password,
+    );
+    expect(mockDispatch).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: loginUser.rejected.type,
+        payload: error,
+      }),
+    );
   });
 
   // Similar tests for registerUser thunk
   it("registerUser thunk dispatches pending and fulfilled on successful API call", async () => {
-    const userData = { username: "new", email: "new@example.com", password: "password" };
+    const userData = {
+      username: "new",
+      email: "new@example.com",
+      password: "password",
+    };
     const responseData = { user: { id: "2" }, token: "def" };
     api.register.mockResolvedValue(responseData);
 
     await registerUser(userData)(mockDispatch, mockGetState, undefined);
 
-    expect(mockDispatch).toHaveBeenCalledWith(expect.objectContaining({ type: registerUser.pending.type }));
+    expect(mockDispatch).toHaveBeenCalledWith(
+      expect.objectContaining({ type: registerUser.pending.type }),
+    );
     expect(api.register).toHaveBeenCalledWith(userData);
-    expect(require("expo-secure-store").setItemAsync).toHaveBeenCalledWith("userToken", responseData.token);
-    expect(mockDispatch).toHaveBeenCalledWith(expect.objectContaining({ type: registerUser.fulfilled.type, payload: responseData }));
+    expect(require("expo-secure-store").setItemAsync).toHaveBeenCalledWith(
+      "userToken",
+      responseData.token,
+    );
+    expect(mockDispatch).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: registerUser.fulfilled.type,
+        payload: responseData,
+      }),
+    );
   });
 
   // Test for logout thunk if it's more complex

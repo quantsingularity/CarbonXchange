@@ -17,84 +17,84 @@ spec:
     matchLabels:
       component: backend
   policyTypes:
-  - Ingress
-  - Egress
+    - Ingress
+    - Egress
   ingress:
-  # Allow traffic from frontend
-  - from:
-    - podSelector:
-        matchLabels:
-          component: frontend
-    ports:
-    - protocol: TCP
-      port: 8000
-  # Allow traffic from load balancer
-  - from:
-    - namespaceSelector:
-        matchLabels:
-          name: ingress-nginx
-    ports:
-    - protocol: TCP
-      port: 8000
-  # Allow health checks from monitoring
-  - from:
-    - podSelector:
-        matchLabels:
-          component: monitoring
-    ports:
-    - protocol: TCP
-      port: 8080
-    - protocol: TCP
-      port: 9090
-  # Allow traffic from API gateway
-  - from:
-    - podSelector:
-        matchLabels:
-          component: api-gateway
-    ports:
-    - protocol: TCP
-      port: 8000
+    # Allow traffic from frontend
+    - from:
+        - podSelector:
+            matchLabels:
+              component: frontend
+      ports:
+        - protocol: TCP
+          port: 8000
+    # Allow traffic from load balancer
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: ingress-nginx
+      ports:
+        - protocol: TCP
+          port: 8000
+    # Allow health checks from monitoring
+    - from:
+        - podSelector:
+            matchLabels:
+              component: monitoring
+      ports:
+        - protocol: TCP
+          port: 8080
+        - protocol: TCP
+          port: 9090
+    # Allow traffic from API gateway
+    - from:
+        - podSelector:
+            matchLabels:
+              component: api-gateway
+      ports:
+        - protocol: TCP
+          port: 8000
   egress:
-  # Allow DNS resolution
-  - to: []
-    ports:
-    - protocol: UDP
-      port: 53
-    - protocol: TCP
-      port: 53
-  # Allow database connections
-  - to:
-    - podSelector:
-        matchLabels:
-          component: database
-    ports:
-    - protocol: TCP
-      port: 3306
-    - protocol: TCP
-      port: 5432
-  # Allow Redis connections
-  - to:
-    - podSelector:
-        matchLabels:
-          component: redis
-    ports:
-    - protocol: TCP
-      port: 6379
-  # Allow HTTPS for external APIs
-  - to: []
-    ports:
-    - protocol: TCP
-      port: 443
-  # Allow monitoring and logging
-  - to:
-    - podSelector:
-        matchLabels:
-          component: monitoring
-    ports:
-    - protocol: TCP
-      port: 9090
-    - protocol: TCP
-      port: 3000
+    # Allow DNS resolution
+    - to: []
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    # Allow database connections
+    - to:
+        - podSelector:
+            matchLabels:
+              component: database
+      ports:
+        - protocol: TCP
+          port: 3306
+        - protocol: TCP
+          port: 5432
+    # Allow Redis connections
+    - to:
+        - podSelector:
+            matchLabels:
+              component: redis
+      ports:
+        - protocol: TCP
+          port: 6379
+    # Allow HTTPS for external APIs
+    - to: []
+      ports:
+        - protocol: TCP
+          port: 443
+    # Allow monitoring and logging
+    - to:
+        - podSelector:
+            matchLabels:
+              component: monitoring
+      ports:
+        - protocol: TCP
+          port: 9090
+        - protocol: TCP
+          port: 3000
 
 ---
 apiVersion: networking.k8s.io/v1
@@ -112,50 +112,50 @@ spec:
     matchLabels:
       component: frontend
   policyTypes:
-  - Ingress
-  - Egress
+    - Ingress
+    - Egress
   ingress:
-  # Allow traffic from load balancer/ingress
-  - from:
-    - namespaceSelector:
-        matchLabels:
-          name: ingress-nginx
-    ports:
-    - protocol: TCP
-      port: 80
-    - protocol: TCP
-      port: 443
-  # Allow health checks from monitoring
-  - from:
-    - podSelector:
-        matchLabels:
-          component: monitoring
-    ports:
-    - protocol: TCP
-      port: 8080
+    # Allow traffic from load balancer/ingress
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: ingress-nginx
+      ports:
+        - protocol: TCP
+          port: 80
+        - protocol: TCP
+          port: 443
+    # Allow health checks from monitoring
+    - from:
+        - podSelector:
+            matchLabels:
+              component: monitoring
+      ports:
+        - protocol: TCP
+          port: 8080
   egress:
-  # Allow DNS resolution
-  - to: []
-    ports:
-    - protocol: UDP
-      port: 53
-    - protocol: TCP
-      port: 53
-  # Allow backend API calls
-  - to:
-    - podSelector:
-        matchLabels:
-          component: backend
-    ports:
-    - protocol: TCP
-      port: 8000
-  # Allow CDN and external resources
-  - to: []
-    ports:
-    - protocol: TCP
-      port: 80
-    - protocol: TCP
-      port: 443
+    # Allow DNS resolution
+    - to: []
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    # Allow backend API calls
+    - to:
+        - podSelector:
+            matchLabels:
+              component: backend
+      ports:
+        - protocol: TCP
+          port: 8000
+    # Allow CDN and external resources
+    - to: []
+      ports:
+        - protocol: TCP
+          port: 80
+        - protocol: TCP
+          port: 443
 
 ---
 apiVersion: networking.k8s.io/v1
@@ -178,58 +178,58 @@ spec:
     matchLabels:
       component: database
   policyTypes:
-  - Ingress
-  - Egress
+    - Ingress
+    - Egress
   ingress:
-  # Allow connections from backend only
-  - from:
-    - podSelector:
-        matchLabels:
-          component: backend
-    ports:
-    - protocol: TCP
-      port: 3306
-    - protocol: TCP
-      port: 5432
-  # Allow monitoring connections
-  - from:
-    - podSelector:
-        matchLabels:
-          component: monitoring
-    ports:
-    - protocol: TCP
-      port: 3306
-    - protocol: TCP
-      port: 5432
-  # Allow backup service connections
-  - from:
-    - podSelector:
-        matchLabels:
-          component: backup
-    ports:
-    - protocol: TCP
-      port: 3306
-    - protocol: TCP
-      port: 5432
+    # Allow connections from backend only
+    - from:
+        - podSelector:
+            matchLabels:
+              component: backend
+      ports:
+        - protocol: TCP
+          port: 3306
+        - protocol: TCP
+          port: 5432
+    # Allow monitoring connections
+    - from:
+        - podSelector:
+            matchLabels:
+              component: monitoring
+      ports:
+        - protocol: TCP
+          port: 3306
+        - protocol: TCP
+          port: 5432
+    # Allow backup service connections
+    - from:
+        - podSelector:
+            matchLabels:
+              component: backup
+      ports:
+        - protocol: TCP
+          port: 3306
+        - protocol: TCP
+          port: 5432
   egress:
-  # Allow DNS resolution
-  - to: []
-    ports:
-    - protocol: UDP
-      port: 53
-    - protocol: TCP
-      port: 53
-  # Allow replication traffic (if needed)
-  - to:
-    - podSelector:
-        matchLabels:
-          component: database
-          role: replica
-    ports:
-    - protocol: TCP
-      port: 3306
-    - protocol: TCP
-      port: 5432
+    # Allow DNS resolution
+    - to: []
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    # Allow replication traffic (if needed)
+    - to:
+        - podSelector:
+            matchLabels:
+              component: database
+              role: replica
+      ports:
+        - protocol: TCP
+          port: 3306
+        - protocol: TCP
+          port: 5432
 
 ---
 apiVersion: networking.k8s.io/v1
@@ -247,43 +247,43 @@ spec:
     matchLabels:
       component: redis
   policyTypes:
-  - Ingress
-  - Egress
+    - Ingress
+    - Egress
   ingress:
-  # Allow connections from backend only
-  - from:
-    - podSelector:
-        matchLabels:
-          component: backend
-    ports:
-    - protocol: TCP
-      port: 6379
-  # Allow monitoring connections
-  - from:
-    - podSelector:
-        matchLabels:
-          component: monitoring
-    ports:
-    - protocol: TCP
-      port: 6379
+    # Allow connections from backend only
+    - from:
+        - podSelector:
+            matchLabels:
+              component: backend
+      ports:
+        - protocol: TCP
+          port: 6379
+    # Allow monitoring connections
+    - from:
+        - podSelector:
+            matchLabels:
+              component: monitoring
+      ports:
+        - protocol: TCP
+          port: 6379
   egress:
-  # Allow DNS resolution
-  - to: []
-    ports:
-    - protocol: UDP
-      port: 53
-    - protocol: TCP
-      port: 53
-  # Allow cluster communication (if Redis cluster)
-  - to:
-    - podSelector:
-        matchLabels:
-          component: redis
-    ports:
-    - protocol: TCP
-      port: 6379
-    - protocol: TCP
-      port: 16379
+    # Allow DNS resolution
+    - to: []
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    # Allow cluster communication (if Redis cluster)
+    - to:
+        - podSelector:
+            matchLabels:
+              component: redis
+      ports:
+        - protocol: TCP
+          port: 6379
+        - protocol: TCP
+          port: 16379
 
 ---
 apiVersion: networking.k8s.io/v1
@@ -300,56 +300,56 @@ spec:
     matchLabels:
       component: monitoring
   policyTypes:
-  - Ingress
-  - Egress
+    - Ingress
+    - Egress
   ingress:
-  # Allow Grafana access from authorized users
-  - from:
-    - namespaceSelector:
-        matchLabels:
-          name: ingress-nginx
-    ports:
-    - protocol: TCP
-      port: 3000
-  # Allow Prometheus scraping
-  - from:
-    - podSelector:
-        matchLabels:
-          app: prometheus
-    ports:
-    - protocol: TCP
-      port: 9090
+    # Allow Grafana access from authorized users
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: ingress-nginx
+      ports:
+        - protocol: TCP
+          port: 3000
+    # Allow Prometheus scraping
+    - from:
+        - podSelector:
+            matchLabels:
+              app: prometheus
+      ports:
+        - protocol: TCP
+          port: 9090
   egress:
-  # Allow DNS resolution
-  - to: []
-    ports:
-    - protocol: UDP
-      port: 53
-    - protocol: TCP
-      port: 53
-  # Allow scraping all application metrics
-  - to:
-    - podSelector: {}
-    ports:
-    - protocol: TCP
-      port: 8080
-    - protocol: TCP
-      port: 9090
-  # Allow database monitoring
-  - to:
-    - podSelector:
-        matchLabels:
-          component: database
-    ports:
-    - protocol: TCP
-      port: 3306
-    - protocol: TCP
-      port: 5432
-  # Allow external alerting (HTTPS)
-  - to: []
-    ports:
-    - protocol: TCP
-      port: 443
+    # Allow DNS resolution
+    - to: []
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    # Allow scraping all application metrics
+    - to:
+        - podSelector: {}
+      ports:
+        - protocol: TCP
+          port: 8080
+        - protocol: TCP
+          port: 9090
+    # Allow database monitoring
+    - to:
+        - podSelector:
+            matchLabels:
+              component: database
+      ports:
+        - protocol: TCP
+          port: 3306
+        - protocol: TCP
+          port: 5432
+    # Allow external alerting (HTTPS)
+    - to: []
+      ports:
+        - protocol: TCP
+          port: 443
 
 ---
 apiVersion: networking.k8s.io/v1
@@ -367,8 +367,8 @@ metadata:
 spec:
   podSelector: {}
   policyTypes:
-  - Ingress
-  - Egress
+    - Ingress
+    - Egress
 
 ---
 apiVersion: networking.k8s.io/v1
@@ -383,18 +383,18 @@ metadata:
 spec:
   podSelector: {}
   policyTypes:
-  - Egress
+    - Egress
   egress:
-  # Allow DNS resolution to kube-dns
-  - to:
-    - namespaceSelector:
-        matchLabels:
-          name: kube-system
-    - podSelector:
-        matchLabels:
-          k8s-app: kube-dns
-    ports:
-    - protocol: UDP
-      port: 53
-    - protocol: TCP
-      port: 53
+    # Allow DNS resolution to kube-dns
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              name: kube-system
+        - podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53

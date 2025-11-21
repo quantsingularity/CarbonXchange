@@ -12,7 +12,7 @@ describe("AuthNavigator", () => {
     const { getByText } = render(
       <NavigationContainer>
         <AuthNavigator />
-      </NavigationContainer>
+      </NavigationContainer>,
     );
     // Check if the navigator renders the mock component name for LoginScreen
     // This depends on how @testing-library/react-native handles mocked components.

@@ -1,30 +1,54 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from "react";
 import {
-  LineChart, Line, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid,
-  Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell
-} from 'recharts';
+  LineChart,
+  Line,
+  AreaChart,
+  Area,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+} from "recharts";
 import {
-  TrendingUp, TrendingDown, DollarSign, Activity, Users,
-  BarChart3, PieChart as PieChartIcon, Settings, Bell,
-  ArrowUpRight, ArrowDownRight, Zap, Shield, Globe
-} from 'lucide-react';
+  TrendingUp,
+  TrendingDown,
+  DollarSign,
+  Activity,
+  Users,
+  BarChart3,
+  PieChart as PieChartIcon,
+  Settings,
+  Bell,
+  ArrowUpRight,
+  ArrowDownRight,
+  Zap,
+  Shield,
+  Globe,
+} from "lucide-react";
 
 const TradingDashboard = () => {
   const [marketData, setMarketData] = useState([]);
   const [portfolioData, setPortfolioData] = useState([]);
   const [tradingVolume, setTradingVolume] = useState([]);
-  const [selectedTimeframe, setSelectedTimeframe] = useState('1D');
+  const [selectedTimeframe, setSelectedTimeframe] = useState("1D");
   const [isLoading, setIsLoading] = useState(true);
   const [realTimePrice, setRealTimePrice] = useState(85.42);
 
   // Mock data generation for demonstration
   const generateMockData = useCallback(() => {
     const timeframes = {
-      '1D': 24,
-      '1W': 7,
-      '1M': 30,
-      '3M': 90,
-      '1Y': 365
+      "1D": 24,
+      "1W": 7,
+      "1M": 30,
+      "3M": 90,
+      "1Y": 365,
     };
 
     const hours = timeframes[selectedTimeframe];
@@ -37,11 +61,11 @@ const TradingDashboard = () => {
       basePrice = Math.max(basePrice, 50); // Minimum price
 
       data.push({
-        time: selectedTimeframe === '1D' ? `${i}:00` : `Day ${i + 1}`,
+        time: selectedTimeframe === "1D" ? `${i}:00` : `Day ${i + 1}`,
         price: parseFloat(basePrice.toFixed(2)),
         volume: Math.floor(Math.random() * 10000) + 5000,
         change: change,
-        timestamp: new Date(Date.now() - (hours - i) * 60 * 60 * 1000)
+        timestamp: new Date(Date.now() - (hours - i) * 60 * 60 * 1000),
       });
     }
 
@@ -49,19 +73,19 @@ const TradingDashboard = () => {
 
     // Portfolio allocation data
     const portfolioAllocation = [
-      { name: 'Renewable Energy Credits', value: 35, color: '#10B981' },
-      { name: 'Forest Conservation', value: 28, color: '#3B82F6' },
-      { name: 'Clean Technology', value: 22, color: '#8B5CF6' },
-      { name: 'Carbon Capture', value: 15, color: '#F59E0B' }
+      { name: "Renewable Energy Credits", value: 35, color: "#10B981" },
+      { name: "Forest Conservation", value: 28, color: "#3B82F6" },
+      { name: "Clean Technology", value: 22, color: "#8B5CF6" },
+      { name: "Carbon Capture", value: 15, color: "#F59E0B" },
     ];
     setPortfolioData(portfolioAllocation);
 
     // Trading volume data
-    const volumeData = data.map(item => ({
+    const volumeData = data.map((item) => ({
       time: item.time,
       volume: item.volume,
       buyVolume: Math.floor(item.volume * (0.4 + Math.random() * 0.2)),
-      sellVolume: Math.floor(item.volume * (0.4 + Math.random() * 0.2))
+      sellVolume: Math.floor(item.volume * (0.4 + Math.random() * 0.2)),
     }));
     setTradingVolume(volumeData);
 
@@ -75,7 +99,7 @@ const TradingDashboard = () => {
   // Simulate real-time price updates
   useEffect(() => {
     const interval = setInterval(() => {
-      setRealTimePrice(prev => {
+      setRealTimePrice((prev) => {
         const change = (Math.random() - 0.5) * 2;
         return Math.max(parseFloat((prev + change).toFixed(2)), 50);
       });
@@ -91,14 +115,24 @@ const TradingDashboard = () => {
           <p className="text-sm font-medium text-gray-600 mb-1">{title}</p>
           <p className="text-2xl font-bold text-gray-900">{value}</p>
           {change && (
-            <div className={`flex items-center mt-2 ${trend === 'up' ? 'text-green-600' : 'text-red-600'}`}>
-              {trend === 'up' ? <ArrowUpRight size={16} /> : <ArrowDownRight size={16} />}
+            <div
+              className={`flex items-center mt-2 ${trend === "up" ? "text-green-600" : "text-red-600"}`}
+            >
+              {trend === "up" ? (
+                <ArrowUpRight size={16} />
+              ) : (
+                <ArrowDownRight size={16} />
+              )}
               <span className="text-sm font-medium ml-1">{change}</span>
             </div>
           )}
         </div>
-        <div className={`p-3 rounded-full ${trend === 'up' ? 'bg-green-100' : trend === 'down' ? 'bg-red-100' : 'bg-blue-100'}`}>
-          <Icon className={`w-6 h-6 ${trend === 'up' ? 'text-green-600' : trend === 'down' ? 'text-red-600' : 'text-blue-600'}`} />
+        <div
+          className={`p-3 rounded-full ${trend === "up" ? "bg-green-100" : trend === "down" ? "bg-red-100" : "bg-blue-100"}`}
+        >
+          <Icon
+            className={`w-6 h-6 ${trend === "up" ? "text-green-600" : trend === "down" ? "text-red-600" : "text-blue-600"}`}
+          />
         </div>
       </div>
     </div>
@@ -134,8 +168,12 @@ const TradingDashboard = () => {
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Carbon Credit Trading Dashboard</h1>
-            <p className="text-gray-600">Real-time market data and portfolio analytics</p>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              Carbon Credit Trading Dashboard
+            </h1>
+            <p className="text-gray-600">
+              Real-time market data and portfolio analytics
+            </p>
           </div>
           <div className="flex items-center space-x-4">
             <button className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
@@ -194,14 +232,14 @@ const TradingDashboard = () => {
               Price Movement
             </h2>
             <div className="flex space-x-2">
-              {['1D', '1W', '1M', '3M', '1Y'].map((timeframe) => (
+              {["1D", "1W", "1M", "3M", "1Y"].map((timeframe) => (
                 <button
                   key={timeframe}
                   onClick={() => setSelectedTimeframe(timeframe)}
                   className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
                     selectedTimeframe === timeframe
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                   }`}
                 >
                   {timeframe}
@@ -213,8 +251,8 @@ const TradingDashboard = () => {
             <AreaChart data={marketData}>
               <defs>
                 <linearGradient id="colorPrice" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3}/>
-                  <stop offset="95%" stopColor="#3B82F6" stopOpacity={0}/>
+                  <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="#3B82F6" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
@@ -267,7 +305,9 @@ const TradingDashboard = () => {
                   ></div>
                   <span className="text-sm text-gray-600">{item.name}</span>
                 </div>
-                <span className="text-sm font-medium text-gray-900">{item.value}%</span>
+                <span className="text-sm font-medium text-gray-900">
+                  {item.value}%
+                </span>
               </div>
             ))}
           </div>
@@ -312,29 +352,70 @@ const TradingDashboard = () => {
           </h2>
           <div className="space-y-4 max-h-64 overflow-y-auto">
             {[
-              { type: 'buy', amount: '1,250', price: '$85.42', time: '2 min ago', user: 'GreenTech Corp' },
-              { type: 'sell', amount: '850', price: '$85.38', time: '5 min ago', user: 'EcoFund Ltd' },
-              { type: 'buy', amount: '2,100', price: '$85.45', time: '8 min ago', user: 'Carbon Solutions' },
-              { type: 'sell', amount: '675', price: '$85.40', time: '12 min ago', user: 'CleanEnergy Inc' },
-              { type: 'buy', amount: '1,800', price: '$85.43', time: '15 min ago', user: 'Sustainable Ventures' }
+              {
+                type: "buy",
+                amount: "1,250",
+                price: "$85.42",
+                time: "2 min ago",
+                user: "GreenTech Corp",
+              },
+              {
+                type: "sell",
+                amount: "850",
+                price: "$85.38",
+                time: "5 min ago",
+                user: "EcoFund Ltd",
+              },
+              {
+                type: "buy",
+                amount: "2,100",
+                price: "$85.45",
+                time: "8 min ago",
+                user: "Carbon Solutions",
+              },
+              {
+                type: "sell",
+                amount: "675",
+                price: "$85.40",
+                time: "12 min ago",
+                user: "CleanEnergy Inc",
+              },
+              {
+                type: "buy",
+                amount: "1,800",
+                price: "$85.43",
+                time: "15 min ago",
+                user: "Sustainable Ventures",
+              },
             ].map((activity, index) => (
-              <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <div
+                key={index}
+                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+              >
                 <div className="flex items-center">
-                  <div className={`w-2 h-2 rounded-full mr-3 ${
-                    activity.type === 'buy' ? 'bg-green-500' : 'bg-red-500'
-                  }`}></div>
+                  <div
+                    className={`w-2 h-2 rounded-full mr-3 ${
+                      activity.type === "buy" ? "bg-green-500" : "bg-red-500"
+                    }`}
+                  ></div>
                   <div>
                     <p className="text-sm font-medium text-gray-900">
-                      {activity.user} {activity.type === 'buy' ? 'bought' : 'sold'} {activity.amount} credits
+                      {activity.user}{" "}
+                      {activity.type === "buy" ? "bought" : "sold"}{" "}
+                      {activity.amount} credits
                     </p>
-                    <p className="text-xs text-gray-500">at {activity.price} • {activity.time}</p>
+                    <p className="text-xs text-gray-500">
+                      at {activity.price} • {activity.time}
+                    </p>
                   </div>
                 </div>
-                <div className={`px-2 py-1 rounded text-xs font-medium ${
-                  activity.type === 'buy'
-                    ? 'bg-green-100 text-green-800'
-                    : 'bg-red-100 text-red-800'
-                }`}>
+                <div
+                  className={`px-2 py-1 rounded text-xs font-medium ${
+                    activity.type === "buy"
+                      ? "bg-green-100 text-green-800"
+                      : "bg-red-100 text-red-800"
+                  }`}
+                >
                   {activity.type.toUpperCase()}
                 </div>
               </div>
@@ -351,15 +432,24 @@ const TradingDashboard = () => {
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <button className="flex items-center justify-center p-4 bg-green-50 hover:bg-green-100 rounded-lg border border-green-200 transition-colors group">
-            <TrendingUp className="mr-2 text-green-600 group-hover:scale-110 transition-transform" size={20} />
+            <TrendingUp
+              className="mr-2 text-green-600 group-hover:scale-110 transition-transform"
+              size={20}
+            />
             <span className="font-medium text-green-800">Place Buy Order</span>
           </button>
           <button className="flex items-center justify-center p-4 bg-red-50 hover:bg-red-100 rounded-lg border border-red-200 transition-colors group">
-            <TrendingDown className="mr-2 text-red-600 group-hover:scale-110 transition-transform" size={20} />
+            <TrendingDown
+              className="mr-2 text-red-600 group-hover:scale-110 transition-transform"
+              size={20}
+            />
             <span className="font-medium text-red-800">Place Sell Order</span>
           </button>
           <button className="flex items-center justify-center p-4 bg-blue-50 hover:bg-blue-100 rounded-lg border border-blue-200 transition-colors group">
-            <BarChart3 className="mr-2 text-blue-600 group-hover:scale-110 transition-transform" size={20} />
+            <BarChart3
+              className="mr-2 text-blue-600 group-hover:scale-110 transition-transform"
+              size={20}
+            />
             <span className="font-medium text-blue-800">View Analytics</span>
           </button>
         </div>

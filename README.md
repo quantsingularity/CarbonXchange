@@ -15,6 +15,7 @@ CarbonXchange is an innovative platform that leverages blockchain technology and
 > **Note**: This project is under active development. Features and functionalities are continuously being enhanced to improve carbon credit trading capabilities and user experience.
 
 ## Table of Contents
+
 - [Overview](#overview)
 - [Key Features](#key-features)
 - [Technology Stack](#technology-stack)
@@ -33,73 +34,82 @@ CarbonXchange is a decentralized platform that transforms how carbon credits are
 ## Key Features
 
 ### Blockchain-Based Carbon Credit Tokenization
-| Feature | Description |
-| :--- | :--- |
-| **Transparent Verification** | Immutable record of carbon credit origin and lifecycle |
-| **Fractional Ownership** | Ability to purchase partial carbon credits |
-| **Smart Contract Automation** | Automated issuance, trading, and retirement |
-| **Provenance Tracking** | Complete history of each carbon credit from creation to retirement |
+
+| Feature                       | Description                                                        |
+| :---------------------------- | :----------------------------------------------------------------- |
+| **Transparent Verification**  | Immutable record of carbon credit origin and lifecycle             |
+| **Fractional Ownership**      | Ability to purchase partial carbon credits                         |
+| **Smart Contract Automation** | Automated issuance, trading, and retirement                        |
+| **Provenance Tracking**       | Complete history of each carbon credit from creation to retirement |
 
 ### AI-Powered Verification System
-| Feature | Description |
-| :--- | :--- |
-| **Project Validation** | Automated assessment of carbon offset projects |
+
+| Feature                        | Description                                                  |
+| :----------------------------- | :----------------------------------------------------------- |
+| **Project Validation**         | Automated assessment of carbon offset projects               |
 | **Satellite Imagery Analysis** | Remote monitoring of reforestation and conservation projects |
-| **Data Verification** | Cross-referencing multiple data sources for accuracy |
-| **Fraud Detection** | Identifying suspicious patterns and double-counting |
+| **Data Verification**          | Cross-referencing multiple data sources for accuracy         |
+| **Fraud Detection**            | Identifying suspicious patterns and double-counting          |
 
 ### Carbon Credit Marketplace
-| Feature | Description |
-| :--- | :--- |
+
+| Feature                  | Description                                    |
+| :----------------------- | :--------------------------------------------- |
 | **Peer-to-Peer Trading** | Direct transactions between buyers and sellers |
-| **Auction Mechanism** | Competitive bidding for carbon credits |
-| **Price Discovery** | Transparent market-based pricing |
-| **Portfolio Management** | Tools for managing carbon credit investments |
+| **Auction Mechanism**    | Competitive bidding for carbon credits         |
+| **Price Discovery**      | Transparent market-based pricing               |
+| **Portfolio Management** | Tools for managing carbon credit investments   |
 
 ### Impact Tracking & Reporting
-| Feature | Description |
-| :--- | :--- |
-| **Real-Time Metrics** | Live tracking of carbon offset impact |
-| **Customizable Reports** | Generate reports for sustainability goals and compliance |
-| **ESG Integration** | Connect carbon credits to broader ESG initiatives |
-| **API Access** | Integrate carbon data into corporate sustainability systems |
+
+| Feature                  | Description                                                 |
+| :----------------------- | :---------------------------------------------------------- |
+| **Real-Time Metrics**    | Live tracking of carbon offset impact                       |
+| **Customizable Reports** | Generate reports for sustainability goals and compliance    |
+| **ESG Integration**      | Connect carbon credits to broader ESG initiatives           |
+| **API Access**           | Integrate carbon data into corporate sustainability systems |
 
 ## Technology Stack
 
 ### Blockchain & Smart Contracts
-* **Blockchain**: Ethereum, Polygon
-* **Smart Contract Language**: Solidity
-* **Development Framework**: Hardhat, Truffle
-* **Token Standard**: ERC-1155 (for carbon credit tokens)
-* **Oracles**: Chainlink for external data
+
+- **Blockchain**: Ethereum, Polygon
+- **Smart Contract Language**: Solidity
+- **Development Framework**: Hardhat, Truffle
+- **Token Standard**: ERC-1155 (for carbon credit tokens)
+- **Oracles**: Chainlink for external data
 
 ### Backend
-* **Language**: Node.js, TypeScript
-* **Framework**: Express, NestJS
-* **Database**: PostgreSQL, MongoDB
-* **API Documentation**: Swagger
-* **Authentication**: JWT, OAuth2
+
+- **Language**: Node.js, TypeScript
+- **Framework**: Express, NestJS
+- **Database**: PostgreSQL, MongoDB
+- **API Documentation**: Swagger
+- **Authentication**: JWT, OAuth2
 
 ### Frontend
-* **Framework**: React with TypeScript
-* **State Management**: Redux Toolkit
-* **Styling**: Tailwind CSS, Styled Components
-* **Web3 Integration**: ethers.js, web3.js
-* **Data Visualization**: D3.js, Recharts
+
+- **Framework**: React with TypeScript
+- **State Management**: Redux Toolkit
+- **Styling**: Tailwind CSS, Styled Components
+- **Web3 Integration**: ethers.js, web3.js
+- **Data Visualization**: D3.js, Recharts
 
 ### AI & Machine Learning
-* **Languages**: Python, TensorFlow
-* **Computer Vision**: For satellite imagery analysis
-* **Natural Language Processing**: For document verification
-* **Data Processing**: Pandas, NumPy
-* **Model Deployment**: TensorFlow Serving
+
+- **Languages**: Python, TensorFlow
+- **Computer Vision**: For satellite imagery analysis
+- **Natural Language Processing**: For document verification
+- **Data Processing**: Pandas, NumPy
+- **Model Deployment**: TensorFlow Serving
 
 ### Infrastructure
-* **Containerization**: Docker
-* **Orchestration**: Kubernetes
-* **CI/CD**: GitHub Actions
-* **Monitoring**: Prometheus, Grafana
-* **Infrastructure as Code**: Terraform
+
+- **Containerization**: Docker
+- **Orchestration**: Kubernetes
+- **CI/CD**: GitHub Actions
+- **Monitoring**: Prometheus, Grafana
+- **Infrastructure as Code**: Terraform
 
 ## Architecture
 
@@ -137,10 +147,11 @@ CarbonXchange/
 ## Installation and Setup
 
 ### Prerequisites
-* Node.js (v14+)
-* Python (v3.8+)
-* Docker and Docker Compose
-* Ethereum wallet (MetaMask recommended)
+
+- Node.js (v14+)
+- Python (v3.8+)
+- Docker and Docker Compose
+- Ethereum wallet (MetaMask recommended)
 
 ### Quick Start with Setup Script
 
@@ -159,12 +170,14 @@ cd CarbonXchange
 ### Manual Local Development Setup
 
 1. Clone the repository:
+
 ```bash
 git clone https://github.com/abrar2030/CarbonXchange.git
 cd CarbonXchange
 ```
 
 2. Install dependencies:
+
 ```bash
 # Backend dependencies
 cd code/backend
@@ -180,17 +193,20 @@ pip install -r requirements.txt
 ```
 
 3. Set up environment variables:
+
 ```bash
 cp .env.example .env
 # Edit .env with your configuration
 ```
 
 4. Start the development environment:
+
 ```bash
 docker-compose up -d
 ```
 
 5. Deploy smart contracts to local blockchain:
+
 ```bash
 cd code/blockchain
 npx hardhat run scripts/deploy.js --network localhost
@@ -202,46 +218,50 @@ The project maintains comprehensive test coverage across all components to ensur
 
 ### Test Coverage
 
-| Component | Coverage | Status |
-|-----------|----------|--------|
-| Smart Contracts | 90% | ✅ |
-| Backend Services | 83% | ✅ |
-| AI Verification | 78% | ✅ |
-| Frontend Components | 75% | ✅ |
-| Integration Tests | 80% | ✅ |
-| Overall | 81% | ✅ |
+| Component           | Coverage | Status |
+| ------------------- | -------- | ------ |
+| Smart Contracts     | 90%      | ✅     |
+| Backend Services    | 83%      | ✅     |
+| AI Verification     | 78%      | ✅     |
+| Frontend Components | 75%      | ✅     |
+| Integration Tests   | 80%      | ✅     |
+| Overall             | 81%      | ✅     |
 
 ### Smart Contract Tests
-| Test Type | Description |
-| :--- | :--- |
-| Unit tests | For all contract functions |
-| Integration tests | For contract interactions |
-| Security tests | Using Slither and Mythril |
-| Gas optimization tests | To ensure efficiency |
+
+| Test Type              | Description                |
+| :--------------------- | :------------------------- |
+| Unit tests             | For all contract functions |
+| Integration tests      | For contract interactions  |
+| Security tests         | Using Slither and Mythril  |
+| Gas optimization tests | To ensure efficiency       |
 
 ### Backend Tests
-| Test Type | Description |
-| :--- | :--- |
-| API endpoint tests | To verify correct routing and response |
-| Service layer unit tests | For core business logic |
-| Database integration tests | For data persistence and retrieval |
-| Authentication and authorization tests | To ensure secure access control |
+
+| Test Type                              | Description                            |
+| :------------------------------------- | :------------------------------------- |
+| API endpoint tests                     | To verify correct routing and response |
+| Service layer unit tests               | For core business logic                |
+| Database integration tests             | For data persistence and retrieval     |
+| Authentication and authorization tests | To ensure secure access control        |
 
 ### AI Model Tests
-| Test Type | Description |
-| :--- | :--- |
-| Model accuracy validation | To ensure predictive power |
-| Computer vision algorithm tests | For satellite imagery analysis |
-| Document processing tests | For data extraction and verification |
-| Fraud detection tests | To assess security |
+
+| Test Type                       | Description                          |
+| :------------------------------ | :----------------------------------- |
+| Model accuracy validation       | To ensure predictive power           |
+| Computer vision algorithm tests | For satellite imagery analysis       |
+| Document processing tests       | For data extraction and verification |
+| Fraud detection tests           | To assess security                   |
 
 ### Frontend Tests
-| Test Type | Description |
-| :--- | :--- |
-| Component tests | With React Testing Library |
-| Integration tests | With Cypress for feature flows |
+
+| Test Type                  | Description                      |
+| :------------------------- | :------------------------------- |
+| Component tests            | With React Testing Library       |
+| Integration tests          | With Cypress for feature flows   |
 | End-to-end user flow tests | To verify complete user journeys |
-| Web3 integration tests | For blockchain connectivity |
+| Web3 integration tests     | For blockchain connectivity      |
 
 ### Running Tests
 
@@ -267,15 +287,16 @@ npm test
 ```
 
 #### CI/CD Pipeline
+
 CarbonXchange uses GitHub Actions for continuous integration and deployment:
 
-| Stage | Description |
-| :--- | :--- |
-| Automated testing | On each pull request |
-| Smart contract security scanning | To ensure contract safety |
-| Code quality checks | To enforce standards |
-| Docker image building | And publishing |
-| Automated deployment | To staging and production environments |
+| Stage                            | Description                            |
+| :------------------------------- | :------------------------------------- |
+| Automated testing                | On each pull request                   |
+| Smart contract security scanning | To ensure contract safety              |
+| Code quality checks              | To enforce standards                   |
+| Docker image building            | And publishing                         |
+| Automated deployment             | To staging and production environments |
 
 ## Contributing
 

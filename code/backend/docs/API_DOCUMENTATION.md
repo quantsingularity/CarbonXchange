@@ -5,6 +5,7 @@
 The CarbonXchange API provides comprehensive access to carbon credit trading, portfolio management, risk assessment, and compliance features. This RESTful API is designed to meet financial industry standards with robust security, real-time data access, and advanced trading capabilities.
 
 ### Base URL
+
 ```
 Production: https://api.carbonxchange.com/v1
 Staging: https://staging-api.carbonxchange.com/v1
@@ -22,11 +23,13 @@ Authorization: Bearer <your_jwt_token>
 ### Rate Limiting
 
 API requests are rate-limited to ensure system stability:
+
 - **Standard users**: 1000 requests per hour
 - **Premium users**: 5000 requests per hour
 - **Institutional users**: 10000 requests per hour
 
 Rate limit headers are included in all responses:
+
 ```http
 X-RateLimit-Limit: 1000
 X-RateLimit-Remaining: 999
@@ -48,6 +51,7 @@ All API responses follow a consistent JSON format:
 ```
 
 Error responses include additional error details:
+
 ```json
 {
   "success": false,
@@ -67,9 +71,11 @@ Error responses include additional error details:
 ## Authentication Endpoints
 
 ### POST /auth/login
+
 Authenticate user and receive JWT token.
 
 **Request Body:**
+
 ```json
 {
   "email": "user@example.com",
@@ -79,6 +85,7 @@ Authenticate user and receive JWT token.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -98,9 +105,11 @@ Authenticate user and receive JWT token.
 ```
 
 ### POST /auth/refresh
+
 Refresh JWT token using refresh token.
 
 **Request Body:**
+
 ```json
 {
   "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
@@ -108,14 +117,17 @@ Refresh JWT token using refresh token.
 ```
 
 ### POST /auth/logout
+
 Invalidate current session and tokens.
 
 ## User Management Endpoints
 
 ### GET /users/profile
+
 Get current user profile information.
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -143,9 +155,11 @@ Get current user profile information.
 ```
 
 ### PUT /users/profile
+
 Update user profile information.
 
 **Request Body:**
+
 ```json
 {
   "first_name": "John",
@@ -158,9 +172,11 @@ Update user profile information.
 ```
 
 ### GET /users/kyc-status
+
 Get KYC verification status and requirements.
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -179,10 +195,7 @@ Get KYC verification status and requirements.
         "submitted_at": "2023-11-15T14:30:00Z"
       }
     ],
-    "next_steps": [
-      "Submit proof of address",
-      "Submit bank statement"
-    ]
+    "next_steps": ["Submit proof of address", "Submit bank statement"]
   }
 }
 ```
@@ -190,9 +203,11 @@ Get KYC verification status and requirements.
 ## Trading Endpoints
 
 ### GET /trading/orders
+
 Get user's trading orders with filtering and pagination.
 
 **Query Parameters:**
+
 - `status` (optional): Filter by order status (active, filled, cancelled)
 - `symbol` (optional): Filter by trading symbol
 - `side` (optional): Filter by order side (buy, sell)
@@ -202,6 +217,7 @@ Get user's trading orders with filtering and pagination.
 - `limit` (optional): Items per page (default: 50, max: 200)
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -235,9 +251,11 @@ Get user's trading orders with filtering and pagination.
 ```
 
 ### POST /trading/orders
+
 Place a new trading order.
 
 **Request Body:**
+
 ```json
 {
   "symbol": "CARBON_CREDIT_A",
@@ -257,6 +275,7 @@ Place a new trading order.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -276,9 +295,11 @@ Place a new trading order.
 ```
 
 ### DELETE /trading/orders/{order_id}
+
 Cancel an existing order.
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -292,9 +313,11 @@ Cancel an existing order.
 ```
 
 ### GET /trading/executions
+
 Get trade executions for the user.
 
 **Query Parameters:**
+
 - `symbol` (optional): Filter by trading symbol
 - `from_date` (optional): Start date for filtering
 - `to_date` (optional): End date for filtering
@@ -302,6 +325,7 @@ Get trade executions for the user.
 - `limit` (optional): Items per page
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -334,9 +358,11 @@ Get trade executions for the user.
 ## Portfolio Management Endpoints
 
 ### GET /portfolio/summary
+
 Get portfolio summary and performance metrics.
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -372,9 +398,11 @@ Get portfolio summary and performance metrics.
 ```
 
 ### GET /portfolio/risk-metrics
+
 Get detailed portfolio risk analysis.
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -409,9 +437,11 @@ Get detailed portfolio risk analysis.
 ```
 
 ### POST /portfolio/optimize
+
 Optimize portfolio allocation based on risk preferences.
 
 **Request Body:**
+
 ```json
 {
   "risk_tolerance": "moderate",
@@ -426,6 +456,7 @@ Optimize portfolio allocation based on risk preferences.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -433,8 +464,8 @@ Optimize portfolio allocation based on risk preferences.
     "recommended_allocation": {
       "CARBON_CREDIT_A": 0.35,
       "CARBON_CREDIT_B": 0.25,
-      "CARBON_CREDIT_C": 0.20,
-      "CASH": 0.20
+      "CARBON_CREDIT_C": 0.2,
+      "CASH": 0.2
     },
     "expected_return": 0.118,
     "expected_volatility": 0.145,
@@ -444,7 +475,7 @@ Optimize portfolio allocation based on risk preferences.
         "symbol": "CARBON_CREDIT_A",
         "action": "sell",
         "quantity": "200.00",
-        "current_weight": 0.40,
+        "current_weight": 0.4,
         "target_weight": 0.35
       }
     ]
@@ -455,9 +486,11 @@ Optimize portfolio allocation based on risk preferences.
 ## Market Data Endpoints
 
 ### GET /market/symbols
+
 Get list of available trading symbols.
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -485,9 +518,11 @@ Get list of available trading symbols.
 ```
 
 ### GET /market/quotes/{symbol}
+
 Get real-time quote for a symbol.
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -509,12 +544,15 @@ Get real-time quote for a symbol.
 ```
 
 ### GET /market/depth/{symbol}
+
 Get order book depth for a symbol.
 
 **Query Parameters:**
+
 - `depth` (optional): Number of levels to return (default: 10, max: 50)
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -550,15 +588,18 @@ Get order book depth for a symbol.
 ```
 
 ### GET /market/history/{symbol}
+
 Get historical price data for a symbol.
 
 **Query Parameters:**
+
 - `interval` (required): Time interval (1m, 5m, 15m, 1h, 4h, 1d)
 - `from_date` (required): Start date (ISO 8601)
 - `to_date` (required): End date (ISO 8601)
 - `limit` (optional): Maximum number of data points (default: 1000)
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -582,9 +623,11 @@ Get historical price data for a symbol.
 ## Risk Management Endpoints
 
 ### GET /risk/limits
+
 Get current risk limits for the user.
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -615,16 +658,18 @@ Get current risk limits for the user.
 ```
 
 ### POST /risk/stress-test
+
 Run stress test scenarios on portfolio.
 
 **Request Body:**
+
 ```json
 {
   "scenarios": [
     {
       "name": "market_crash",
       "shocks": {
-        "CARBON_CREDIT_A": -0.30,
+        "CARBON_CREDIT_A": -0.3,
         "CARBON_CREDIT_B": -0.25
       }
     },
@@ -632,7 +677,7 @@ Run stress test scenarios on portfolio.
       "name": "regulatory_change",
       "shocks": {
         "CARBON_CREDIT_A": -0.15,
-        "CARBON_CREDIT_B": -0.20
+        "CARBON_CREDIT_B": -0.2
       }
     }
   ]
@@ -640,6 +685,7 @@ Run stress test scenarios on portfolio.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -664,9 +710,11 @@ Run stress test scenarios on portfolio.
 ## Compliance Endpoints
 
 ### GET /compliance/status
+
 Get compliance status for the user.
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -698,14 +746,17 @@ Get compliance status for the user.
 ```
 
 ### GET /compliance/reports
+
 Get compliance reports and audit trails.
 
 **Query Parameters:**
+
 - `type` (optional): Report type (trading, kyc, sanctions)
 - `from_date` (optional): Start date for filtering
 - `to_date` (optional): End date for filtering
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -727,13 +778,16 @@ Get compliance reports and audit trails.
 ## Analytics Endpoints
 
 ### GET /analytics/trading-signals/{symbol}
+
 Get AI-generated trading signals for a symbol.
 
 **Query Parameters:**
+
 - `algorithm` (optional): Algorithm type (momentum, mean_reversion, ml_ensemble)
 - `timeframe` (optional): Analysis timeframe (1h, 4h, 1d)
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -757,9 +811,11 @@ Get AI-generated trading signals for a symbol.
 ```
 
 ### GET /analytics/market-sentiment
+
 Get market sentiment analysis.
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -792,6 +848,7 @@ Get market sentiment analysis.
 ## WebSocket API
 
 ### Connection
+
 Connect to real-time data streams via WebSocket:
 
 ```
@@ -799,6 +856,7 @@ wss://api.carbonxchange.com/v1/ws
 ```
 
 ### Authentication
+
 Send authentication message after connection:
 
 ```json
@@ -811,6 +869,7 @@ Send authentication message after connection:
 ### Subscriptions
 
 #### Market Data
+
 ```json
 {
   "type": "subscribe",
@@ -820,6 +879,7 @@ Send authentication message after connection:
 ```
 
 #### Order Updates
+
 ```json
 {
   "type": "subscribe",
@@ -828,6 +888,7 @@ Send authentication message after connection:
 ```
 
 #### Trade Executions
+
 ```json
 {
   "type": "subscribe",
@@ -838,6 +899,7 @@ Send authentication message after connection:
 ### Message Formats
 
 #### Quote Update
+
 ```json
 {
   "type": "quote",
@@ -850,6 +912,7 @@ Send authentication message after connection:
 ```
 
 #### Order Update
+
 ```json
 {
   "type": "order_update",
@@ -862,22 +925,23 @@ Send authentication message after connection:
 
 ## Error Codes
 
-| Code | Description |
-|------|-------------|
-| `AUTHENTICATION_REQUIRED` | Valid authentication token required |
-| `INSUFFICIENT_PERMISSIONS` | User lacks required permissions |
-| `VALIDATION_ERROR` | Request validation failed |
-| `RESOURCE_NOT_FOUND` | Requested resource not found |
-| `RATE_LIMIT_EXCEEDED` | API rate limit exceeded |
-| `INSUFFICIENT_BALANCE` | Insufficient account balance |
-| `MARKET_CLOSED` | Market is currently closed |
-| `ORDER_REJECTED` | Order rejected by risk management |
-| `COMPLIANCE_CHECK_FAILED` | User failed compliance check |
-| `SYSTEM_MAINTENANCE` | System under maintenance |
+| Code                       | Description                         |
+| -------------------------- | ----------------------------------- |
+| `AUTHENTICATION_REQUIRED`  | Valid authentication token required |
+| `INSUFFICIENT_PERMISSIONS` | User lacks required permissions     |
+| `VALIDATION_ERROR`         | Request validation failed           |
+| `RESOURCE_NOT_FOUND`       | Requested resource not found        |
+| `RATE_LIMIT_EXCEEDED`      | API rate limit exceeded             |
+| `INSUFFICIENT_BALANCE`     | Insufficient account balance        |
+| `MARKET_CLOSED`            | Market is currently closed          |
+| `ORDER_REJECTED`           | Order rejected by risk management   |
+| `COMPLIANCE_CHECK_FAILED`  | User failed compliance check        |
+| `SYSTEM_MAINTENANCE`       | System under maintenance            |
 
 ## SDKs and Libraries
 
 ### Python SDK
+
 ```bash
 pip install carbonxchange-python
 ```
@@ -890,32 +954,36 @@ orders = client.trading.get_orders()
 ```
 
 ### JavaScript SDK
+
 ```bash
 npm install carbonxchange-js
 ```
 
 ```javascript
-import CarbonXchange from 'carbonxchange-js';
+import CarbonXchange from "carbonxchange-js";
 
-const client = new CarbonXchange({ apiKey: 'your_api_key' });
+const client = new CarbonXchange({ apiKey: "your_api_key" });
 const orders = await client.trading.getOrders();
 ```
 
 ## Changelog
 
 ### Version 1.2.0 (2023-12-01)
+
 - Added advanced trading algorithms (TWAP, VWAP, Iceberg)
 - Enhanced risk management endpoints
 - Added AI-powered trading signals
 - Improved WebSocket performance
 
 ### Version 1.1.0 (2023-11-01)
+
 - Added portfolio optimization endpoints
 - Enhanced compliance reporting
 - Added stress testing capabilities
 - Improved error handling
 
 ### Version 1.0.0 (2023-10-01)
+
 - Initial API release
 - Basic trading functionality
 - User management

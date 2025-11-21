@@ -30,7 +30,7 @@ const mockCreate = jest.fn(() => mockAxiosInstance);
 export default {
   create: mockCreate,
   post: jest.fn(), // Mock static post if used directly
-  get: jest.fn(),  // Mock static get if used directly
+  get: jest.fn(), // Mock static get if used directly
   // Add other static methods if your SUT uses them e.g. axios.all, axios.spread
 
   // Expose the instance mocks if tests need to directly manipulate them
@@ -39,5 +39,5 @@ export default {
   _mockInstance: mockAxiosInstance,
   _mockCreate: mockCreate,
   _mockPost: mockPost, // static post mock
-  _mockGet: mockGet,   // static get mock
+  _mockGet: mockGet, // static get mock
 };

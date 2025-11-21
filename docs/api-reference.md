@@ -3,6 +3,7 @@
 This document provides detailed information about the CarbonXchange API endpoints.
 
 ## Base URL
+
 ```
 Development: http://localhost:3000/api/v1
 Production: https://api.carbonxchange.com/v1
@@ -21,9 +22,11 @@ Authorization: Bearer <your_jwt_token>
 ### Authentication
 
 #### POST /auth/register
+
 Register a new user account.
 
 **Request Body:**
+
 ```json
 {
   "email": "user@example.com",
@@ -34,6 +37,7 @@ Register a new user account.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -48,9 +52,11 @@ Register a new user account.
 ```
 
 #### POST /auth/login
+
 Authenticate a user and receive a JWT token.
 
 **Request Body:**
+
 ```json
 {
   "email": "user@example.com",
@@ -63,15 +69,18 @@ Authenticate a user and receive a JWT token.
 ### Carbon Credits
 
 #### GET /credits
+
 List available carbon credits.
 
 **Query Parameters:**
+
 - `page` (optional): Page number for pagination
 - `limit` (optional): Items per page
 - `type` (optional): Filter by credit type
 - `status` (optional): Filter by status
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -95,9 +104,11 @@ List available carbon credits.
 ```
 
 #### POST /credits
+
 Create a new carbon credit listing.
 
 **Request Body:**
+
 ```json
 {
   "type": "renewable_energy",
@@ -111,9 +122,11 @@ Create a new carbon credit listing.
 ### Trading
 
 #### POST /trades
+
 Create a new trade order.
 
 **Request Body:**
+
 ```json
 {
   "creditId": "credit_id",
@@ -124,9 +137,11 @@ Create a new trade order.
 ```
 
 #### GET /trades/user
+
 Get user's trade history.
 
 **Query Parameters:**
+
 - `page` (optional): Page number
 - `limit` (optional): Items per page
 - `status` (optional): Filter by status
@@ -134,9 +149,11 @@ Get user's trade history.
 ### Market Data
 
 #### GET /market/statistics
+
 Get market statistics and analytics.
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -150,18 +167,22 @@ Get market statistics and analytics.
 ```
 
 #### GET /market/forecast
+
 Get AI-powered market forecasts.
 
 **Query Parameters:**
+
 - `timeframe`: "24h" | "7d" | "30d"
 - `type`: "price" | "volume" | "demand"
 
 ### Wallet
 
 #### GET /wallet/balance
+
 Get user's wallet balance.
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -189,6 +210,7 @@ All endpoints return error responses in the following format:
 ```
 
 Common Error Codes:
+
 - `AUTH_REQUIRED`: Authentication required
 - `INVALID_INPUT`: Invalid input parameters
 - `NOT_FOUND`: Resource not found
@@ -198,6 +220,7 @@ Common Error Codes:
 ## Rate Limiting
 
 API requests are limited to:
+
 - 100 requests per minute for authenticated users
 - 20 requests per minute for unauthenticated users
 
@@ -210,6 +233,7 @@ wss://api.carbonxchange.com/ws
 ```
 
 Available Events:
+
 - `market.update`: Real-time market data updates
 - `trade.new`: New trade notifications
 - `price.change`: Price change alerts
@@ -223,10 +247,11 @@ npm install @carbonxchange/sdk
 ```
 
 Example usage:
+
 ```javascript
-const CarbonXchange = require('@carbonxchange/sdk');
+const CarbonXchange = require("@carbonxchange/sdk");
 const client = new CarbonXchange({
-  apiKey: 'your_api_key',
-  environment: 'production'
+  apiKey: "your_api_key",
+  environment: "production",
 });
 ```

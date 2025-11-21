@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
 // Create a context for Web3 and wallet connection
 const Web3Context = React.createContext();
@@ -13,7 +13,9 @@ export const Web3Provider = ({ children }) => {
     if (window.ethereum) {
       try {
         // Request account access
-        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        const accounts = await window.ethereum.request({
+          method: "eth_requestAccounts",
+        });
         setAccount(accounts[0]);
         setIsConnected(true);
 
@@ -45,7 +47,7 @@ export const Web3Provider = ({ children }) => {
         isConnected,
         balance,
         connectWallet,
-        disconnectWallet
+        disconnectWallet,
       }}
     >
       {children}

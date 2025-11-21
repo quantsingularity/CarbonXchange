@@ -25,12 +25,14 @@ CarbonXchange is a distributed system that combines blockchain technology, AI/ML
 ### 1. Frontend Layer
 
 #### Technologies
+
 - React.js
 - Redux for state management
 - Web3.js for blockchain interaction
 - D3.js for data visualization
 
 #### Key Components
+
 - User Authentication
 - Trading Interface
 - Market Analytics Dashboard
@@ -38,6 +40,7 @@ CarbonXchange is a distributed system that combines blockchain technology, AI/ML
 - Admin Panel
 
 #### Directory Structure
+
 ```
 frontend/
 ├── src/
@@ -56,12 +59,14 @@ frontend/
 ### 2. Backend Layer
 
 #### Technologies
+
 - Node.js with Express
 - PostgreSQL
 - Redis for caching
 - JWT for authentication
 
 #### Key Services
+
 - User Management
 - Order Processing
 - Market Data Aggregation
@@ -69,6 +74,7 @@ frontend/
 - AI/ML Service Integration
 
 #### Directory Structure
+
 ```
 backend/
 ├── src/
@@ -84,17 +90,20 @@ backend/
 ### 3. Blockchain Layer
 
 #### Technologies
+
 - Ethereum/Polygon Network
 - Solidity Smart Contracts
 - Hardhat Development Framework
 
 #### Key Contracts
+
 - Carbon Credit Token (ERC-1155)
 - Trading Market
 - Verification System
 - Governance
 
 #### Directory Structure
+
 ```
 blockchain/
 ├── contracts/
@@ -106,18 +115,21 @@ blockchain/
 ### 4. AI/ML Services
 
 #### Technologies
+
 - Python
 - TensorFlow/PyTorch
 - Scikit-learn
 - FastAPI
 
 #### Key Features
+
 - Price Prediction
 - Market Trend Analysis
 - Risk Assessment
 - Fraud Detection
 
 #### Directory Structure
+
 ```
 ml/
 ├── src/
@@ -132,6 +144,7 @@ ml/
 ## Data Flow
 
 ### 1. Trading Flow
+
 ```
 User → Frontend → Backend → Smart Contract → Blockchain
   ↑       ↓         ↓           ↓              ↓
@@ -140,6 +153,7 @@ User → Frontend → Backend → Smart Contract → Blockchain
 ```
 
 ### 2. Market Data Flow
+
 ```
 Blockchain → Backend → AI/ML Service → Database
      ↓          ↓           ↓            ↓
@@ -149,18 +163,21 @@ Frontend ←──────────────────────�
 ## Security Architecture
 
 ### 1. Authentication & Authorization
+
 - JWT-based authentication
 - Role-based access control
 - Multi-factor authentication
 - Wallet signature verification
 
 ### 2. Data Security
+
 - End-to-end encryption
 - Secure key management
 - Regular security audits
 - GDPR compliance
 
 ### 3. Smart Contract Security
+
 - Formal verification
 - Regular audits
 - Upgradeable contracts
@@ -169,12 +186,14 @@ Frontend ←──────────────────────�
 ## Scalability Considerations
 
 ### 1. Horizontal Scaling
+
 - Microservices architecture
 - Container orchestration
 - Load balancing
 - Database sharding
 
 ### 2. Performance Optimization
+
 - Caching strategies
 - Database indexing
 - CDN integration
@@ -183,12 +202,14 @@ Frontend ←──────────────────────�
 ## Monitoring & Maintenance
 
 ### 1. System Monitoring
+
 - Performance metrics
 - Error tracking
 - User analytics
 - Smart contract events
 
 ### 2. Maintenance Procedures
+
 - Automated testing
 - Continuous integration
 - Deployment automation
@@ -197,6 +218,7 @@ Frontend ←──────────────────────�
 ## Development Environment
 
 ### 1. Local Setup
+
 ```bash
 # Frontend
 cd frontend
@@ -215,11 +237,13 @@ npx hardhat compile
 ```
 
 ### 2. Testing Environment
+
 - Jest for frontend/backend
 - Hardhat for smart contracts
 - Python unittest for ML services
 
 ### 3. Deployment Pipeline
+
 - GitHub Actions
 - Docker containers
 - AWS infrastructure
@@ -228,11 +252,13 @@ npx hardhat compile
 ## External Integrations
 
 ### 1. Blockchain Networks
+
 - Ethereum Mainnet
 - Polygon Network
 - Testnet environments
 
 ### 2. External Services
+
 - Carbon credit verification
 - KYC/AML providers
 - Payment processors
@@ -241,11 +267,13 @@ npx hardhat compile
 ## Disaster Recovery
 
 ### 1. Backup Systems
+
 - Database backups
 - Code repository mirrors
 - Configuration backups
 
 ### 2. Recovery Procedures
+
 - System restore protocols
 - Data recovery processes
 - Emergency response plan
@@ -253,12 +281,14 @@ npx hardhat compile
 ## Future Considerations
 
 ### 1. Planned Improvements
+
 - Layer 2 scaling solutions
 - Advanced AI features
 - Mobile application
 - Cross-chain integration
 
 ### 2. Research Areas
+
 - Zero-knowledge proofs
 - Improved consensus mechanisms
 - Advanced market making

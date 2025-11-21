@@ -1,12 +1,9 @@
 // Mock SecureStore first - this needs to be at the top
-jest.mock(
-  "expo-secure-store",
-  () => ({
-    getItemAsync: jest.fn(),
-    setItemAsync: jest.fn(),
-    deleteItemAsync: jest.fn(),
-  })
-);
+jest.mock("expo-secure-store", () => ({
+  getItemAsync: jest.fn(),
+  setItemAsync: jest.fn(),
+  deleteItemAsync: jest.fn(),
+}));
 
 // __mocks__/axios.js will be used automatically by Jest since we are importing "axios"
 // and there is no explicit jest.mock("axios", ...) in this file anymore.
@@ -24,7 +21,7 @@ import {
   getUserTrades,
   getMarketStats,
   getMarketForecast,
-  getWalletBalance
+  getWalletBalance,
 } from "../../services/api";
 
 // Import the mocked SecureStore to allow clearing/resetting its functions
@@ -50,8 +47,8 @@ describe("Mobile API Service", () => {
     // Reset mockRequestUse to its default successful behavior from __mocks__/axios.js
     // The implementation in __mocks__/axios.js is: (successCb, errorCb) => { if (successCb) return Promise.resolve(successCb({ headers: {} })); return Promise.resolve({ headers: {} }); }
     mockRequestUse.mockClear().mockImplementation((successCb, errorCb) => {
-        if (successCb) return Promise.resolve(successCb({ headers: {} }));
-        return Promise.resolve({ headers: {} });
+      if (successCb) return Promise.resolve(successCb({ headers: {} }));
+      return Promise.resolve({ headers: {} });
     });
     mockResponseUse.mockClear(); // If you start using response interceptors
 
@@ -66,22 +63,36 @@ describe("Mobile API Service", () => {
       const mockEmail = "test@example.com";
       const mockPassword = "password123";
       const mockToken = "fake-jwt-token";
-      const mockResponse = { data: { success: true, token: mockToken, user: { id: 1, email: mockEmail } } };
+      const mockResponse = {
+        data: {
+          success: true,
+          token: mockToken,
+          user: { id: 1, email: mockEmail },
+        },
+      };
       mockPost.mockResolvedValue(mockResponse);
       SecureStore.setItemAsync.mockResolvedValue(null);
       SecureStore.getItemAsync.mockResolvedValue(mockToken); // For interceptor if it runs
 
       const result = await login(mockEmail, mockPassword);
 
-      expect(mockPost).toHaveBeenCalledWith("/auth/login", { email: mockEmail, password: mockPassword });
-      expect(SecureStore.setItemAsync).toHaveBeenCalledWith("userToken", mockToken);
+      expect(mockPost).toHaveBeenCalledWith("/auth/login", {
+        email: mockEmail,
+        password: mockPassword,
+      });
+      expect(SecureStore.setItemAsync).toHaveBeenCalledWith(
+        "userToken",
+        mockToken,
+      );
       expect(result).toEqual(mockResponse.data);
     });
 
     it("login should throw error and not save token on API failure", async () => {
       const mockEmail = "test@example.com";
       const mockPassword = "password123";
-      const mockError = { response: { data: { success: false, message: "Invalid credentials" } } };
+      const mockError = {
+        response: { data: { success: false, message: "Invalid credentials" } },
+      };
       mockPost.mockRejectedValue(mockError);
 
       await expect(login(mockEmail, mockPassword)).rejects.toEqual(mockError);
@@ -89,9 +100,15 @@ describe("Mobile API Service", () => {
     });
 
     it("register should call API, save token on success, and return data", async () => {
-      const userData = { username: "newuser", email: "new@example.com", password: "newpassword" };
+      const userData = {
+        username: "newuser",
+        email: "new@example.com",
+        password: "newpassword",
+      };
       const mockToken = "new-fake-jwt-token";
-      const mockResponse = { data: { success: true, token: mockToken, userId: "newUser123" } };
+      const mockResponse = {
+        data: { success: true, token: mockToken, userId: "newUser123" },
+      };
       mockPost.mockResolvedValue(mockResponse);
       SecureStore.setItemAsync.mockResolvedValue(null);
       SecureStore.getItemAsync.mockResolvedValue(mockToken);
@@ -99,7 +116,10 @@ describe("Mobile API Service", () => {
       const result = await register(userData);
 
       expect(mockPost).toHaveBeenCalledWith("/auth/register", userData);
-      expect(SecureStore.setItemAsync).toHaveBeenCalledWith("userToken", mockToken);
+      expect(SecureStore.setItemAsync).toHaveBeenCalledWith(
+        "userToken",
+        mockToken,
+      );
       expect(result).toEqual(mockResponse.data);
     });
 
@@ -113,7 +133,9 @@ describe("Mobile API Service", () => {
   describe("Carbon Credits API", () => {
     it("getCredits should call API and return data", async () => {
       const mockCreditsData = [{ id: "1", name: "Credit A" }];
-      const mockResponse = { data: { success: true, credits: mockCreditsData } };
+      const mockResponse = {
+        data: { success: true, credits: mockCreditsData },
+      };
       mockGet.mockResolvedValue(mockResponse);
       SecureStore.getItemAsync.mockResolvedValue("some-token");
 
@@ -141,7 +163,9 @@ describe("Mobile API Service", () => {
     it("createCredit should call API with credit data and return response", async () => {
       const creditData = { name: "New Credit", tons: 100 };
       const mockResponseData = { ...creditData, id: "newId" };
-      const mockResponse = { data: { success: true, credit: mockResponseData } };
+      const mockResponse = {
+        data: { success: true, credit: mockResponseData },
+      };
       mockPost.mockResolvedValue(mockResponse);
       SecureStore.getItemAsync.mockResolvedValue("some-token");
 
@@ -182,7 +206,9 @@ describe("Mobile API Service", () => {
   describe("Market Data API", () => {
     it("getMarketStats should call API and return market statistics", async () => {
       const mockStatsData = { totalVolume: 1000, averagePrice: 25 };
-      const mockResponse = { data: { success: true, statistics: mockStatsData } };
+      const mockResponse = {
+        data: { success: true, statistics: mockStatsData },
+      };
       mockGet.mockResolvedValue(mockResponse);
       SecureStore.getItemAsync.mockResolvedValue("some-token");
 
@@ -194,7 +220,9 @@ describe("Mobile API Service", () => {
 
     it("getMarketForecast should call API and return market forecast", async () => {
       const mockForecastData = { trend: "up", prediction: 30 };
-      const mockResponse = { data: { success: true, forecast: mockForecastData } };
+      const mockResponse = {
+        data: { success: true, forecast: mockForecastData },
+      };
       mockGet.mockResolvedValue(mockResponse);
       SecureStore.getItemAsync.mockResolvedValue("some-token");
 
@@ -208,7 +236,9 @@ describe("Mobile API Service", () => {
   describe("Wallet API", () => {
     it("getWalletBalance should call API and return wallet balance", async () => {
       const mockBalanceData = { currency: "USD", amount: 5000 };
-      const mockResponse = { data: { success: true, balance: mockBalanceData } };
+      const mockResponse = {
+        data: { success: true, balance: mockBalanceData },
+      };
       mockGet.mockResolvedValue(mockResponse);
       SecureStore.getItemAsync.mockResolvedValue("some-token");
 
@@ -219,9 +249,17 @@ describe("Mobile API Service", () => {
     });
   });
 
-  const testApiFunctionError = async (apiFunction, functionName, method = "get", payload, requiresAuth = true) => {
+  const testApiFunctionError = async (
+    apiFunction,
+    functionName,
+    method = "get",
+    payload,
+    requiresAuth = true,
+  ) => {
     it(`${functionName} should throw error on API failure`, async () => {
-      const mockError = { response: { data: { success: false, message: "API Error" } } };
+      const mockError = {
+        response: { data: { success: false, message: "API Error" } },
+      };
       if (method === "post") mockPost.mockRejectedValue(mockError);
       else mockGet.mockRejectedValue(mockError);
 

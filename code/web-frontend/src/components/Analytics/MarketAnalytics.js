@@ -1,18 +1,46 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from "react";
 import {
-  LineChart, Line, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid,
-  Tooltip, Legend, ResponsiveContainer, ScatterChart, Scatter, ReferenceLine,
-  ComposedChart, CandlestickChart
-} from 'recharts';
+  LineChart,
+  Line,
+  AreaChart,
+  Area,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  ScatterChart,
+  Scatter,
+  ReferenceLine,
+  ComposedChart,
+  CandlestickChart,
+} from "recharts";
 import {
-  TrendingUp, TrendingDown, BarChart3, PieChart, Activity, Target,
-  Brain, Zap, AlertTriangle, CheckCircle, Clock, DollarSign,
-  ArrowUpRight, ArrowDownRight, Filter, Download, RefreshCw
-} from 'lucide-react';
+  TrendingUp,
+  TrendingDown,
+  BarChart3,
+  PieChart,
+  Activity,
+  Target,
+  Brain,
+  Zap,
+  AlertTriangle,
+  CheckCircle,
+  Clock,
+  DollarSign,
+  ArrowUpRight,
+  ArrowDownRight,
+  Filter,
+  Download,
+  RefreshCw,
+} from "lucide-react";
 
 const MarketAnalytics = () => {
-  const [selectedMetric, setSelectedMetric] = useState('price');
-  const [timeRange, setTimeRange] = useState('30D');
+  const [selectedMetric, setSelectedMetric] = useState("price");
+  const [timeRange, setTimeRange] = useState("30D");
   const [isLoading, setIsLoading] = useState(false);
   const [marketData, setMarketData] = useState([]);
   const [correlationData, setCorrelationData] = useState([]);
@@ -21,7 +49,14 @@ const MarketAnalytics = () => {
 
   // Generate sophisticated mock data
   const generateAnalyticsData = useMemo(() => {
-    const days = timeRange === '7D' ? 7 : timeRange === '30D' ? 30 : timeRange === '90D' ? 90 : 365;
+    const days =
+      timeRange === "7D"
+        ? 7
+        : timeRange === "30D"
+          ? 30
+          : timeRange === "90D"
+            ? 90
+            : 365;
     const data = [];
     let basePrice = 85;
     let baseVolume = 10000;
@@ -36,11 +71,11 @@ const MarketAnalytics = () => {
       const randomFactor = (Math.random() - 0.5) * 0.08;
 
       const priceChange = cycleFactor + trendFactor + randomFactor;
-      basePrice *= (1 + priceChange);
+      basePrice *= 1 + priceChange;
       basePrice = Math.max(basePrice, 50);
 
       const volumeChange = (Math.random() - 0.5) * 0.3;
-      baseVolume *= (1 + volumeChange);
+      baseVolume *= 1 + volumeChange;
       baseVolume = Math.max(baseVolume, 5000);
 
       // Calculate technical indicators
@@ -49,17 +84,19 @@ const MarketAnalytics = () => {
       const bollinger = {
         upper: basePrice * 1.02,
         lower: basePrice * 0.98,
-        middle: basePrice
+        middle: basePrice,
       };
 
       data.push({
-        date: date.toISOString().split('T')[0],
+        date: date.toISOString().split("T")[0],
         timestamp: date.getTime(),
         price: parseFloat(basePrice.toFixed(2)),
         volume: Math.floor(baseVolume),
         high: parseFloat((basePrice * (1 + Math.random() * 0.02)).toFixed(2)),
         low: parseFloat((basePrice * (1 - Math.random() * 0.02)).toFixed(2)),
-        open: parseFloat((basePrice * (1 + (Math.random() - 0.5) * 0.01)).toFixed(2)),
+        open: parseFloat(
+          (basePrice * (1 + (Math.random() - 0.5) * 0.01)).toFixed(2),
+        ),
         close: parsePrice(basePrice.toFixed(2)),
         rsi: parseFloat(rsi.toFixed(2)),
         macd: parseFloat(macd.toFixed(4)),
@@ -69,7 +106,7 @@ const MarketAnalytics = () => {
         volatility: parseFloat((Math.abs(priceChange) * 100).toFixed(2)),
         momentum: parseFloat((priceChange * 100).toFixed(2)),
         support: parseFloat((basePrice * 0.95).toFixed(2)),
-        resistance: parseFloat((basePrice * 1.05).toFixed(2))
+        resistance: parseFloat((basePrice * 1.05).toFixed(2)),
       });
     }
 
@@ -78,7 +115,13 @@ const MarketAnalytics = () => {
 
   // Generate correlation analysis data
   const generateCorrelationData = useMemo(() => {
-    const assets = ['Carbon Credits', 'Renewable Energy', 'ESG Funds', 'Green Bonds', 'Clean Tech'];
+    const assets = [
+      "Carbon Credits",
+      "Renewable Energy",
+      "ESG Funds",
+      "Green Bonds",
+      "Clean Tech",
+    ];
     const correlations = [];
 
     for (let i = 0; i < assets.length; i++) {
@@ -87,8 +130,14 @@ const MarketAnalytics = () => {
           asset1: assets[i],
           asset2: assets[j],
           correlation: i === j ? 1 : (Math.random() * 2 - 1).toFixed(3),
-          strength: i === j ? 'Perfect' : Math.abs(Math.random() * 2 - 1) > 0.7 ? 'Strong' :
-                   Math.abs(Math.random() * 2 - 1) > 0.3 ? 'Moderate' : 'Weak'
+          strength:
+            i === j
+              ? "Perfect"
+              : Math.abs(Math.random() * 2 - 1) > 0.7
+                ? "Strong"
+                : Math.abs(Math.random() * 2 - 1) > 0.3
+                  ? "Moderate"
+                  : "Weak",
         });
       }
     }
@@ -100,16 +149,21 @@ const MarketAnalytics = () => {
   const generateVolatilityData = useMemo(() => {
     return generateAnalyticsData.map((item, index) => ({
       ...item,
-      volatility30: generateAnalyticsData.slice(Math.max(0, index - 29), index + 1)
-        .reduce((sum, d) => sum + d.volatility, 0) / Math.min(30, index + 1),
-      volatility7: generateAnalyticsData.slice(Math.max(0, index - 6), index + 1)
-        .reduce((sum, d) => sum + d.volatility, 0) / Math.min(7, index + 1)
+      volatility30:
+        generateAnalyticsData
+          .slice(Math.max(0, index - 29), index + 1)
+          .reduce((sum, d) => sum + d.volatility, 0) / Math.min(30, index + 1),
+      volatility7:
+        generateAnalyticsData
+          .slice(Math.max(0, index - 6), index + 1)
+          .reduce((sum, d) => sum + d.volatility, 0) / Math.min(7, index + 1),
     }));
   }, [generateAnalyticsData]);
 
   // Generate AI predictions
   const generatePredictions = useMemo(() => {
-    const lastPrice = generateAnalyticsData[generateAnalyticsData.length - 1]?.price || 85;
+    const lastPrice =
+      generateAnalyticsData[generateAnalyticsData.length - 1]?.price || 85;
     const predictions = [];
 
     for (let i = 1; i <= 30; i++) {
@@ -120,16 +174,17 @@ const MarketAnalytics = () => {
       const trendFactor = 0.001 * i; // Slight upward trend
       const uncertainty = 0.02 * Math.sqrt(i); // Increasing uncertainty
 
-      const predictedPrice = lastPrice * (1 + trendFactor + (Math.random() - 0.5) * 0.01);
-      const confidence = Math.max(0.5, 0.95 - (i * 0.01)); // Decreasing confidence
+      const predictedPrice =
+        lastPrice * (1 + trendFactor + (Math.random() - 0.5) * 0.01);
+      const confidence = Math.max(0.5, 0.95 - i * 0.01); // Decreasing confidence
 
       predictions.push({
-        date: date.toISOString().split('T')[0],
+        date: date.toISOString().split("T")[0],
         predicted: parseFloat(predictedPrice.toFixed(2)),
         upperBound: parseFloat((predictedPrice * (1 + uncertainty)).toFixed(2)),
         lowerBound: parseFloat((predictedPrice * (1 - uncertainty)).toFixed(2)),
         confidence: parseFloat((confidence * 100).toFixed(1)),
-        model: i <= 7 ? 'LSTM' : i <= 14 ? 'ARIMA' : 'Ensemble'
+        model: i <= 7 ? "LSTM" : i <= 14 ? "ARIMA" : "Ensemble",
       });
     }
 
@@ -146,7 +201,12 @@ const MarketAnalytics = () => {
       setPredictionData(generatePredictions);
       setIsLoading(false);
     }, 1000);
-  }, [generateAnalyticsData, generateCorrelationData, generateVolatilityData, generatePredictions]);
+  }, [
+    generateAnalyticsData,
+    generateCorrelationData,
+    generateVolatilityData,
+    generatePredictions,
+  ]);
 
   const MetricCard = ({ title, value, change, trend, icon: Icon, color }) => (
     <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-all duration-300">
@@ -154,14 +214,22 @@ const MarketAnalytics = () => {
         <div className={`p-3 rounded-full bg-${color}-100`}>
           <Icon className={`w-6 h-6 text-${color}-600`} />
         </div>
-        <div className={`flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-          trend === 'up' ? 'bg-green-100 text-green-800' :
-          trend === 'down' ? 'bg-red-100 text-red-800' :
-          'bg-gray-100 text-gray-800'
-        }`}>
-          {trend === 'up' ? <ArrowUpRight size={12} /> :
-           trend === 'down' ? <ArrowDownRight size={12} /> :
-           <Activity size={12} />}
+        <div
+          className={`flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+            trend === "up"
+              ? "bg-green-100 text-green-800"
+              : trend === "down"
+                ? "bg-red-100 text-red-800"
+                : "bg-gray-100 text-gray-800"
+          }`}
+        >
+          {trend === "up" ? (
+            <ArrowUpRight size={12} />
+          ) : trend === "down" ? (
+            <ArrowDownRight size={12} />
+          ) : (
+            <Activity size={12} />
+          )}
           <span className="ml-1">{change}</span>
         </div>
       </div>
@@ -174,11 +242,15 @@ const MarketAnalytics = () => {
     <div className="bg-gray-50 rounded-lg p-4">
       <div className="flex items-center justify-between mb-2">
         <h4 className="font-medium text-gray-900">{name}</h4>
-        <div className={`px-2 py-1 rounded text-xs font-medium ${
-          signal === 'BUY' ? 'bg-green-100 text-green-800' :
-          signal === 'SELL' ? 'bg-red-100 text-red-800' :
-          'bg-yellow-100 text-yellow-800'
-        }`}>
+        <div
+          className={`px-2 py-1 rounded text-xs font-medium ${
+            signal === "BUY"
+              ? "bg-green-100 text-green-800"
+              : signal === "SELL"
+                ? "bg-red-100 text-red-800"
+                : "bg-yellow-100 text-yellow-800"
+          }`}
+        >
           {signal}
         </div>
       </div>
@@ -194,7 +266,7 @@ const MarketAnalytics = () => {
           <p className="font-medium text-gray-900 mb-2">{label}</p>
           {payload.map((entry, index) => (
             <p key={index} className="text-sm" style={{ color: entry.color }}>
-              {`${entry.name}: ${typeof entry.value === 'number' ? entry.value.toFixed(2) : entry.value}`}
+              {`${entry.name}: ${typeof entry.value === "number" ? entry.value.toFixed(2) : entry.value}`}
             </p>
           ))}
         </div>
@@ -220,8 +292,12 @@ const MarketAnalytics = () => {
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Market Analytics</h1>
-            <p className="text-gray-600">Advanced technical analysis and market insights</p>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              Market Analytics
+            </h1>
+            <p className="text-gray-600">
+              Advanced technical analysis and market insights
+            </p>
           </div>
           <div className="flex items-center space-x-4">
             <select
@@ -292,14 +368,14 @@ const MarketAnalytics = () => {
               Technical Analysis
             </h2>
             <div className="flex space-x-2">
-              {['price', 'volume', 'rsi', 'macd'].map((metric) => (
+              {["price", "volume", "rsi", "macd"].map((metric) => (
                 <button
                   key={metric}
                   onClick={() => setSelectedMetric(metric)}
                   className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
                     selectedMetric === metric
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                   }`}
                 >
                   {metric.toUpperCase()}
@@ -309,7 +385,7 @@ const MarketAnalytics = () => {
           </div>
 
           <ResponsiveContainer width="100%" height={400}>
-            {selectedMetric === 'price' ? (
+            {selectedMetric === "price" ? (
               <ComposedChart data={marketData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
                 <XAxis dataKey="date" stroke="#6B7280" />
@@ -348,7 +424,7 @@ const MarketAnalytics = () => {
                   dot={false}
                 />
               </ComposedChart>
-            ) : selectedMetric === 'volume' ? (
+            ) : selectedMetric === "volume" ? (
               <BarChart data={marketData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
                 <XAxis dataKey="date" stroke="#6B7280" />
@@ -356,7 +432,7 @@ const MarketAnalytics = () => {
                 <Tooltip content={<CustomTooltip />} />
                 <Bar dataKey="volume" fill="#10B981" />
               </BarChart>
-            ) : selectedMetric === 'rsi' ? (
+            ) : selectedMetric === "rsi" ? (
               <LineChart data={marketData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
                 <XAxis dataKey="date" stroke="#6B7280" />
@@ -430,7 +506,9 @@ const MarketAnalytics = () => {
               <span className="font-medium text-blue-900">Overall Signal</span>
             </div>
             <p className="text-2xl font-bold text-blue-900 mb-1">BULLISH</p>
-            <p className="text-sm text-blue-700">3 of 4 indicators suggest upward movement</p>
+            <p className="text-sm text-blue-700">
+              3 of 4 indicators suggest upward movement
+            </p>
           </div>
         </div>
       </div>
@@ -446,9 +524,15 @@ const MarketAnalytics = () => {
           <ResponsiveContainer width="100%" height={300}>
             <AreaChart data={volatilityData}>
               <defs>
-                <linearGradient id="colorVolatility" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#F59E0B" stopOpacity={0.3}/>
-                  <stop offset="95%" stopColor="#F59E0B" stopOpacity={0}/>
+                <linearGradient
+                  id="colorVolatility"
+                  x1="0"
+                  y1="0"
+                  x2="0"
+                  y2="1"
+                >
+                  <stop offset="5%" stopColor="#F59E0B" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="#F59E0B" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
@@ -485,9 +569,15 @@ const MarketAnalytics = () => {
           <ResponsiveContainer width="100%" height={300}>
             <AreaChart data={predictionData.slice(0, 14)}>
               <defs>
-                <linearGradient id="colorPrediction" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#8B5CF6" stopOpacity={0.3}/>
-                  <stop offset="95%" stopColor="#8B5CF6" stopOpacity={0}/>
+                <linearGradient
+                  id="colorPrediction"
+                  x1="0"
+                  y1="0"
+                  x2="0"
+                  y2="1"
+                >
+                  <stop offset="5%" stopColor="#8B5CF6" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="#8B5CF6" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
@@ -517,7 +607,7 @@ const MarketAnalytics = () => {
                 dataKey="predicted"
                 stroke="#8B5CF6"
                 strokeWidth={3}
-                dot={{ fill: '#8B5CF6', strokeWidth: 2, r: 4 }}
+                dot={{ fill: "#8B5CF6", strokeWidth: 2, r: 4 }}
                 name="Predicted Price"
               />
             </AreaChart>
@@ -551,7 +641,9 @@ const MarketAnalytics = () => {
             <div className="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
               <span className="text-2xl font-bold text-red-600">VaR</span>
             </div>
-            <h3 className="font-medium text-gray-900 mb-1">Value at Risk (95%)</h3>
+            <h3 className="font-medium text-gray-900 mb-1">
+              Value at Risk (95%)
+            </h3>
             <p className="text-2xl font-bold text-red-600">-$4.23</p>
             <p className="text-sm text-gray-600">Daily potential loss</p>
           </div>

@@ -1,42 +1,50 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import * as api from '../../services/api'; // Assuming api service is set up
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import * as api from "../../services/api"; // Assuming api service is set up
 
 // Async thunk for login
 export const loginUser = createAsyncThunk(
-  'auth/loginUser',
+  "auth/loginUser",
   async ({ email, password }, { rejectWithValue }) => {
     try {
       const response = await api.login(email, password);
       // Assuming API returns { success: true, token: '...', user: {...} }
       if (response.success) {
         // Store token securely (e.g., AsyncStorage) - Placeholder
-        console.log('Login successful, token:', response.token);
+        console.log("Login successful, token:", response.token);
         return { user: response.user, token: response.token };
       } else {
-        return rejectWithValue(response.error || 'Login failed');
+        return rejectWithValue(response.error || "Login failed");
       }
     } catch (error) {
-      return rejectWithValue(error.response?.data?.error || error.message || 'An error occurred during login');
+      return rejectWithValue(
+        error.response?.data?.error ||
+          error.message ||
+          "An error occurred during login",
+      );
     }
-  }
+  },
 );
 
 // Async thunk for registration
 export const registerUser = createAsyncThunk(
-  'auth/registerUser',
+  "auth/registerUser",
   async (userData, { rejectWithValue }) => {
     try {
       const response = await api.register(userData);
       if (response.success) {
-        console.log('Registration successful, token:', response.token);
+        console.log("Registration successful, token:", response.token);
         return { user: response.user, token: response.token };
       } else {
-        return rejectWithValue(response.error || 'Registration failed');
+        return rejectWithValue(response.error || "Registration failed");
       }
     } catch (error) {
-      return rejectWithValue(error.response?.data?.error || error.message || 'An error occurred during registration');
+      return rejectWithValue(
+        error.response?.data?.error ||
+          error.message ||
+          "An error occurred during registration",
+      );
     }
-  }
+  },
 );
 
 const initialState = {
@@ -48,7 +56,7 @@ const initialState = {
 };
 
 const authSlice = createSlice({
-  name: 'auth',
+  name: "auth",
   initialState,
   reducers: {
     logout: (state) => {
@@ -57,11 +65,11 @@ const authSlice = createSlice({
       state.isLoggedIn = false;
       state.error = null;
       // Clear token from secure storage - Placeholder
-      console.log('User logged out');
+      console.log("User logged out");
     },
     resetAuthError: (state) => {
-        state.error = null;
-    }
+      state.error = null;
+    },
   },
   extraReducers: (builder) => {
     builder

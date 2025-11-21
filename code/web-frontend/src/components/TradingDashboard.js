@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
-import Web3 from 'web3';
+import React, { useState, useEffect } from "react";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
+import Web3 from "web3";
 
 export default function TradingDashboard() {
   const [listings, setListings] = useState([]);
-  const web3 = new Web3(Web3.givenProvider || 'http://localhost:8545');
+  const web3 = new Web3(Web3.givenProvider || "http://localhost:8545");
 
   useEffect(() => {
     async function loadListings() {
-      const response = await fetch('/api/listings');
+      const response = await fetch("/api/listings");
       const data = await response.json();
       setListings(data);
     }

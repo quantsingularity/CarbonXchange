@@ -1,11 +1,11 @@
-import React, { useEffect } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { Provider, useSelector, useDispatch } from 'react-redux';
-import store from './src/store';
-import AppNavigator from './src/navigation/AppNavigator';
-import AuthNavigator from './src/navigation/AuthNavigator';
-import LoadingScreen from './src/screens/LoadingScreen';
-import * as SecureStore from 'expo-secure-store';
+import React, { useEffect } from "react";
+import { NavigationContainer } from "@react-navigation/native";
+import { Provider, useSelector, useDispatch } from "react-redux";
+import store from "./src/store";
+import AppNavigator from "./src/navigation/AppNavigator";
+import AuthNavigator from "./src/navigation/AuthNavigator";
+import LoadingScreen from "./src/screens/LoadingScreen";
+import * as SecureStore from "expo-secure-store";
 // Import an action to update state based on stored token if needed
 // Example: import { setInitialAuthState } from './src/store/slices/authSlice';
 
@@ -19,7 +19,7 @@ const RootNavigator = () => {
     const checkToken = async () => {
       let userToken = null;
       try {
-        userToken = await SecureStore.getItemAsync('userToken');
+        userToken = await SecureStore.getItemAsync("userToken");
         // Optional: Validate token with backend here
         if (userToken) {
           // If you have an action to rehydrate state from token:
@@ -35,7 +35,7 @@ const RootNavigator = () => {
           console.log("No token found.");
         }
       } catch (e) {
-        console.error('Failed to load token', e);
+        console.error("Failed to load token", e);
       } finally {
         setIsCheckingToken(false);
       }

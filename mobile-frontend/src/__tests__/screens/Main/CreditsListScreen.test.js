@@ -39,7 +39,7 @@ describe("CreditsListScreen", () => {
           {/* Wrapping with NavigationContainer for screens that might use useNavigation or useRoute hooks */}
           <CreditsListScreen navigation={mockNavigation} />
         </NavigationContainer>
-      </Provider>
+      </Provider>,
     );
   };
 
@@ -54,8 +54,22 @@ describe("CreditsListScreen", () => {
 
   it("fetches and displays credits on mount", async () => {
     const mockCredits = [
-      { id: "1", name: "Solar Farm Project", tons: 100, pricePerTon: 20, location: "California, USA", type: "Renewable Energy" },
-      { id: "2", name: "Reforestation Initiative", tons: 50, pricePerTon: 15, location: "Amazon Rainforest", type: "Forestry" },
+      {
+        id: "1",
+        name: "Solar Farm Project",
+        tons: 100,
+        pricePerTon: 20,
+        location: "California, USA",
+        type: "Renewable Energy",
+      },
+      {
+        id: "2",
+        name: "Reforestation Initiative",
+        tons: 50,
+        pricePerTon: 15,
+        location: "Amazon Rainforest",
+        type: "Forestry",
+      },
     ];
     api.getCredits.mockResolvedValue({ success: true, credits: mockCredits });
 
@@ -83,7 +97,14 @@ describe("CreditsListScreen", () => {
 
   it("navigates to CreditDetailScreen on credit item press", async () => {
     const mockCredits = [
-      { id: "1", name: "Solar Farm Project", tons: 100, pricePerTon: 20, location: "California, USA", type: "Renewable Energy" },
+      {
+        id: "1",
+        name: "Solar Farm Project",
+        tons: 100,
+        pricePerTon: 20,
+        location: "California, USA",
+        type: "Renewable Energy",
+      },
     ];
     api.getCredits.mockResolvedValue({ success: true, credits: mockCredits });
 
@@ -91,7 +112,9 @@ describe("CreditsListScreen", () => {
     const creditItem = await findByText("Solar Farm Project");
     fireEvent.press(creditItem);
 
-    expect(mockNavigate).toHaveBeenCalledWith("CreditDetail", { creditId: "1" });
+    expect(mockNavigate).toHaveBeenCalledWith("CreditDetail", {
+      creditId: "1",
+    });
   });
 
   it("navigates to a screen to add new credit on add button press", async () => {

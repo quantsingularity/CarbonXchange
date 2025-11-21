@@ -37,7 +37,7 @@ describe("TradeHistoryScreen", () => {
         <NavigationContainer>
           <TradeHistoryScreen navigation={mockNavigation} />
         </NavigationContainer>
-      </Provider>
+      </Provider>,
     );
   };
 
@@ -52,8 +52,24 @@ describe("TradeHistoryScreen", () => {
 
   it("fetches and displays user trades on mount", async () => {
     const mockTrades = [
-      { id: "t1", creditId: "c1", type: "buy", quantity: 10, price: 200, timestamp: "2023-01-01T10:00:00Z", creditName: "Solar Project" },
-      { id: "t2", creditId: "c2", type: "sell", quantity: 5, price: 150, timestamp: "2023-01-02T11:00:00Z", creditName: "Forestry Fund" },
+      {
+        id: "t1",
+        creditId: "c1",
+        type: "buy",
+        quantity: 10,
+        price: 200,
+        timestamp: "2023-01-01T10:00:00Z",
+        creditName: "Solar Project",
+      },
+      {
+        id: "t2",
+        creditId: "c2",
+        type: "sell",
+        quantity: 5,
+        price: 150,
+        timestamp: "2023-01-02T11:00:00Z",
+        creditName: "Forestry Fund",
+      },
     ];
     api.getUserTrades.mockResolvedValue({ success: true, trades: mockTrades });
 
@@ -70,7 +86,9 @@ describe("TradeHistoryScreen", () => {
   it("displays a message if no trades are available", async () => {
     api.getUserTrades.mockResolvedValue({ success: true, trades: [] });
     const { findByText } = renderComponent();
-    expect(await findByText("No trades yet. Make your first trade!")).toBeTruthy();
+    expect(
+      await findByText("No trades yet. Make your first trade!"),
+    ).toBeTruthy();
   });
 
   it("displays error message if fetching trades fails", async () => {
@@ -81,7 +99,15 @@ describe("TradeHistoryScreen", () => {
 
   it("navigates to CreditDetailScreen when a trade item is pressed", async () => {
     const mockTrades = [
-      { id: "t1", creditId: "c1", type: "buy", quantity: 10, price: 200, timestamp: "2023-01-01T10:00:00Z", creditName: "Solar Project" },
+      {
+        id: "t1",
+        creditId: "c1",
+        type: "buy",
+        quantity: 10,
+        price: 200,
+        timestamp: "2023-01-01T10:00:00Z",
+        creditName: "Solar Project",
+      },
     ];
     api.getUserTrades.mockResolvedValue({ success: true, trades: mockTrades });
 
@@ -90,7 +116,9 @@ describe("TradeHistoryScreen", () => {
     fireEvent.press(tradeItem);
 
     // Assuming pressing a trade navigates to the detail of the associated credit
-    expect(mockNavigation.navigate).toHaveBeenCalledWith("CreditDetail", { creditId: "c1" });
+    expect(mockNavigation.navigate).toHaveBeenCalledWith("CreditDetail", {
+      creditId: "c1",
+    });
   });
 
   // Add test for pull-to-refresh functionality if implemented

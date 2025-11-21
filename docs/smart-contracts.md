@@ -81,13 +81,10 @@ CarbonGovernance: 0x...
 ### Using Web3.js
 
 ```javascript
-const Web3 = require('web3');
-const web3 = new Web3('YOUR_PROVIDER_URL');
+const Web3 = require("web3");
+const web3 = new Web3("YOUR_PROVIDER_URL");
 
-const marketplace = new web3.eth.Contract(
-  MARKETPLACE_ABI,
-  MARKETPLACE_ADDRESS
-);
+const marketplace = new web3.eth.Contract(MARKETPLACE_ABI, MARKETPLACE_ADDRESS);
 
 // Create sell order
 async function createSellOrder(tokenId, amount, price) {
@@ -101,15 +98,15 @@ async function createSellOrder(tokenId, amount, price) {
 ### Using Ethers.js
 
 ```javascript
-const { ethers } = require('ethers');
+const { ethers } = require("ethers");
 
-const provider = new ethers.providers.JsonRpcProvider('YOUR_PROVIDER_URL');
+const provider = new ethers.providers.JsonRpcProvider("YOUR_PROVIDER_URL");
 const signer = provider.getSigner();
 
 const marketplace = new ethers.Contract(
   MARKETPLACE_ADDRESS,
   MARKETPLACE_ABI,
-  signer
+  signer,
 );
 
 // Create buy order
@@ -174,6 +171,7 @@ The contracts use the OpenZeppelin upgrades pattern:
 ## Gas Optimization
 
 Implemented optimizations:
+
 - Packed storage variables
 - Batch operations where possible
 - Efficient event emission
@@ -211,6 +209,7 @@ npx hardhat coverage
 ## Audits
 
 The smart contracts have been audited by:
+
 1. [Audit Firm 1] - [Date]
 2. [Audit Firm 2] - [Date]
 

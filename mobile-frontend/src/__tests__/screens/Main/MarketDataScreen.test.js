@@ -43,7 +43,7 @@ describe("MarketDataScreen", () => {
         <NavigationContainer>
           <MarketDataScreen navigation={mockNavigation} />
         </NavigationContainer>
-      </Provider>
+      </Provider>,
     );
   };
 
@@ -58,10 +58,24 @@ describe("MarketDataScreen", () => {
   });
 
   it("fetches and displays market stats and forecast", async () => {
-    const mockStats = { totalVolume: 10000, averagePrice: 25.5, activeListings: 150 };
-    const mockForecast = { trend: "upward", nextWeekPrice: 26.0, confidence: "high" };
-    api.getMarketStats.mockResolvedValue({ success: true, statistics: mockStats });
-    api.getMarketForecast.mockResolvedValue({ success: true, forecast: mockForecast });
+    const mockStats = {
+      totalVolume: 10000,
+      averagePrice: 25.5,
+      activeListings: 150,
+    };
+    const mockForecast = {
+      trend: "upward",
+      nextWeekPrice: 26.0,
+      confidence: "high",
+    };
+    api.getMarketStats.mockResolvedValue({
+      success: true,
+      statistics: mockStats,
+    });
+    api.getMarketForecast.mockResolvedValue({
+      success: true,
+      forecast: mockForecast,
+    });
 
     const { findByText } = renderComponent();
 
@@ -85,7 +99,9 @@ describe("MarketDataScreen", () => {
 
   it("displays error messages if fetching data fails", async () => {
     api.getMarketStats.mockRejectedValue(new Error("Failed to fetch stats"));
-    api.getMarketForecast.mockRejectedValue(new Error("Failed to fetch forecast"));
+    api.getMarketForecast.mockRejectedValue(
+      new Error("Failed to fetch forecast"),
+    );
 
     const { findByText } = renderComponent();
 

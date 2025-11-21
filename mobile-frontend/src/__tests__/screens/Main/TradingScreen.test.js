@@ -38,7 +38,12 @@ describe("TradingScreen", () => {
   beforeEach(() => {
     store = mockStore(initialState);
     api.createTrade.mockClear();
-    api.getWalletBalance.mockClear().mockResolvedValue({ success: true, balance: { amount: 5000, currency: "USD" } });
+    api.getWalletBalance
+      .mockClear()
+      .mockResolvedValue({
+        success: true,
+        balance: { amount: 5000, currency: "USD" },
+      });
     mockNavigation.navigate.mockClear();
     mockNavigation.goBack.mockClear();
   });
@@ -49,7 +54,7 @@ describe("TradingScreen", () => {
         <NavigationContainer>
           <TradingScreen navigation={mockNavigation} route={route} />
         </NavigationContainer>
-      </Provider>
+      </Provider>,
     );
   };
 
@@ -98,7 +103,10 @@ describe("TradingScreen", () => {
   });
 
   it("calls createTrade with correct payload on BUY and navigates on success", async () => {
-    api.createTrade.mockResolvedValue({ success: true, trade: { id: "tradeSuccess" } });
+    api.createTrade.mockResolvedValue({
+      success: true,
+      trade: { id: "tradeSuccess" },
+    });
     const { getByPlaceholderText, getByText } = renderComponent();
     await waitFor(() => expect(api.getWalletBalance).toHaveBeenCalled());
 
@@ -119,7 +127,10 @@ describe("TradingScreen", () => {
   });
 
   it("calls createTrade with correct payload on SELL and navigates on success", async () => {
-    api.createTrade.mockResolvedValue({ success: true, trade: { id: "tradeSuccess" } });
+    api.createTrade.mockResolvedValue({
+      success: true,
+      trade: { id: "tradeSuccess" },
+    });
     const { getByPlaceholderText, getByText } = renderComponent();
     await waitFor(() => expect(api.getWalletBalance).toHaveBeenCalled());
 
@@ -146,12 +157,18 @@ describe("TradingScreen", () => {
     fireEvent.press(getByText("BUY"));
     fireEvent.changeText(getByPlaceholderText("Quantity (Tons)"), "0");
     fireEvent.press(getByText("Confirm BUY"));
-    expect(alertSpy).toHaveBeenCalledWith("Invalid Quantity", "Please enter a valid quantity greater than 0.");
+    expect(alertSpy).toHaveBeenCalledWith(
+      "Invalid Quantity",
+      "Please enter a valid quantity greater than 0.",
+    );
 
     alertSpy.mockClear();
     fireEvent.changeText(getByPlaceholderText("Quantity (Tons)"), "abc");
     fireEvent.press(getByText("Confirm BUY"));
-    expect(alertSpy).toHaveBeenCalledWith("Invalid Quantity", "Please enter a valid quantity greater than 0.");
+    expect(alertSpy).toHaveBeenCalledWith(
+      "Invalid Quantity",
+      "Please enter a valid quantity greater than 0.",
+    );
 
     alertSpy.mockRestore();
   });
@@ -164,13 +181,19 @@ describe("TradingScreen", () => {
     fireEvent.press(getByText("SELL"));
     fireEvent.changeText(getByPlaceholderText("Quantity (Tons)"), "101"); // availableTons is 100
     fireEvent.press(getByText("Confirm SELL"));
-    expect(alertSpy).toHaveBeenCalledWith("Insufficient Credits", "You cannot sell more credits than available (100 Tons).");
+    expect(alertSpy).toHaveBeenCalledWith(
+      "Insufficient Credits",
+      "You cannot sell more credits than available (100 Tons).",
+    );
     alertSpy.mockRestore();
   });
 
   it("shows alert if trying to buy with insufficient balance", async () => {
     // Mock a lower balance for this specific test
-    api.getWalletBalance.mockResolvedValue({ success: true, balance: { amount: 100, currency: "USD" } });
+    api.getWalletBalance.mockResolvedValue({
+      success: true,
+      balance: { amount: 100, currency: "USD" },
+    });
     const { getByPlaceholderText, getByText } = renderComponent();
     await waitFor(() => expect(api.getWalletBalance).toHaveBeenCalled());
     const alertSpy = jest.spyOn(require("react-native").Alert, "alert");
@@ -178,12 +201,17 @@ describe("TradingScreen", () => {
     fireEvent.press(getByText("BUY"));
     fireEvent.changeText(getByPlaceholderText("Quantity (Tons)"), "5"); // 5 * $25 = $125, balance is $100
     fireEvent.press(getByText("Confirm BUY"));
-    expect(alertSpy).toHaveBeenCalledWith("Insufficient Balance", "You do not have enough funds to complete this purchase. Required: $125.00, Available: $100.00");
+    expect(alertSpy).toHaveBeenCalledWith(
+      "Insufficient Balance",
+      "You do not have enough funds to complete this purchase. Required: $125.00, Available: $100.00",
+    );
     alertSpy.mockRestore();
   });
 
   it("shows error alert if createTrade API call fails", async () => {
-    api.createTrade.mockRejectedValue({ response: { data: { message: "Trade execution failed" } } });
+    api.createTrade.mockRejectedValue({
+      response: { data: { message: "Trade execution failed" } },
+    });
     const { getByPlaceholderText, getByText } = renderComponent();
     await waitFor(() => expect(api.getWalletBalance).toHaveBeenCalled());
     const alertSpy = jest.spyOn(require("react-native").Alert, "alert");
@@ -193,7 +221,10 @@ describe("TradingScreen", () => {
     fireEvent.press(getByText("Confirm BUY"));
 
     await waitFor(() => expect(api.createTrade).toHaveBeenCalled());
-    expect(alertSpy).toHaveBeenCalledWith("Trade Failed", "Trade execution failed");
+    expect(alertSpy).toHaveBeenCalledWith(
+      "Trade Failed",
+      "Trade execution failed",
+    );
     alertSpy.mockRestore();
   });
 });

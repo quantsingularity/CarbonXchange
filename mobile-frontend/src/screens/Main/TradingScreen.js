@@ -1,12 +1,23 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
-import { createTrade } from '../../services/api';
-import theme from '../../styles/theme'; // Import the theme
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+} from "react-native";
+import { createTrade } from "../../services/api";
+import theme from "../../styles/theme"; // Import the theme
 
 const TradingScreen = ({ route, navigation }) => {
   const { creditId, price, availableAmount } = route.params;
-  const [amount, setAmount] = useState('');
-  const [tradeType, setTradeType] = useState('buy'); // Default to 'buy'
+  const [amount, setAmount] = useState("");
+  const [tradeType, setTradeType] = useState("buy"); // Default to 'buy'
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -15,14 +26,21 @@ const TradingScreen = ({ route, navigation }) => {
     const tradeAmount = parseFloat(amount); // Use parseFloat for potentially fractional amounts
 
     if (isNaN(tradeAmount) || tradeAmount <= 0) {
-      Alert.alert('Error', 'Please enter a valid positive amount.');
+      Alert.alert("Error", "Please enter a valid positive amount.");
       return;
     }
 
     // Add check for available amount if selling
-    if (tradeType === 'sell' && availableAmount !== undefined && tradeAmount > availableAmount) {
-        Alert.alert('Error', `You cannot sell more than the available amount (${availableAmount} tCO2e).`);
-        return;
+    if (
+      tradeType === "sell" &&
+      availableAmount !== undefined &&
+      tradeAmount > availableAmount
+    ) {
+      Alert.alert(
+        "Error",
+        `You cannot sell more than the available amount (${availableAmount} tCO2e).`,
+      );
+      return;
     }
     // TODO: Add check for user's buying power/balance if implementing 'buy'
 
@@ -36,18 +54,22 @@ const TradingScreen = ({ route, navigation }) => {
       };
       const response = await createTrade(tradeData);
       if (response.success) {
-        Alert.alert('Success', `Trade order created successfully!`);
+        Alert.alert("Success", `Trade order created successfully!`);
         // Optionally, pass back data or refresh previous screen
         navigation.goBack();
       } else {
-        const errorMessage = response.error?.message || 'Failed to create trade order';
+        const errorMessage =
+          response.error?.message || "Failed to create trade order";
         setError(errorMessage);
-        Alert.alert('Error', errorMessage);
+        Alert.alert("Error", errorMessage);
       }
     } catch (err) {
-      const errorMessage = err.response?.data?.message || err.message || 'An error occurred while creating the trade';
+      const errorMessage =
+        err.response?.data?.message ||
+        err.message ||
+        "An error occurred while creating the trade";
       setError(errorMessage);
-      Alert.alert('Error', errorMessage);
+      Alert.alert("Error", errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -59,7 +81,7 @@ const TradingScreen = ({ route, navigation }) => {
     if (!isNaN(tradeAmount) && !isNaN(currentPrice) && tradeAmount > 0) {
       return (tradeAmount * currentPrice).toFixed(2);
     }
-    return '0.00';
+    return "0.00";
   };
 
   return (
@@ -75,11 +97,19 @@ const TradingScreen = ({ route, navigation }) => {
             <Text style={styles.infoTitle}>Credit Details</Text>
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>Credit ID:</Text>
-              <Text style={styles.infoValue} numberOfLines={1} ellipsizeMode="middle">{creditId || 'N/A'}</Text>
+              <Text
+                style={styles.infoValue}
+                numberOfLines={1}
+                ellipsizeMode="middle"
+              >
+                {creditId || "N/A"}
+              </Text>
             </View>
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>Current Price:</Text>
-              <Text style={styles.infoValue}>${parseFloat(price).toFixed(2) || 'N/A'} / tCO2e</Text>
+              <Text style={styles.infoValue}>
+                ${parseFloat(price).toFixed(2) || "N/A"} / tCO2e
+              </Text>
             </View>
             {availableAmount !== undefined && (
               <View style={styles.infoRow}>
@@ -91,16 +121,36 @@ const TradingScreen = ({ route, navigation }) => {
 
           <View style={styles.tradeTypeContainer}>
             <TouchableOpacity
-              style={[styles.tradeTypeButton, tradeType === 'buy' && styles.tradeTypeActive]}
-              onPress={() => setTradeType('buy')}
+              style={[
+                styles.tradeTypeButton,
+                tradeType === "buy" && styles.tradeTypeActive,
+              ]}
+              onPress={() => setTradeType("buy")}
             >
-              <Text style={[styles.tradeTypeText, tradeType === 'buy' && styles.tradeTypeActiveText]}>Buy</Text>
+              <Text
+                style={[
+                  styles.tradeTypeText,
+                  tradeType === "buy" && styles.tradeTypeActiveText,
+                ]}
+              >
+                Buy
+              </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.tradeTypeButton, tradeType === 'sell' && styles.tradeTypeActive]}
-              onPress={() => setTradeType('sell')}
+              style={[
+                styles.tradeTypeButton,
+                tradeType === "sell" && styles.tradeTypeActive,
+              ]}
+              onPress={() => setTradeType("sell")}
             >
-              <Text style={[styles.tradeTypeText, tradeType === 'sell' && styles.tradeTypeActiveText]}>Sell</Text>
+              <Text
+                style={[
+                  styles.tradeTypeText,
+                  tradeType === "sell" && styles.tradeTypeActiveText,
+                ]}
+              >
+                Sell
+              </Text>
             </TouchableOpacity>
           </View>
 
@@ -120,10 +170,19 @@ const TradingScreen = ({ route, navigation }) => {
           </View>
 
           {isLoading ? (
-            <ActivityIndicator size="large" color={theme.colors.primary} style={styles.loader} />
+            <ActivityIndicator
+              size="large"
+              color={theme.colors.primary}
+              style={styles.loader}
+            />
           ) : (
-            <TouchableOpacity style={styles.submitButton} onPress={handleCreateTrade}>
-              <Text style={styles.submitButtonText}>{`Confirm ${tradeType === 'buy' ? 'Buy' : 'Sell'} Order`}</Text>
+            <TouchableOpacity
+              style={styles.submitButton}
+              onPress={handleCreateTrade}
+            >
+              <Text
+                style={styles.submitButtonText}
+              >{`Confirm ${tradeType === "buy" ? "Buy" : "Sell"} Order`}</Text>
             </TouchableOpacity>
           )}
 
@@ -148,7 +207,7 @@ const styles = StyleSheet.create({
   },
   title: {
     ...theme.typography.h1,
-    textAlign: 'center',
+    textAlign: "center",
     color: theme.colors.primary,
     marginBottom: theme.spacing.lg,
   },
@@ -165,8 +224,8 @@ const styles = StyleSheet.create({
     paddingBottom: theme.spacing.sm,
   },
   infoRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginBottom: theme.spacing.sm,
   },
   infoLabel: {
@@ -175,25 +234,25 @@ const styles = StyleSheet.create({
   },
   infoValue: {
     ...theme.typography.body1,
-    fontWeight: '500',
+    fontWeight: "500",
     flexShrink: 1,
     marginLeft: theme.spacing.sm,
-    textAlign: 'right',
+    textAlign: "right",
   },
   tradeTypeContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
     marginBottom: theme.spacing.lg,
     backgroundColor: theme.colors.surface,
     borderRadius: 8,
     borderWidth: 1,
     borderColor: theme.colors.border,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   tradeTypeButton: {
     flex: 1,
     paddingVertical: theme.spacing.md,
-    alignItems: 'center',
+    alignItems: "center",
   },
   tradeTypeActive: {
     backgroundColor: theme.colors.primary,
@@ -215,8 +274,8 @@ const styles = StyleSheet.create({
     marginBottom: theme.spacing.md,
   },
   summaryContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     paddingVertical: theme.spacing.md,
     borderTopWidth: 1,
     borderTopColor: theme.colors.border,
@@ -238,13 +297,13 @@ const styles = StyleSheet.create({
     ...theme.components.buttonText,
   },
   loader: {
-      marginVertical: theme.spacing.md,
+    marginVertical: theme.spacing.md,
   },
   errorText: {
     ...theme.typography.body1,
     color: theme.colors.error,
     marginTop: theme.spacing.md,
-    textAlign: 'center',
+    textAlign: "center",
   },
 });
 

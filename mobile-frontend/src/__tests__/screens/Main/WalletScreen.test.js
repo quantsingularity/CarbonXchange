@@ -40,7 +40,7 @@ describe("WalletScreen", () => {
         <NavigationContainer>
           <WalletScreen navigation={mockNavigation} />
         </NavigationContainer>
-      </Provider>
+      </Provider>,
     );
   };
 
@@ -54,14 +54,38 @@ describe("WalletScreen", () => {
   });
 
   it("fetches and displays wallet balance and transactions on mount", async () => {
-    const mockBalance = { amount: 7500.50, currency: "USD" };
+    const mockBalance = { amount: 7500.5, currency: "USD" };
     const mockTransactions = [
-      { id: "txn1", type: "deposit", amount: 1000, date: "2023-05-01", description: "Initial deposit" },
-      { id: "txn2", type: "trade_profit", amount: 250.50, date: "2023-05-03", description: "Profit from SOLR trade" },
-      { id: "txn3", type: "withdrawal", amount: -500, date: "2023-05-05", description: "Withdrawal to bank" },
+      {
+        id: "txn1",
+        type: "deposit",
+        amount: 1000,
+        date: "2023-05-01",
+        description: "Initial deposit",
+      },
+      {
+        id: "txn2",
+        type: "trade_profit",
+        amount: 250.5,
+        date: "2023-05-03",
+        description: "Profit from SOLR trade",
+      },
+      {
+        id: "txn3",
+        type: "withdrawal",
+        amount: -500,
+        date: "2023-05-05",
+        description: "Withdrawal to bank",
+      },
     ];
-    api.getWalletBalance.mockResolvedValue({ success: true, balance: mockBalance });
-    api.getWalletTransactions.mockResolvedValue({ success: true, transactions: mockTransactions });
+    api.getWalletBalance.mockResolvedValue({
+      success: true,
+      balance: mockBalance,
+    });
+    api.getWalletTransactions.mockResolvedValue({
+      success: true,
+      transactions: mockTransactions,
+    });
 
     const { findByText, getByText } = renderComponent();
 
@@ -72,20 +96,32 @@ describe("WalletScreen", () => {
 
     expect(await findByText("Current Balance: $7,500.50")).toBeTruthy(); // Assuming formatting
     expect(getByText("Deposit: $1,000.00 - Initial deposit")).toBeTruthy();
-    expect(getByText("Trade Profit: $250.50 - Profit from SOLR trade")).toBeTruthy();
+    expect(
+      getByText("Trade Profit: $250.50 - Profit from SOLR trade"),
+    ).toBeTruthy();
     expect(getByText("Withdrawal: -$500.00 - Withdrawal to bank")).toBeTruthy();
   });
 
   it("displays a message if no transactions are available", async () => {
-    api.getWalletBalance.mockResolvedValue({ success: true, balance: { amount: 100, currency: "USD" } });
-    api.getWalletTransactions.mockResolvedValue({ success: true, transactions: [] });
+    api.getWalletBalance.mockResolvedValue({
+      success: true,
+      balance: { amount: 100, currency: "USD" },
+    });
+    api.getWalletTransactions.mockResolvedValue({
+      success: true,
+      transactions: [],
+    });
     const { findByText } = renderComponent();
     expect(await findByText("No transactions yet.")).toBeTruthy();
   });
 
   it("displays error messages if fetching balance or transactions fails", async () => {
-    api.getWalletBalance.mockRejectedValue(new Error("Failed to fetch balance"));
-    api.getWalletTransactions.mockRejectedValue(new Error("Failed to fetch transactions"));
+    api.getWalletBalance.mockRejectedValue(
+      new Error("Failed to fetch balance"),
+    );
+    api.getWalletTransactions.mockRejectedValue(
+      new Error("Failed to fetch transactions"),
+    );
 
     const { findByText } = renderComponent();
 
@@ -94,8 +130,14 @@ describe("WalletScreen", () => {
   });
 
   it("navigates to a deposit screen on 'Deposit Funds' button press", async () => {
-    api.getWalletBalance.mockResolvedValue({ success: true, balance: { amount: 100, currency: "USD" } });
-    api.getWalletTransactions.mockResolvedValue({ success: true, transactions: [] });
+    api.getWalletBalance.mockResolvedValue({
+      success: true,
+      balance: { amount: 100, currency: "USD" },
+    });
+    api.getWalletTransactions.mockResolvedValue({
+      success: true,
+      transactions: [],
+    });
     const { findByText } = renderComponent();
     // Assuming a button with this text exists
     const depositButton = await findByText("Deposit Funds");
@@ -105,8 +147,14 @@ describe("WalletScreen", () => {
   });
 
   it("navigates to a withdrawal screen on 'Withdraw Funds' button press", async () => {
-    api.getWalletBalance.mockResolvedValue({ success: true, balance: { amount: 100, currency: "USD" } });
-    api.getWalletTransactions.mockResolvedValue({ success: true, transactions: [] });
+    api.getWalletBalance.mockResolvedValue({
+      success: true,
+      balance: { amount: 100, currency: "USD" },
+    });
+    api.getWalletTransactions.mockResolvedValue({
+      success: true,
+      transactions: [],
+    });
     const { findByText } = renderComponent();
     // Assuming a button with this text exists
     const withdrawButton = await findByText("Withdraw Funds");

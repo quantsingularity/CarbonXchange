@@ -1,15 +1,23 @@
-import React from 'react';
-import CarbonPriceChart from './charts/CarbonPriceChart';
-import TradingVolumeChart from './charts/TradingVolumeChart';
-import MarketStats from './MarketStats';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import React from "react";
+import CarbonPriceChart from "./charts/CarbonPriceChart";
+import TradingVolumeChart from "./charts/TradingVolumeChart";
+import MarketStats from "./MarketStats";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "./ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 
 const Dashboard: React.FC = () => {
   return (
     <div className="container mx-auto p-4">
       <div className="flex flex-col space-y-4">
-        <h1 className="text-3xl font-bold text-primary">CarbonXchange Dashboard</h1>
+        <h1 className="text-3xl font-bold text-primary">
+          CarbonXchange Dashboard
+        </h1>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <MarketStats />

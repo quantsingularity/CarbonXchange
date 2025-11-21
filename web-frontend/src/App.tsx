@@ -1,5 +1,5 @@
-import { ThemeProvider } from './components/theme-provider';
-import Dashboard from './components/Dashboard';
+import { ThemeProvider } from "./components/theme-provider";
+import Dashboard from "./components/Dashboard";
 
 function App() {
   return (
@@ -16,9 +16,15 @@ function App() {
             <nav>
               <ul className="flex space-x-6">
                 <li className="font-medium text-primary">Dashboard</li>
-                <li className="text-muted-foreground hover:text-foreground transition-colors">Market</li>
-                <li className="text-muted-foreground hover:text-foreground transition-colors">Trade</li>
-                <li className="text-muted-foreground hover:text-foreground transition-colors">Portfolio</li>
+                <li className="text-muted-foreground hover:text-foreground transition-colors">
+                  Market
+                </li>
+                <li className="text-muted-foreground hover:text-foreground transition-colors">
+                  Trade
+                </li>
+                <li className="text-muted-foreground hover:text-foreground transition-colors">
+                  Portfolio
+                </li>
               </ul>
             </nav>
           </div>

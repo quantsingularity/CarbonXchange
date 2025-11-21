@@ -9,10 +9,15 @@ const mockNavigate = jest.fn();
 const mockNavigation = { navigate: mockNavigate, goBack: jest.fn() };
 
 const mockRegisterUserImplementation = (userData) => (dispatch) => {
-  return Promise.resolve({ type: "auth/registerUser/fulfilled", payload: { user: "testUser", token: "testToken" } });
+  return Promise.resolve({
+    type: "auth/registerUser/fulfilled",
+    payload: { user: "testUser", token: "testToken" },
+  });
 };
 const mockRegisterUser = jest.fn(mockRegisterUserImplementation);
-const mockResetAuthErrorImplementation = () => ({ type: "auth/resetAuthError" });
+const mockResetAuthErrorImplementation = () => ({
+  type: "auth/resetAuthError",
+});
 const mockResetAuthError = jest.fn(mockResetAuthErrorImplementation);
 
 jest.mock("../../../store/slices/authSlice", () => ({
@@ -46,15 +51,19 @@ describe("RegisterScreen", () => {
   beforeEach(() => {
     store = createTestStore();
     mockNavigate.mockClear();
-    mockRegisterUser.mockClear().mockImplementation(mockRegisterUserImplementation);
-    mockResetAuthError.mockClear().mockImplementation(mockResetAuthErrorImplementation);
+    mockRegisterUser
+      .mockClear()
+      .mockImplementation(mockRegisterUserImplementation);
+    mockResetAuthError
+      .mockClear()
+      .mockImplementation(mockResetAuthErrorImplementation);
   });
 
   const renderComponent = (currentStore = store) => {
     return render(
       <Provider store={currentStore}>
         <RegisterScreen navigation={mockNavigation} />
-      </Provider>
+      </Provider>,
     );
   };
 
@@ -73,12 +82,17 @@ describe("RegisterScreen", () => {
     fireEvent.changeText(getByPlaceholderText("Username"), "testuser");
     fireEvent.changeText(getByPlaceholderText("Email"), "test@example.com");
     fireEvent.changeText(getByPlaceholderText("Password"), "password123");
-    fireEvent.changeText(getByPlaceholderText("Confirm Password"), "password123");
+    fireEvent.changeText(
+      getByPlaceholderText("Confirm Password"),
+      "password123",
+    );
 
     expect(getByPlaceholderText("Username").props.value).toBe("testuser");
     expect(getByPlaceholderText("Email").props.value).toBe("test@example.com");
     expect(getByPlaceholderText("Password").props.value).toBe("password123");
-    expect(getByPlaceholderText("Confirm Password").props.value).toBe("password123");
+    expect(getByPlaceholderText("Confirm Password").props.value).toBe(
+      "password123",
+    );
   });
 
   it("calls registerUser action on register button press with valid inputs", () => {
@@ -86,17 +100,27 @@ describe("RegisterScreen", () => {
     fireEvent.changeText(getByPlaceholderText("Username"), "testuser");
     fireEvent.changeText(getByPlaceholderText("Email"), "test@example.com");
     fireEvent.changeText(getByPlaceholderText("Password"), "password123");
-    fireEvent.changeText(getByPlaceholderText("Confirm Password"), "password123");
+    fireEvent.changeText(
+      getByPlaceholderText("Confirm Password"),
+      "password123",
+    );
     fireEvent.press(getByText("Register"));
 
-    expect(authSlice.registerUser).toHaveBeenCalledWith({ username: "testuser", email: "test@example.com", password: "password123" });
+    expect(authSlice.registerUser).toHaveBeenCalledWith({
+      username: "testuser",
+      email: "test@example.com",
+      password: "password123",
+    });
   });
 
   it("shows alert if any field is empty on register attempt", () => {
     const { getByText } = renderComponent();
     const alertSpy = jest.spyOn(require("react-native").Alert, "alert");
     fireEvent.press(getByText("Register"));
-    expect(alertSpy).toHaveBeenCalledWith("Error", "Please fill in all fields.");
+    expect(alertSpy).toHaveBeenCalledWith(
+      "Error",
+      "Please fill in all fields.",
+    );
     alertSpy.mockRestore();
   });
 
@@ -106,7 +130,10 @@ describe("RegisterScreen", () => {
     fireEvent.changeText(getByPlaceholderText("Username"), "testuser");
     fireEvent.changeText(getByPlaceholderText("Email"), "test@example.com");
     fireEvent.changeText(getByPlaceholderText("Password"), "password123");
-    fireEvent.changeText(getByPlaceholderText("Confirm Password"), "password456");
+    fireEvent.changeText(
+      getByPlaceholderText("Confirm Password"),
+      "password456",
+    );
     fireEvent.press(getByText("Register"));
     expect(alertSpy).toHaveBeenCalledWith("Error", "Passwords do not match.");
     alertSpy.mockRestore();
@@ -134,7 +161,10 @@ describe("RegisterScreen", () => {
     renderComponent(errorStore);
 
     await waitFor(() => {
-      expect(alertSpy).toHaveBeenCalledWith("Registration Failed", "Email already exists");
+      expect(alertSpy).toHaveBeenCalledWith(
+        "Registration Failed",
+        "Email already exists",
+      );
     });
     expect(authSlice.resetAuthError).toHaveBeenCalledTimes(1);
     alertSpy.mockRestore();
@@ -151,10 +181,17 @@ describe("RegisterScreen", () => {
     fireEvent.changeText(getByPlaceholderText("Username"), "newuser");
     fireEvent.changeText(getByPlaceholderText("Email"), "new@example.com");
     fireEvent.changeText(getByPlaceholderText("Password"), "newpass123");
-    fireEvent.changeText(getByPlaceholderText("Confirm Password"), "newpass123");
+    fireEvent.changeText(
+      getByPlaceholderText("Confirm Password"),
+      "newpass123",
+    );
     fireEvent.press(getByText("Register"));
 
     expect(authSlice.resetAuthError).toHaveBeenCalledTimes(1);
-    expect(authSlice.registerUser).toHaveBeenCalledWith({ username: "newuser", email: "new@example.com", password: "newpass123" });
+    expect(authSlice.registerUser).toHaveBeenCalledWith({
+      username: "newuser",
+      email: "new@example.com",
+      password: "newpass123",
+    });
   });
 });

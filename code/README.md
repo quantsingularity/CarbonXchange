@@ -50,6 +50,7 @@ CarbonXchange/code/
 ## 🛠️ Technology Stack
 
 ### Backend
+
 - **Framework**: Flask 3.1.1 with SQLAlchemy ORM
 - **Database**: PostgreSQL with Redis caching
 - **Security**: JWT authentication, bcrypt hashing, multi-factor authentication
@@ -59,6 +60,7 @@ CarbonXchange/code/
 - **Monitoring**: Prometheus metrics, structured logging
 
 ### Frontend
+
 - **Framework**: React 18.2.0 with modern hooks
 - **Styling**: Tailwind CSS 3.3.6 with custom design system
 - **Charts**: Recharts, D3.js, Lightweight Charts for financial data visualization
@@ -68,12 +70,14 @@ CarbonXchange/code/
 - **Build**: Webpack 5 with optimization plugins
 
 ### Blockchain
+
 - **Platform**: Ethereum-compatible smart contracts
 - **Language**: Solidity 0.8.19 with OpenZeppelin libraries
 - **Integration**: Web3.js and Ethers.js for blockchain interaction
 - **Security**: Multi-signature wallets, access control, circuit breakers
 
 ### AI/ML
+
 - **Frameworks**: TensorFlow, scikit-learn, pandas, numpy
 - **Models**: LSTM networks, ARIMA time series, ensemble methods
 - **Features**: Price prediction, risk assessment, sentiment analysis
@@ -81,6 +85,7 @@ CarbonXchange/code/
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - Node.js 18+ and npm/yarn
 - Python 3.11+ and pip
 - PostgreSQL 13+
@@ -90,12 +95,14 @@ CarbonXchange/code/
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/your-org/CarbonXchange.git
    cd CarbonXchange/code
    ```
 
 2. **Backend Setup**
+
    ```bash
    cd backend
 
@@ -118,6 +125,7 @@ CarbonXchange/code/
    ```
 
 3. **Frontend Setup**
+
    ```bash
    cd ../web-frontend
 
@@ -129,6 +137,7 @@ CarbonXchange/code/
    ```
 
 4. **Blockchain Setup** (Optional)
+
    ```bash
    cd ../blockchain
 
@@ -145,30 +154,35 @@ CarbonXchange/code/
 ## 📊 Enhanced Features
 
 ### Advanced Trading Features
+
 - **Sophisticated Order Types**: Market, Limit, Stop, Stop-Limit, Iceberg orders
 - **Execution Algorithms**: TWAP (Time-Weighted Average Price), VWAP (Volume-Weighted Average Price)
 - **Real-time Market Data**: Live quotes, order book depth, trade history with WebSocket updates
 - **Portfolio Management**: Real-time P&L, position tracking, performance analytics with risk metrics
 
 ### Comprehensive Risk Management
+
 - **Value at Risk (VaR)**: 95% and 99% confidence intervals with Monte Carlo simulations
 - **Stress Testing**: Scenario analysis with custom shock parameters and historical simulations
 - **Portfolio Optimization**: Modern Portfolio Theory implementation with efficient frontier
 - **Risk Limits**: Position limits, concentration limits, daily trading limits with real-time monitoring
 
 ### Enterprise Security & Compliance
+
 - **Multi-Factor Authentication**: TOTP-based 2FA with backup codes and biometric support
 - **KYC/AML Integration**: Automated identity verification, sanctions screening, PEP checks
 - **Audit Trails**: Comprehensive logging of all trading activities with immutable records
 - **Regulatory Reporting**: Automated generation of MiFID II, EMIR, and other compliance reports
 
 ### AI-Powered Analytics
+
 - **Advanced Price Prediction**: LSTM neural networks, ARIMA models, ensemble methods
 - **Market Sentiment Analysis**: Real-time sentiment from news, social media, and market data
 - **Technical Indicators**: RSI, MACD, Bollinger Bands, custom indicators with alerts
 - **Anomaly Detection**: ML-based detection of unusual trading patterns and market manipulation
 
 ### Professional Trading Interface
+
 - **Real-time Dashboard**: Live market data, portfolio performance, risk metrics
 - **Advanced Charting**: Professional-grade charts with 50+ technical indicators
 - **Order Management**: Sophisticated order entry with pre-trade risk checks
@@ -177,6 +191,7 @@ CarbonXchange/code/
 ## 🧪 Testing & Quality Assurance
 
 ### Comprehensive Test Coverage
+
 ```bash
 # Backend Tests (>90% coverage)
 cd backend
@@ -195,6 +210,7 @@ npm run test:integration
 ```
 
 ### Code Quality Standards
+
 - **Python**: PEP 8 compliance with Black formatting
 - **JavaScript**: ESLint with Prettier formatting
 - **TypeScript**: Strict type checking enabled
@@ -203,11 +219,13 @@ npm run test:integration
 ## 📚 API Documentation
 
 The enhanced API documentation is available at:
+
 - **Development**: http://localhost:8000/api/docs
 - **Swagger UI**: http://localhost:8000/api/swagger-ui
 - **ReDoc**: http://localhost:8000/api/redoc
 
 ### Key Enhanced API Endpoints
+
 - `POST /api/v1/auth/login` - Multi-factor authentication
 - `GET /api/v1/trading/orders` - Advanced order management
 - `POST /api/v1/trading/orders/twap` - TWAP order execution
@@ -219,12 +237,14 @@ The enhanced API documentation is available at:
 ## 🔐 Enterprise Security Features
 
 ### Multi-Layer Security
+
 - **Authentication**: JWT with refresh tokens, MFA, biometric support
 - **Authorization**: Role-based access control (RBAC) with fine-grained permissions
 - **Encryption**: AES-256 for data at rest, TLS 1.3 for data in transit
 - **API Security**: Rate limiting, DDoS protection, input validation
 
 ### Compliance & Regulatory
+
 - **GDPR**: Data anonymization, right to be forgotten, consent management
 - **SOX**: Financial reporting controls, audit trails, segregation of duties
 - **MiFID II**: Transaction reporting, best execution, investor protection
@@ -233,18 +253,21 @@ The enhanced API documentation is available at:
 ## 🚀 Production Deployment
 
 ### Docker Deployment
+
 ```bash
 # Build and run with Docker Compose
 docker-compose up -d
 ```
 
 ### Kubernetes Deployment
+
 ```bash
 # Apply Kubernetes manifests
 kubectl apply -f k8s/
 ```
 
 ### Cloud Deployment Options
+
 - **AWS**: ECS/EKS with RDS, ElastiCache, and CloudFront
 - **Azure**: AKS with Azure Database, Redis Cache, and CDN
 - **GCP**: GKE with Cloud SQL, Memorystore, and Cloud CDN
@@ -252,12 +275,14 @@ kubectl apply -f k8s/
 ## 📈 Performance & Scalability
 
 ### Performance Benchmarks
+
 - **API Response Time**: <100ms for 95% of requests
 - **Trading Latency**: <50ms average order execution
 - **Throughput**: 10,000+ requests per second
 - **Concurrent Users**: 100,000+ simultaneous connections
 
 ### Scalability Features
+
 - **Horizontal Scaling**: Auto-scaling based on demand
 - **Database Optimization**: Read replicas, connection pooling, query optimization
 - **Caching Strategy**: Multi-layer caching with Redis and CDN
@@ -266,12 +291,14 @@ kubectl apply -f k8s/
 ## 🔍 Monitoring & Observability
 
 ### Comprehensive Monitoring
+
 - **Application Metrics**: Response times, error rates, business KPIs
 - **Infrastructure Metrics**: CPU, memory, network, storage utilization
 - **Custom Dashboards**: Real-time trading metrics, risk indicators
 - **Alerting**: Intelligent alerts with escalation policies
 
 ### Logging & Debugging
+
 - **Structured Logging**: JSON-formatted logs with correlation IDs
 - **Distributed Tracing**: Request tracing across microservices
 - **Error Tracking**: Real-time error monitoring with Sentry
@@ -280,6 +307,7 @@ kubectl apply -f k8s/
 ## 🤝 Development Guidelines
 
 ### Code Standards
+
 - Follow established architecture patterns in each subdirectory
 - Maintain comprehensive test coverage (>90% for critical components)
 - Document all public APIs and significant code changes
@@ -287,6 +315,7 @@ kubectl apply -f k8s/
 - Coordinate changes across components when modifying integration points
 
 ### Development Workflow
+
 1. Create feature branch from main
 2. Implement changes with tests
 3. Run full test suite locally

@@ -16,7 +16,7 @@ describe("LoadingScreen", () => {
     const { getByTestId, queryByText } = render(
       <Provider store={store}>
         <LoadingScreen />
-      </Provider>
+      </Provider>,
     );
     // Assuming LoadingScreen contains an ActivityIndicator with testID="activity-indicator"
     // If not, this test would need adjustment based on LoadingScreen's actual content.

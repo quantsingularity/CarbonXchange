@@ -1,39 +1,50 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
-import { registerUser, resetAuthError } from '../../store/slices/authSlice';
-import theme from '../../styles/theme'; // Import the theme
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+} from "react-native";
+import { useDispatch, useSelector } from "react-redux";
+import { registerUser, resetAuthError } from "../../store/slices/authSlice";
+import theme from "../../styles/theme"; // Import the theme
 
 const RegisterScreen = ({ navigation }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [fullName, setFullName] = useState('');
-  const [walletAddress, setWalletAddress] = useState(''); // Optional
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [walletAddress, setWalletAddress] = useState(""); // Optional
   const dispatch = useDispatch();
   const { isLoading, error } = useSelector((state) => state.auth);
 
   const handleRegister = () => {
     if (error) {
-        dispatch(resetAuthError()); // Reset error before new attempt
+      dispatch(resetAuthError()); // Reset error before new attempt
     }
     if (!email || !password || !confirmPassword || !fullName) {
-      Alert.alert('Error', 'Please fill in all required fields.');
+      Alert.alert("Error", "Please fill in all required fields.");
       return;
     }
     if (password !== confirmPassword) {
-      Alert.alert('Error', 'Passwords do not match.');
+      Alert.alert("Error", "Passwords do not match.");
       return;
     }
     // Basic email validation
     if (!/\S+@\S+\.\S+/.test(email)) {
-        Alert.alert('Error', 'Please enter a valid email address.');
-        return;
+      Alert.alert("Error", "Please enter a valid email address.");
+      return;
     }
     // Basic password strength (example: min 6 chars)
     if (password.length < 6) {
-        Alert.alert('Error', 'Password must be at least 6 characters long.');
-        return;
+      Alert.alert("Error", "Password must be at least 6 characters long.");
+      return;
     }
 
     const userData = {
@@ -49,8 +60,11 @@ const RegisterScreen = ({ navigation }) => {
 
   React.useEffect(() => {
     if (error) {
-      const message = error.message || (error.response?.data?.message) || 'Registration failed. Please try again.';
-      Alert.alert('Registration Failed', message);
+      const message =
+        error.message ||
+        error.response?.data?.message ||
+        "Registration failed. Please try again.";
+      Alert.alert("Registration Failed", message);
       dispatch(resetAuthError()); // Reset error after showing it
     }
   }, [error, dispatch]);
@@ -107,19 +121,29 @@ const RegisterScreen = ({ navigation }) => {
           />
 
           {isLoading ? (
-            <ActivityIndicator size="large" color={theme.colors.primary} style={{ marginVertical: theme.spacing.md }} />
+            <ActivityIndicator
+              size="large"
+              color={theme.colors.primary}
+              style={{ marginVertical: theme.spacing.md }}
+            />
           ) : (
-            <TouchableOpacity style={styles.button} onPress={handleRegister} disabled={isLoading}>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={handleRegister}
+              disabled={isLoading}
+            >
               <Text style={styles.buttonText}>Register</Text>
             </TouchableOpacity>
           )}
 
           <TouchableOpacity
             style={[styles.button, styles.buttonSecondary]}
-            onPress={() => navigation.navigate('Login')}
+            onPress={() => navigation.navigate("Login")}
             disabled={isLoading}
           >
-            <Text style={styles.buttonSecondaryText}>Already have an account? Login</Text>
+            <Text style={styles.buttonSecondaryText}>
+              Already have an account? Login
+            </Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -135,21 +159,21 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     flexGrow: 1, // Ensures content can scroll if needed
-    justifyContent: 'center', // Center content vertically
+    justifyContent: "center", // Center content vertically
   },
   innerContainer: {
     padding: theme.spacing.lg, // Use theme spacing
   },
   title: {
     ...theme.typography.h1, // Use theme typography
-    textAlign: 'center',
+    textAlign: "center",
     color: theme.colors.primary, // Use theme primary color
     marginBottom: theme.spacing.sm,
   },
   subtitle: {
     ...theme.typography.body1,
     color: theme.colors.textSecondary,
-    textAlign: 'center',
+    textAlign: "center",
     marginBottom: theme.spacing.xl, // More space after subtitle
   },
   input: {

@@ -7,6 +7,7 @@ CarbonXchange Backend is a production-ready, enterprise-grade API platform for c
 ## Key Features
 
 ### 🔐 Enterprise Security
+
 - JWT-based authentication with refresh token rotation
 - Role-based access control (RBAC) with fine-grained permissions
 - Multi-factor authentication support
@@ -16,6 +17,7 @@ CarbonXchange Backend is a production-ready, enterprise-grade API platform for c
 - Encryption for sensitive data at rest and in transit
 
 ### 👤 User Management & KYC
+
 - Complete user lifecycle management
 - Know Your Customer (KYC) verification workflow
 - Politically Exposed Person (PEP) and sanctions screening
@@ -24,6 +26,7 @@ CarbonXchange Backend is a production-ready, enterprise-grade API platform for c
 - Account status management and controls
 
 ### 💰 Carbon Credit Management
+
 - Comprehensive carbon project tracking
 - Credit issuance, verification, and certification
 - Multiple carbon standards support (VCS, CDM, Gold Standard, etc.)
@@ -32,6 +35,7 @@ CarbonXchange Backend is a production-ready, enterprise-grade API platform for c
 - Blockchain integration for tokenization
 
 ### 📈 Trading Engine
+
 - Order management system (market, limit, stop orders)
 - Trade execution and settlement
 - Portfolio management and tracking
@@ -40,6 +44,7 @@ CarbonXchange Backend is a production-ready, enterprise-grade API platform for c
 - Risk management and position limits
 
 ### 📊 Market Data & Analytics
+
 - Real-time market data processing
 - Historical price data and OHLCV charts
 - Technical indicators and analytics
@@ -48,6 +53,7 @@ CarbonXchange Backend is a production-ready, enterprise-grade API platform for c
 - Volatility and risk metrics
 
 ### 📋 Compliance & Reporting
+
 - Regulatory framework compliance (SOX, MiFID II, GDPR, etc.)
 - Automated compliance monitoring
 - Regulatory reporting and filing
@@ -56,6 +62,7 @@ CarbonXchange Backend is a production-ready, enterprise-grade API platform for c
 - Transaction monitoring and alerts
 
 ### 🚀 Scalability & Performance
+
 - Redis-based caching for high performance
 - Database query optimization
 - Connection pooling and resource management
@@ -134,24 +141,27 @@ Security is implemented at multiple layers:
 ### Environment Setup
 
 1. **Clone the repository:**
+
 ```bash
 git clone <repository-url>
 cd carbonxchange_backend
 ```
 
 2. **Create virtual environment:**
+
 ```bash
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 ```
 
 3. **Install dependencies:**
+
 ```bash
 pip install -r requirements.txt
 ```
 
 4. **Environment Configuration:**
-Create a `.env` file in the root directory:
+   Create a `.env` file in the root directory:
 
 ```env
 # Application Configuration
@@ -185,6 +195,7 @@ SENDGRID_API_KEY=your-sendgrid-api-key
 ```
 
 5. **Database Setup:**
+
 ```bash
 # Create database
 createdb carbonxchange
@@ -194,6 +205,7 @@ flask db upgrade
 ```
 
 6. **Start the application:**
+
 ```bash
 python src/main.py
 ```
@@ -205,9 +217,11 @@ The API will be available at `http://localhost:5000`
 ### Authentication Endpoints
 
 #### POST /api/auth/register
+
 Register a new user account.
 
 **Request Body:**
+
 ```json
 {
   "email": "user@example.com",
@@ -220,6 +234,7 @@ Register a new user account.
 ```
 
 **Response:**
+
 ```json
 {
   "message": "User registered successfully",
@@ -237,9 +252,11 @@ Register a new user account.
 ```
 
 #### POST /api/auth/login
+
 Authenticate user and receive access tokens.
 
 **Request Body:**
+
 ```json
 {
   "email": "user@example.com",
@@ -248,17 +265,21 @@ Authenticate user and receive access tokens.
 ```
 
 #### POST /api/auth/refresh
+
 Refresh access token using refresh token.
 
 **Headers:**
+
 ```
 Authorization: Bearer <refresh_token>
 ```
 
 #### GET /api/auth/me
+
 Get current user information.
 
 **Headers:**
+
 ```
 Authorization: Bearer <access_token>
 ```
@@ -266,9 +287,11 @@ Authorization: Bearer <access_token>
 ### Carbon Credits Endpoints
 
 #### GET /api/carbon-credits/
+
 Get list of available carbon credits.
 
 **Query Parameters:**
+
 - `page`: Page number (default: 1)
 - `per_page`: Items per page (default: 20, max: 100)
 - `project_type`: Filter by project type
@@ -276,40 +299,48 @@ Get list of available carbon credits.
 - `standard`: Filter by carbon standard
 
 #### GET /api/carbon-credits/projects
+
 Get list of carbon projects.
 
 ### Trading Endpoints
 
 #### GET /api/trading/orders
+
 Get user's trading orders.
 
 #### POST /api/trading/orders
+
 Create a new trading order.
 
 **Request Body:**
+
 ```json
 {
   "order_type": "limit",
   "side": "buy",
   "quantity": 100.0,
-  "price": 25.50,
+  "price": 25.5,
   "project_id": 1,
   "vintage_year": 2023
 }
 ```
 
 #### GET /api/trading/portfolio
+
 Get user's portfolio information.
 
 ### Market Data Endpoints
 
 #### GET /api/market/data
+
 Get current market data.
 
 #### GET /api/market/prices
+
 Get historical price data.
 
 **Query Parameters:**
+
 - `symbol`: Market symbol
 - `timeframe`: Time frame (1m, 5m, 1h, 1d, etc.)
 - `start_date`: Start date (ISO format)
@@ -318,9 +349,11 @@ Get historical price data.
 ### Health Check
 
 #### GET /api/health
+
 System health check endpoint.
 
 **Response:**
+
 ```json
 {
   "status": "healthy",
@@ -339,16 +372,16 @@ System health check endpoint.
 
 ### Environment Variables
 
-| Variable | Description | Default | Required |
-|----------|-------------|---------|----------|
-| `FLASK_ENV` | Application environment | `development` | No |
-| `SECRET_KEY` | Flask secret key | Generated | Yes |
-| `JWT_SECRET_KEY` | JWT signing key | Generated | Yes |
-| `DATABASE_URL` | PostgreSQL connection string | - | Yes |
-| `REDIS_URL` | Redis connection string | `redis://localhost:6379/0` | No |
-| `WEB3_PROVIDER_URL` | Blockchain provider URL | - | Yes |
-| `MAIL_SERVER` | SMTP server | `localhost` | No |
-| `SENDGRID_API_KEY` | SendGrid API key | - | No |
+| Variable            | Description                  | Default                    | Required |
+| ------------------- | ---------------------------- | -------------------------- | -------- |
+| `FLASK_ENV`         | Application environment      | `development`              | No       |
+| `SECRET_KEY`        | Flask secret key             | Generated                  | Yes      |
+| `JWT_SECRET_KEY`    | JWT signing key              | Generated                  | Yes      |
+| `DATABASE_URL`      | PostgreSQL connection string | -                          | Yes      |
+| `REDIS_URL`         | Redis connection string      | `redis://localhost:6379/0` | No       |
+| `WEB3_PROVIDER_URL` | Blockchain provider URL      | -                          | Yes      |
+| `MAIL_SERVER`       | SMTP server                  | `localhost`                | No       |
+| `SENDGRID_API_KEY`  | SendGrid API key             | -                          | No       |
 
 ### Security Configuration
 
@@ -381,6 +414,7 @@ The system uses PostgreSQL with the following optimizations:
    - Network: 1Gbps+
 
 2. **Docker Deployment:**
+
 ```bash
 # Build image
 docker build -t carbonxchange-backend .
@@ -394,6 +428,7 @@ docker run -d \
 ```
 
 3. **Kubernetes Deployment:**
+
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -410,16 +445,16 @@ spec:
         app: carbonxchange-backend
     spec:
       containers:
-      - name: carbonxchange-backend
-        image: carbonxchange-backend:latest
-        ports:
-        - containerPort: 5000
-        env:
-        - name: DATABASE_URL
-          valueFrom:
-            secretKeyRef:
-              name: carbonxchange-secrets
-              key: database-url
+        - name: carbonxchange-backend
+          image: carbonxchange-backend:latest
+          ports:
+            - containerPort: 5000
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: carbonxchange-secrets
+                  key: database-url
 ```
 
 ### Load Balancing

@@ -1,7 +1,9 @@
 #!/bin/bash
+
 # CarbonXchange Automation Scripts - README
 
 # Overview
+
 This package contains a set of automation scripts designed to streamline development, testing, deployment, and documentation processes for the CarbonXchange repository. These scripts address common repetitive tasks and provide a more efficient workflow for developers.
 
 # Scripts Included
@@ -34,11 +36,13 @@ This package contains a set of automation scripts designed to streamline develop
 # Installation
 
 1. Extract the zip file to your CarbonXchange project root directory:
+
    ```
    unzip carbonxchange_automation.zip -d /path/to/CarbonXchange/
    ```
 
 2. Make all scripts executable:
+
    ```
    chmod +x /path/to/CarbonXchange/carbonxchange_automation/*/*.sh
    ```

@@ -5,6 +5,7 @@ This guide will help you set up and start developing with the CarbonXchange plat
 ## Prerequisites
 
 Before you begin, ensure you have the following installed:
+
 - Node.js (v14 or higher)
 - npm (v6 or higher)
 - Git
@@ -15,6 +16,7 @@ Before you begin, ensure you have the following installed:
 ## Development Environment Setup
 
 1. **Clone the Repository**
+
    ```bash
    git clone https://github.com/abrar2030/CarbonExchange.git
    cd CarbonExchange
@@ -23,11 +25,13 @@ Before you begin, ensure you have the following installed:
 2. **Environment Configuration**
    - Copy `.env.example` to `.env`
    - Update the environment variables with your local settings
+
    ```bash
    cp .env.example .env
    ```
 
 3. **Install Dependencies**
+
    ```bash
    # Backend dependencies
    cd backend
@@ -43,6 +47,7 @@ Before you begin, ensure you have the following installed:
    ```
 
 4. **Database Setup**
+
    ```bash
    # Create database
    psql -U postgres
@@ -60,12 +65,14 @@ Before you begin, ensure you have the following installed:
 ## Running the Application
 
 1. **Start the Backend Server**
+
    ```bash
    cd backend
    npm run dev
    ```
 
 2. **Start the Frontend Application**
+
    ```bash
    cd frontend
    npm start
@@ -80,11 +87,13 @@ Before you begin, ensure you have the following installed:
 ## Development Workflow
 
 1. Create a new branch for your feature
+
    ```bash
    git checkout -b feature/your-feature-name
    ```
 
 2. Make your changes and commit them
+
    ```bash
    git add .
    git commit -m "Description of your changes"
