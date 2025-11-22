@@ -12,8 +12,7 @@ from typing import Any, Dict, Optional
 import pyotp
 import redis
 from flask import current_app, request
-from flask_jwt_extended import (create_access_token, create_refresh_token,
-                                decode_token)
+from flask_jwt_extended import create_access_token, create_refresh_token, decode_token
 
 from ..models import db
 from ..models.user import User, UserSession, UserStatus

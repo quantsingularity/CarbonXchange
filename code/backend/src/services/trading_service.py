@@ -11,9 +11,17 @@ from typing import Any, Dict, List, Optional
 from sqlalchemy import and_, desc, func, or_
 
 from ..models import db
-from ..models.trading import (Order, OrderSide, OrderStatus, OrderType,
-                              Portfolio, PortfolioHolding, PortfolioType,
-                              Trade, TradeStatus)
+from ..models.trading import (
+    Order,
+    OrderSide,
+    OrderStatus,
+    OrderType,
+    Portfolio,
+    PortfolioHolding,
+    PortfolioType,
+    Trade,
+    TradeStatus,
+)
 from ..models.user import User
 from .audit_service import AuditService
 
