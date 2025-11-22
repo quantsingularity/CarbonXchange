@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
-import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Pausable.sol";
-import "@openzeppelin/contracts/access/AccessControl.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
+import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
+import '@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol';
+import '@openzeppelin/contracts/token/ERC20/extensions/ERC20Pausable.sol';
+import '@openzeppelin/contracts/access/AccessControl.sol';
+import '@openzeppelin/contracts/security/ReentrancyGuard.sol';
+import '@openzeppelin/contracts/utils/math/SafeMath.sol';
+import '@openzeppelin/contracts/utils/Counters.sol';
 
 /**
  * @title AdvancedCarbonCreditToken
@@ -33,12 +33,12 @@ contract AdvancedCarbonCreditToken is
     using Counters for Counters.Counter;
 
     // Role definitions
-    bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
-    bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
-    bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
-    bytes32 public constant COMPLIANCE_ROLE = keccak256("COMPLIANCE_ROLE");
-    bytes32 public constant AUDITOR_ROLE = keccak256("AUDITOR_ROLE");
-    bytes32 public constant VERIFIER_ROLE = keccak256("VERIFIER_ROLE");
+    bytes32 public constant ADMIN_ROLE = keccak256('ADMIN_ROLE');
+    bytes32 public constant MINTER_ROLE = keccak256('MINTER_ROLE');
+    bytes32 public constant PAUSER_ROLE = keccak256('PAUSER_ROLE');
+    bytes32 public constant COMPLIANCE_ROLE = keccak256('COMPLIANCE_ROLE');
+    bytes32 public constant AUDITOR_ROLE = keccak256('AUDITOR_ROLE');
+    bytes32 public constant VERIFIER_ROLE = keccak256('VERIFIER_ROLE');
 
     // Counters
     Counters.Counter private _projectIdCounter;
@@ -103,10 +103,30 @@ contract AdvancedCarbonCreditToken is
     }
 
     // Enums
-    enum ProjectStatus { Pending, Verified, Active, Suspended, Retired }
-    enum BatchStatus { Pending, Issued, Transferred, Retired }
-    enum ComplianceStatus { Compliant, NonCompliant, UnderReview }
-    enum RiskLevel { Low, Medium, High, Critical }
+    enum ProjectStatus {
+        Pending,
+        Verified,
+        Active,
+        Suspended,
+        Retired
+    }
+    enum BatchStatus {
+        Pending,
+        Issued,
+        Transferred,
+        Retired
+    }
+    enum ComplianceStatus {
+        Compliant,
+        NonCompliant,
+        UnderReview
+    }
+    enum RiskLevel {
+        Low,
+        Medium,
+        High,
+        Critical
+    }
 
     // State variables
     mapping(uint256 => CarbonProject) public projects;
@@ -128,9 +148,9 @@ contract AdvancedCarbonCreditToken is
     mapping(address => mapping(uint256 => uint256)) public userVintageBalance;
 
     // Transaction limits
-    uint256 public maxDailyTransactionAmount = 100000 * 10**decimals(); // 100k tokens
+    uint256 public maxDailyTransactionAmount = 100000 * 10 ** decimals(); // 100k tokens
     uint256 public maxDailyTransactionCount = 50;
-    uint256 public maxSingleTransactionAmount = 10000 * 10**decimals(); // 10k tokens
+    uint256 public maxSingleTransactionAmount = 10000 * 10 ** decimals(); // 10k tokens
 
     // Compliance parameters
     uint256 public complianceCheckInterval = 30 days;
@@ -155,17 +175,17 @@ contract AdvancedCarbonCreditToken is
 
     // Modifiers
     modifier onlyCompliant(address user) {
-        require(!blacklisted[user], "User is blacklisted");
+        require(!blacklisted[user], 'User is blacklisted');
         require(
             complianceStatus[user].status == ComplianceStatus.Compliant ||
-            block.timestamp - complianceStatus[user].timestamp > complianceCheckInterval,
-            "User compliance check required"
+                block.timestamp - complianceStatus[user].timestamp > complianceCheckInterval,
+            'User compliance check required'
         );
         _;
     }
 
     modifier withinTransactionLimits(address user, uint256 amount) {
-        require(amount <= maxSingleTransactionAmount, "Single transaction limit exceeded");
+        require(amount <= maxSingleTransactionAmount, 'Single transaction limit exceeded');
 
         // Reset daily counters if new day
         if (block.timestamp - lastTransactionTime[user] >= 1 days) {
@@ -175,18 +195,18 @@ contract AdvancedCarbonCreditToken is
 
         require(
             dailyTransactionVolume[user].add(amount) <= maxDailyTransactionAmount,
-            "Daily transaction volume limit exceeded"
+            'Daily transaction volume limit exceeded'
         );
         require(
             dailyTransactionCount[user] < maxDailyTransactionCount,
-            "Daily transaction count limit exceeded"
+            'Daily transaction count limit exceeded'
         );
         _;
     }
 
     modifier onlyActiveProject(uint256 projectId) {
-        require(projects[projectId].isActive, "Project is not active");
-        require(projects[projectId].status == ProjectStatus.Active, "Project status not active");
+        require(projects[projectId].isActive, 'Project is not active');
+        require(projects[projectId].status == ProjectStatus.Active, 'Project status not active');
         _;
     }
 
@@ -223,10 +243,13 @@ contract AdvancedCarbonCreditToken is
         string memory verificationStandard,
         bytes32 documentHash
     ) external onlyRole(VERIFIER_ROLE) returns (uint256) {
-        require(bytes(name).length > 0, "Project name required");
-        require(developer != address(0), "Invalid developer address");
-        require(vintageYear >= 2000 && vintageYear <= block.timestamp / 365 days + 1970, "Invalid vintage year");
-        require(totalCredits > 0, "Total credits must be positive");
+        require(bytes(name).length > 0, 'Project name required');
+        require(developer != address(0), 'Invalid developer address');
+        require(
+            vintageYear >= 2000 && vintageYear <= block.timestamp / 365 days + 1970,
+            'Invalid vintage year'
+        );
+        require(totalCredits > 0, 'Total credits must be positive');
 
         uint256 projectId = _projectIdCounter.current();
         _projectIdCounter.increment();
@@ -256,8 +279,8 @@ contract AdvancedCarbonCreditToken is
      * @dev Verify and activate a carbon credit project
      */
     function verifyProject(uint256 projectId) external onlyRole(VERIFIER_ROLE) {
-        require(projects[projectId].projectId != 0, "Project does not exist");
-        require(projects[projectId].status == ProjectStatus.Pending, "Project already processed");
+        require(projects[projectId].projectId != 0, 'Project does not exist');
+        require(projects[projectId].status == ProjectStatus.Pending, 'Project already processed');
 
         projects[projectId].status = ProjectStatus.Verified;
         projects[projectId].verificationDate = block.timestamp;
@@ -275,10 +298,10 @@ contract AdvancedCarbonCreditToken is
         string memory serialNumber,
         bytes32 verificationHash
     ) external onlyRole(MINTER_ROLE) onlyActiveProject(projectId) returns (uint256) {
-        require(amount > 0, "Amount must be positive");
+        require(amount > 0, 'Amount must be positive');
         require(
             projects[projectId].issuedCredits.add(amount) <= projects[projectId].totalCredits,
-            "Exceeds project total credits"
+            'Exceeds project total credits'
         );
 
         uint256 batchId = _batchIdCounter.current();
@@ -301,8 +324,9 @@ contract AdvancedCarbonCreditToken is
         projects[projectId].issuedCredits = projects[projectId].issuedCredits.add(amount);
 
         // Update vintage year supply
-        vintageYearSupply[projects[projectId].vintageYear] =
-            vintageYearSupply[projects[projectId].vintageYear].add(amount);
+        vintageYearSupply[projects[projectId].vintageYear] = vintageYearSupply[
+            projects[projectId].vintageYear
+        ].add(amount);
 
         // Add to project batches
         projectBatches[projectId].push(batchId);
@@ -311,8 +335,11 @@ contract AdvancedCarbonCreditToken is
         _mint(projects[projectId].developer, amount);
 
         // Update user vintage balance
-        userVintageBalance[projects[projectId].developer][projects[projectId].vintageYear] =
-            userVintageBalance[projects[projectId].developer][projects[projectId].vintageYear].add(amount);
+        userVintageBalance[projects[projectId].developer][
+            projects[projectId].vintageYear
+        ] = userVintageBalance[projects[projectId].developer][projects[projectId].vintageYear].add(
+            amount
+        );
 
         emit BatchIssued(batchId, projectId, amount);
         return batchId;
@@ -326,8 +353,8 @@ contract AdvancedCarbonCreditToken is
         string memory purpose,
         string memory beneficiary
     ) external nonReentrant onlyCompliant(msg.sender) returns (uint256) {
-        require(amount > 0, "Amount must be positive");
-        require(balanceOf(msg.sender) >= amount, "Insufficient balance");
+        require(amount > 0, 'Amount must be positive');
+        require(balanceOf(msg.sender) >= amount, 'Insufficient balance');
 
         // Calculate retirement fee
         uint256 fee = amount.mul(retirementFeeRate).div(10000);
@@ -345,7 +372,9 @@ contract AdvancedCarbonCreditToken is
             retirementDate: block.timestamp,
             purpose: purpose,
             beneficiary: beneficiary,
-            certificateHash: keccak256(abi.encodePacked(retirementId, msg.sender, netAmount, block.timestamp))
+            certificateHash: keccak256(
+                abi.encodePacked(retirementId, msg.sender, netAmount, block.timestamp)
+            )
         });
 
         // Burn the tokens
@@ -354,7 +383,7 @@ contract AdvancedCarbonCreditToken is
         // Transfer fee
         if (fee > 0) {
             _transfer(msg.sender, feeRecipient, fee);
-            emit FeeCollected(msg.sender, feeRecipient, fee, "retirement");
+            emit FeeCollected(msg.sender, feeRecipient, fee, 'retirement');
         }
 
         emit CreditsRetired(retirementId, msg.sender, netAmount);
@@ -389,7 +418,7 @@ contract AdvancedCarbonCreditToken is
         RiskLevel riskLevel,
         string[] memory riskFactors
     ) external onlyRole(COMPLIANCE_ROLE) {
-        require(riskScore <= 100, "Risk score must be 0-100");
+        require(riskScore <= 100, 'Risk score must be 0-100');
 
         riskAssessments[user] = RiskAssessment({
             user: user,
@@ -421,7 +450,10 @@ contract AdvancedCarbonCreditToken is
     /**
      * @dev Enhanced transfer with compliance and fee collection
      */
-    function transfer(address to, uint256 amount)
+    function transfer(
+        address to,
+        uint256 amount
+    )
         public
         override
         onlyCompliant(msg.sender)
@@ -442,7 +474,7 @@ contract AdvancedCarbonCreditToken is
         // Transfer fee
         if (fee > 0 && success) {
             super.transfer(feeRecipient, fee);
-            emit FeeCollected(msg.sender, feeRecipient, fee, "transfer");
+            emit FeeCollected(msg.sender, feeRecipient, fee, 'transfer');
         }
 
         return success;
@@ -451,7 +483,11 @@ contract AdvancedCarbonCreditToken is
     /**
      * @dev Enhanced transferFrom with compliance and fee collection
      */
-    function transferFrom(address from, address to, uint256 amount)
+    function transferFrom(
+        address from,
+        address to,
+        uint256 amount
+    )
         public
         override
         onlyCompliant(from)
@@ -472,7 +508,7 @@ contract AdvancedCarbonCreditToken is
         // Transfer fee
         if (fee > 0 && success) {
             super.transferFrom(from, feeRecipient, fee);
-            emit FeeCollected(from, feeRecipient, fee, "transfer");
+            emit FeeCollected(from, feeRecipient, fee, 'transfer');
         }
 
         return success;
@@ -523,12 +559,9 @@ contract AdvancedCarbonCreditToken is
     /**
      * @dev Set fee rates
      */
-    function setFeeRates(
-        uint256 transferFee,
-        uint256 retirementFee
-    ) external onlyRole(ADMIN_ROLE) {
-        require(transferFee <= 100, "Transfer fee too high"); // Max 1%
-        require(retirementFee <= 100, "Retirement fee too high"); // Max 1%
+    function setFeeRates(uint256 transferFee, uint256 retirementFee) external onlyRole(ADMIN_ROLE) {
+        require(transferFee <= 100, 'Transfer fee too high'); // Max 1%
+        require(retirementFee <= 100, 'Retirement fee too high'); // Max 1%
 
         transferFeeRate = transferFee;
         retirementFeeRate = retirementFee;

@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/access/AccessControl.sol";
-import "@openzeppelin/contracts/security/Pausable.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import '@openzeppelin/contracts/security/ReentrancyGuard.sol';
+import '@openzeppelin/contracts/access/AccessControl.sol';
+import '@openzeppelin/contracts/security/Pausable.sol';
+import '@openzeppelin/contracts/utils/math/SafeMath.sol';
+import '@openzeppelin/contracts/utils/Counters.sol';
+import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
+import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
 
 interface IAdvancedCarbonCreditToken {
     function transfer(address to, uint256 amount) external returns (bool);
@@ -37,11 +37,11 @@ contract AdvancedMarketplace is ReentrancyGuard, AccessControl, Pausable {
     using Counters for Counters.Counter;
 
     // Role definitions
-    bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
-    bytes32 public constant MARKET_MAKER_ROLE = keccak256("MARKET_MAKER_ROLE");
-    bytes32 public constant COMPLIANCE_ROLE = keccak256("COMPLIANCE_ROLE");
-    bytes32 public constant ORACLE_ROLE = keccak256("ORACLE_ROLE");
-    bytes32 public constant SETTLEMENT_ROLE = keccak256("SETTLEMENT_ROLE");
+    bytes32 public constant ADMIN_ROLE = keccak256('ADMIN_ROLE');
+    bytes32 public constant MARKET_MAKER_ROLE = keccak256('MARKET_MAKER_ROLE');
+    bytes32 public constant COMPLIANCE_ROLE = keccak256('COMPLIANCE_ROLE');
+    bytes32 public constant ORACLE_ROLE = keccak256('ORACLE_ROLE');
+    bytes32 public constant SETTLEMENT_ROLE = keccak256('SETTLEMENT_ROLE');
 
     // Counters
     Counters.Counter private _orderIdCounter;
@@ -123,11 +123,36 @@ contract AdvancedMarketplace is ReentrancyGuard, AccessControl, Pausable {
     }
 
     // Enums
-    enum OrderType { Market, Limit, Stop, StopLimit, IcebergLimit }
-    enum OrderSide { Buy, Sell }
-    enum OrderStatus { Active, PartiallyFilled, Filled, Cancelled, Expired, Rejected }
-    enum TradeStatus { Pending, Settled, Failed, Cancelled }
-    enum AuctionStatus { Active, Ended, Cancelled }
+    enum OrderType {
+        Market,
+        Limit,
+        Stop,
+        StopLimit,
+        IcebergLimit
+    }
+    enum OrderSide {
+        Buy,
+        Sell
+    }
+    enum OrderStatus {
+        Active,
+        PartiallyFilled,
+        Filled,
+        Cancelled,
+        Expired,
+        Rejected
+    }
+    enum TradeStatus {
+        Pending,
+        Settled,
+        Failed,
+        Cancelled
+    }
+    enum AuctionStatus {
+        Active,
+        Ended,
+        Cancelled
+    }
 
     // State variables
     mapping(uint256 => Order) public orders;
@@ -155,15 +180,15 @@ contract AdvancedMarketplace is ReentrancyGuard, AccessControl, Pausable {
     address public feeRecipient;
 
     // Trading parameters
-    uint256 public minOrderSize = 1 * 10**18; // 1 token minimum
-    uint256 public maxOrderSize = 1000000 * 10**18; // 1M tokens maximum
+    uint256 public minOrderSize = 1 * 10 ** 18; // 1 token minimum
+    uint256 public maxOrderSize = 1000000 * 10 ** 18; // 1M tokens maximum
     uint256 public maxOrderDuration = 30 days;
     uint256 public priceTickSize = 1000; // Minimum price increment (0.001 payment tokens)
 
     // Risk management
     mapping(address => uint256) public userDailyVolume;
     mapping(address => uint256) public userLastTradeDay;
-    uint256 public maxDailyVolumePerUser = 100000 * 10**18; // 100k tokens
+    uint256 public maxDailyVolumePerUser = 100000 * 10 ** 18; // 100k tokens
 
     // Circuit breakers
     uint256 public maxPriceDeviation = 1000; // 10% (1000/10000)
@@ -172,22 +197,52 @@ contract AdvancedMarketplace is ReentrancyGuard, AccessControl, Pausable {
     uint256 public lastCircuitBreakerTime;
 
     // Events
-    event OrderPlaced(uint256 indexed orderId, address indexed trader, OrderType orderType, OrderSide side, uint256 amount, uint256 price);
+    event OrderPlaced(
+        uint256 indexed orderId,
+        address indexed trader,
+        OrderType orderType,
+        OrderSide side,
+        uint256 amount,
+        uint256 price
+    );
     event OrderCancelled(uint256 indexed orderId, address indexed trader);
     event OrderFilled(uint256 indexed orderId, uint256 filledAmount, uint256 remainingAmount);
-    event TradeExecuted(uint256 indexed tradeId, uint256 indexed buyOrderId, uint256 indexed sellOrderId, address buyer, address seller, uint256 amount, uint256 price);
-    event AuctionCreated(uint256 indexed auctionId, address indexed seller, uint256 amount, uint256 reservePrice);
+    event TradeExecuted(
+        uint256 indexed tradeId,
+        uint256 indexed buyOrderId,
+        uint256 indexed sellOrderId,
+        address buyer,
+        address seller,
+        uint256 amount,
+        uint256 price
+    );
+    event AuctionCreated(
+        uint256 indexed auctionId,
+        address indexed seller,
+        uint256 amount,
+        uint256 reservePrice
+    );
     event BidPlaced(uint256 indexed auctionId, address indexed bidder, uint256 amount);
     event AuctionEnded(uint256 indexed auctionId, address indexed winner, uint256 winningBid);
-    event LiquidityAdded(address indexed provider, uint256 carbonAmount, uint256 paymentAmount, uint256 shares);
-    event LiquidityRemoved(address indexed provider, uint256 shares, uint256 carbonAmount, uint256 paymentAmount);
+    event LiquidityAdded(
+        address indexed provider,
+        uint256 carbonAmount,
+        uint256 paymentAmount,
+        uint256 shares
+    );
+    event LiquidityRemoved(
+        address indexed provider,
+        uint256 shares,
+        uint256 carbonAmount,
+        uint256 paymentAmount
+    );
     event CircuitBreakerTriggered(uint256 price, uint256 deviation);
     event MarketDataUpdated(uint256 price, uint256 volume);
 
     // Modifiers
     modifier onlyCompliantUser(address user) {
-        require(!carbonToken.blacklisted(user), "User is blacklisted");
-        require(!carbonToken.needsComplianceCheck(user), "User needs compliance check");
+        require(!carbonToken.blacklisted(user), 'User is blacklisted');
+        require(!carbonToken.needsComplianceCheck(user), 'User needs compliance check');
         _;
     }
 
@@ -200,41 +255,36 @@ contract AdvancedMarketplace is ReentrancyGuard, AccessControl, Pausable {
 
         require(
             userDailyVolume[user].add(amount) <= maxDailyVolumePerUser,
-            "Daily volume limit exceeded"
+            'Daily volume limit exceeded'
         );
         _;
     }
 
     modifier circuitBreakerCheck(uint256 price) {
         if (!circuitBreakerTriggered && marketData.lastPrice > 0) {
-            uint256 deviation = price > marketData.lastPrice ?
-                price.sub(marketData.lastPrice).mul(10000).div(marketData.lastPrice) :
-                marketData.lastPrice.sub(price).mul(10000).div(marketData.lastPrice);
+            uint256 deviation = price > marketData.lastPrice
+                ? price.sub(marketData.lastPrice).mul(10000).div(marketData.lastPrice)
+                : marketData.lastPrice.sub(price).mul(10000).div(marketData.lastPrice);
 
             if (deviation > maxPriceDeviation) {
                 circuitBreakerTriggered = true;
                 lastCircuitBreakerTime = block.timestamp;
                 emit CircuitBreakerTriggered(price, deviation);
-                revert("Circuit breaker triggered");
+                revert('Circuit breaker triggered');
             }
         }
 
         if (circuitBreakerTriggered) {
             require(
                 block.timestamp >= lastCircuitBreakerTime.add(circuitBreakerCooldown),
-                "Circuit breaker active"
+                'Circuit breaker active'
             );
             circuitBreakerTriggered = false;
         }
         _;
     }
 
-    constructor(
-        address carbonToken_,
-        address paymentToken_,
-        address admin,
-        address feeRecipient_
-    ) {
+    constructor(address carbonToken_, address paymentToken_, address admin, address feeRecipient_) {
         carbonToken = IAdvancedCarbonCreditToken(carbonToken_);
         paymentToken = IERC20(paymentToken_);
         feeRecipient = feeRecipient_;
@@ -270,23 +320,39 @@ contract AdvancedMarketplace is ReentrancyGuard, AccessControl, Pausable {
         uint256 minFillAmount,
         bool isIcebergOrder,
         uint256 visibleAmount
-    ) external nonReentrant whenNotPaused onlyCompliantUser(msg.sender) withinDailyLimit(msg.sender, amount) returns (uint256) {
-        require(amount >= minOrderSize && amount <= maxOrderSize, "Invalid order size");
-        require(price > 0 || orderType == OrderType.Market, "Invalid price");
-        require(expiresAt == 0 || expiresAt <= block.timestamp.add(maxOrderDuration), "Invalid expiration");
+    )
+        external
+        nonReentrant
+        whenNotPaused
+        onlyCompliantUser(msg.sender)
+        withinDailyLimit(msg.sender, amount)
+        returns (uint256)
+    {
+        require(amount >= minOrderSize && amount <= maxOrderSize, 'Invalid order size');
+        require(price > 0 || orderType == OrderType.Market, 'Invalid price');
+        require(
+            expiresAt == 0 || expiresAt <= block.timestamp.add(maxOrderDuration),
+            'Invalid expiration'
+        );
 
         if (isIcebergOrder) {
-            require(visibleAmount > 0 && visibleAmount < amount, "Invalid iceberg parameters");
+            require(visibleAmount > 0 && visibleAmount < amount, 'Invalid iceberg parameters');
         }
 
         // Check user has sufficient balance/allowance
         if (side == OrderSide.Sell) {
-            require(carbonToken.balanceOf(msg.sender) >= amount, "Insufficient carbon token balance");
+            require(
+                carbonToken.balanceOf(msg.sender) >= amount,
+                'Insufficient carbon token balance'
+            );
         } else {
-            uint256 requiredPayment = orderType == OrderType.Market ?
-                amount.mul(marketData.askPrice).div(10**18) :
-                amount.mul(price).div(10**18);
-            require(paymentToken.balanceOf(msg.sender) >= requiredPayment, "Insufficient payment token balance");
+            uint256 requiredPayment = orderType == OrderType.Market
+                ? amount.mul(marketData.askPrice).div(10 ** 18)
+                : amount.mul(price).div(10 ** 18);
+            require(
+                paymentToken.balanceOf(msg.sender) >= requiredPayment,
+                'Insufficient payment token balance'
+            );
         }
 
         uint256 orderId = _orderIdCounter.current();
@@ -335,8 +401,11 @@ contract AdvancedMarketplace is ReentrancyGuard, AccessControl, Pausable {
      */
     function cancelOrder(uint256 orderId) external nonReentrant {
         Order storage order = orders[orderId];
-        require(order.trader == msg.sender || hasRole(ADMIN_ROLE, msg.sender), "Not authorized");
-        require(order.status == OrderStatus.Active || order.status == OrderStatus.PartiallyFilled, "Cannot cancel order");
+        require(order.trader == msg.sender || hasRole(ADMIN_ROLE, msg.sender), 'Not authorized');
+        require(
+            order.status == OrderStatus.Active || order.status == OrderStatus.PartiallyFilled,
+            'Cannot cancel order'
+        );
 
         order.status = OrderStatus.Cancelled;
         _removeFromOrderBook(orderId);
@@ -367,7 +436,10 @@ contract AdvancedMarketplace is ReentrancyGuard, AccessControl, Pausable {
             uint256 sellOrderId = sellOrders[i];
             Order storage sellOrder = orders[sellOrderId];
 
-            if (sellOrder.status != OrderStatus.Active && sellOrder.status != OrderStatus.PartiallyFilled) {
+            if (
+                sellOrder.status != OrderStatus.Active &&
+                sellOrder.status != OrderStatus.PartiallyFilled
+            ) {
                 continue;
             }
 
@@ -395,7 +467,9 @@ contract AdvancedMarketplace is ReentrancyGuard, AccessControl, Pausable {
                     tradeAmount = _min(tradeAmount, sellOrder.visibleAmount);
                 }
 
-                if (tradeAmount >= buyOrder.minFillAmount && tradeAmount >= sellOrder.minFillAmount) {
+                if (
+                    tradeAmount >= buyOrder.minFillAmount && tradeAmount >= sellOrder.minFillAmount
+                ) {
                     _executeTrade(buyOrderId, sellOrderId, tradeAmount, executionPrice);
                 }
             }
@@ -412,7 +486,10 @@ contract AdvancedMarketplace is ReentrancyGuard, AccessControl, Pausable {
             uint256 buyOrderId = buyOrders[i];
             Order storage buyOrder = orders[buyOrderId];
 
-            if (buyOrder.status != OrderStatus.Active && buyOrder.status != OrderStatus.PartiallyFilled) {
+            if (
+                buyOrder.status != OrderStatus.Active &&
+                buyOrder.status != OrderStatus.PartiallyFilled
+            ) {
                 continue;
             }
 
@@ -440,7 +517,9 @@ contract AdvancedMarketplace is ReentrancyGuard, AccessControl, Pausable {
                     tradeAmount = _min(tradeAmount, sellOrder.visibleAmount);
                 }
 
-                if (tradeAmount >= buyOrder.minFillAmount && tradeAmount >= sellOrder.minFillAmount) {
+                if (
+                    tradeAmount >= buyOrder.minFillAmount && tradeAmount >= sellOrder.minFillAmount
+                ) {
                     _executeTrade(buyOrderId, sellOrderId, tradeAmount, executionPrice);
                 }
             }
@@ -463,7 +542,7 @@ contract AdvancedMarketplace is ReentrancyGuard, AccessControl, Pausable {
         _tradeIdCounter.increment();
 
         // Calculate fees
-        uint256 totalValue = amount.mul(price).div(10**18);
+        uint256 totalValue = amount.mul(price).div(10 ** 18);
         uint256 buyerFee = totalValue.mul(takerFeeRate).div(10000);
         uint256 sellerFee = totalValue.mul(makerFeeRate).div(10000);
 
@@ -513,7 +592,15 @@ contract AdvancedMarketplace is ReentrancyGuard, AccessControl, Pausable {
         // Update market data
         _updateMarketData(price, amount);
 
-        emit TradeExecuted(tradeId, buyOrderId, sellOrderId, buyOrder.trader, sellOrder.trader, amount, price);
+        emit TradeExecuted(
+            tradeId,
+            buyOrderId,
+            sellOrderId,
+            buyOrder.trader,
+            sellOrder.trader,
+            amount,
+            price
+        );
         emit OrderFilled(buyOrderId, amount, buyOrder.amount.sub(buyOrder.filledAmount));
         emit OrderFilled(sellOrderId, amount, sellOrder.amount.sub(sellOrder.filledAmount));
 
@@ -526,36 +613,36 @@ contract AdvancedMarketplace is ReentrancyGuard, AccessControl, Pausable {
      */
     function _settleTrade(uint256 tradeId) internal {
         Trade storage trade = trades[tradeId];
-        require(trade.status == TradeStatus.Pending, "Trade not pending");
+        require(trade.status == TradeStatus.Pending, 'Trade not pending');
 
-        uint256 totalValue = trade.amount.mul(trade.price).div(10**18);
+        uint256 totalValue = trade.amount.mul(trade.price).div(10 ** 18);
         uint256 buyerTotal = totalValue.add(trade.buyerFee);
         uint256 sellerNet = totalValue.sub(trade.sellerFee);
 
         // Transfer carbon tokens from seller to buyer
         require(
             carbonToken.transferFrom(trade.seller, trade.buyer, trade.amount),
-            "Carbon token transfer failed"
+            'Carbon token transfer failed'
         );
 
         // Transfer payment tokens from buyer to seller
         require(
             paymentToken.transferFrom(trade.buyer, trade.seller, sellerNet),
-            "Payment transfer to seller failed"
+            'Payment transfer to seller failed'
         );
 
         // Transfer fees to fee recipient
         if (trade.buyerFee > 0) {
             require(
                 paymentToken.transferFrom(trade.buyer, feeRecipient, trade.buyerFee),
-                "Buyer fee transfer failed"
+                'Buyer fee transfer failed'
             );
         }
 
         if (trade.sellerFee > 0) {
             require(
                 paymentToken.transferFrom(trade.seller, feeRecipient, trade.sellerFee),
-                "Seller fee transfer failed"
+                'Seller fee transfer failed'
             );
         }
 
@@ -573,9 +660,9 @@ contract AdvancedMarketplace is ReentrancyGuard, AccessControl, Pausable {
         uint256 vintageYear,
         string memory description
     ) external nonReentrant whenNotPaused onlyCompliantUser(msg.sender) returns (uint256) {
-        require(amount > 0, "Invalid amount");
-        require(duration > 0 && duration <= 7 days, "Invalid duration");
-        require(carbonToken.balanceOf(msg.sender) >= amount, "Insufficient balance");
+        require(amount > 0, 'Invalid amount');
+        require(duration > 0 && duration <= 7 days, 'Invalid duration');
+        require(carbonToken.balanceOf(msg.sender) >= amount, 'Insufficient balance');
 
         uint256 auctionId = _auctionIdCounter.current();
         _auctionIdCounter.increment();
@@ -595,10 +682,7 @@ contract AdvancedMarketplace is ReentrancyGuard, AccessControl, Pausable {
         });
 
         // Lock the carbon tokens
-        require(
-            carbonToken.transferFrom(msg.sender, address(this), amount),
-            "Token lock failed"
-        );
+        require(carbonToken.transferFrom(msg.sender, address(this), amount), 'Token lock failed');
 
         emit AuctionCreated(auctionId, msg.sender, amount, reservePrice);
         return auctionId;
@@ -607,27 +691,27 @@ contract AdvancedMarketplace is ReentrancyGuard, AccessControl, Pausable {
     /**
      * @dev Place a bid on an auction
      */
-    function placeBid(uint256 auctionId, uint256 bidAmount) external nonReentrant whenNotPaused onlyCompliantUser(msg.sender) {
+    function placeBid(
+        uint256 auctionId,
+        uint256 bidAmount
+    ) external nonReentrant whenNotPaused onlyCompliantUser(msg.sender) {
         Auction storage auction = auctions[auctionId];
-        require(auction.status == AuctionStatus.Active, "Auction not active");
-        require(block.timestamp < auction.endTime, "Auction ended");
-        require(bidAmount > auction.highestBid, "Bid too low");
-        require(bidAmount >= auction.reservePrice, "Below reserve price");
-        require(paymentToken.balanceOf(msg.sender) >= bidAmount, "Insufficient balance");
+        require(auction.status == AuctionStatus.Active, 'Auction not active');
+        require(block.timestamp < auction.endTime, 'Auction ended');
+        require(bidAmount > auction.highestBid, 'Bid too low');
+        require(bidAmount >= auction.reservePrice, 'Below reserve price');
+        require(paymentToken.balanceOf(msg.sender) >= bidAmount, 'Insufficient balance');
 
         // Refund previous highest bidder
         if (auction.highestBidder != address(0)) {
             require(
                 paymentToken.transfer(auction.highestBidder, auction.highestBid),
-                "Refund failed"
+                'Refund failed'
             );
         }
 
         // Lock new bid amount
-        require(
-            paymentToken.transferFrom(msg.sender, address(this), bidAmount),
-            "Bid lock failed"
-        );
+        require(paymentToken.transferFrom(msg.sender, address(this), bidAmount), 'Bid lock failed');
 
         auction.highestBid = bidAmount;
         auction.highestBidder = msg.sender;
@@ -640,8 +724,8 @@ contract AdvancedMarketplace is ReentrancyGuard, AccessControl, Pausable {
      */
     function endAuction(uint256 auctionId) external nonReentrant {
         Auction storage auction = auctions[auctionId];
-        require(auction.status == AuctionStatus.Active, "Auction not active");
-        require(block.timestamp >= auction.endTime, "Auction still active");
+        require(auction.status == AuctionStatus.Active, 'Auction not active');
+        require(block.timestamp >= auction.endTime, 'Auction still active');
 
         auction.status = AuctionStatus.Ended;
 
@@ -653,54 +737,58 @@ contract AdvancedMarketplace is ReentrancyGuard, AccessControl, Pausable {
             // Transfer carbon tokens to winner
             require(
                 carbonToken.transfer(auction.highestBidder, auction.amount),
-                "Token transfer failed"
+                'Token transfer failed'
             );
 
             // Transfer payment to seller
-            require(
-                paymentToken.transfer(auction.seller, sellerAmount),
-                "Payment transfer failed"
-            );
+            require(paymentToken.transfer(auction.seller, sellerAmount), 'Payment transfer failed');
 
             // Transfer fee
             if (fee > 0) {
-                require(
-                    paymentToken.transfer(feeRecipient, fee),
-                    "Fee transfer failed"
-                );
+                require(paymentToken.transfer(feeRecipient, fee), 'Fee transfer failed');
             }
 
             emit AuctionEnded(auctionId, auction.highestBidder, auction.highestBid);
         } else {
             // No bids, return tokens to seller
-            require(
-                carbonToken.transfer(auction.seller, auction.amount),
-                "Token return failed"
-            );
+            require(carbonToken.transfer(auction.seller, auction.amount), 'Token return failed');
         }
     }
 
     /**
      * @dev Add liquidity to AMM pool
      */
-    function addLiquidity(uint256 carbonAmount, uint256 paymentAmount) external nonReentrant whenNotPaused onlyCompliantUser(msg.sender) returns (uint256 shares) {
-        require(carbonAmount > 0 && paymentAmount > 0, "Invalid amounts");
+    function addLiquidity(
+        uint256 carbonAmount,
+        uint256 paymentAmount
+    ) external nonReentrant whenNotPaused onlyCompliantUser(msg.sender) returns (uint256 shares) {
+        require(carbonAmount > 0 && paymentAmount > 0, 'Invalid amounts');
 
         if (liquidityPool.totalShares == 0) {
             // First liquidity provider
             shares = _sqrt(carbonAmount.mul(paymentAmount));
         } else {
             // Calculate shares based on existing ratio
-            uint256 carbonShares = carbonAmount.mul(liquidityPool.totalShares).div(liquidityPool.carbonReserve);
-            uint256 paymentShares = paymentAmount.mul(liquidityPool.totalShares).div(liquidityPool.paymentReserve);
+            uint256 carbonShares = carbonAmount.mul(liquidityPool.totalShares).div(
+                liquidityPool.carbonReserve
+            );
+            uint256 paymentShares = paymentAmount.mul(liquidityPool.totalShares).div(
+                liquidityPool.paymentReserve
+            );
             shares = _min(carbonShares, paymentShares);
         }
 
-        require(shares > 0, "Insufficient liquidity");
+        require(shares > 0, 'Insufficient liquidity');
 
         // Transfer tokens to pool
-        require(carbonToken.transferFrom(msg.sender, address(this), carbonAmount), "Carbon transfer failed");
-        require(paymentToken.transferFrom(msg.sender, address(this), paymentAmount), "Payment transfer failed");
+        require(
+            carbonToken.transferFrom(msg.sender, address(this), carbonAmount),
+            'Carbon transfer failed'
+        );
+        require(
+            paymentToken.transferFrom(msg.sender, address(this), paymentAmount),
+            'Payment transfer failed'
+        );
 
         // Update pool state
         liquidityPool.carbonReserve = liquidityPool.carbonReserve.add(carbonAmount);
@@ -714,9 +802,11 @@ contract AdvancedMarketplace is ReentrancyGuard, AccessControl, Pausable {
     /**
      * @dev Remove liquidity from AMM pool
      */
-    function removeLiquidity(uint256 shares) external nonReentrant returns (uint256 carbonAmount, uint256 paymentAmount) {
-        require(shares > 0, "Invalid shares");
-        require(liquidityPool.shares[msg.sender] >= shares, "Insufficient shares");
+    function removeLiquidity(
+        uint256 shares
+    ) external nonReentrant returns (uint256 carbonAmount, uint256 paymentAmount) {
+        require(shares > 0, 'Invalid shares');
+        require(liquidityPool.shares[msg.sender] >= shares, 'Insufficient shares');
 
         // Calculate amounts to return
         carbonAmount = shares.mul(liquidityPool.carbonReserve).div(liquidityPool.totalShares);
@@ -729,8 +819,8 @@ contract AdvancedMarketplace is ReentrancyGuard, AccessControl, Pausable {
         liquidityPool.shares[msg.sender] = liquidityPool.shares[msg.sender].sub(shares);
 
         // Transfer tokens back
-        require(carbonToken.transfer(msg.sender, carbonAmount), "Carbon transfer failed");
-        require(paymentToken.transfer(msg.sender, paymentAmount), "Payment transfer failed");
+        require(carbonToken.transfer(msg.sender, carbonAmount), 'Carbon transfer failed');
+        require(paymentToken.transfer(msg.sender, paymentAmount), 'Payment transfer failed');
 
         emit LiquidityRemoved(msg.sender, shares, carbonAmount, paymentAmount);
     }
@@ -777,7 +867,10 @@ contract AdvancedMarketplace is ReentrancyGuard, AccessControl, Pausable {
         // Get best bid (highest buy order)
         if (buyOrders.length > 0) {
             Order storage bestBid = orders[buyOrders[0]];
-            if (bestBid.status == OrderStatus.Active || bestBid.status == OrderStatus.PartiallyFilled) {
+            if (
+                bestBid.status == OrderStatus.Active ||
+                bestBid.status == OrderStatus.PartiallyFilled
+            ) {
                 marketData.bidPrice = bestBid.price;
                 marketData.bidSize = bestBid.amount.sub(bestBid.filledAmount);
             }
@@ -786,7 +879,10 @@ contract AdvancedMarketplace is ReentrancyGuard, AccessControl, Pausable {
         // Get best ask (lowest sell order)
         if (sellOrders.length > 0) {
             Order storage bestAsk = orders[sellOrders[0]];
-            if (bestAsk.status == OrderStatus.Active || bestAsk.status == OrderStatus.PartiallyFilled) {
+            if (
+                bestAsk.status == OrderStatus.Active ||
+                bestAsk.status == OrderStatus.PartiallyFilled
+            ) {
                 marketData.askPrice = bestAsk.price;
                 marketData.askSize = bestAsk.amount.sub(bestAsk.filledAmount);
             }
@@ -857,8 +953,12 @@ contract AdvancedMarketplace is ReentrancyGuard, AccessControl, Pausable {
     }
 
     // Admin functions
-    function setFeeRates(uint256 makerFee, uint256 takerFee, uint256 auctionFee) external onlyRole(ADMIN_ROLE) {
-        require(makerFee <= 100 && takerFee <= 100 && auctionFee <= 200, "Fee rates too high");
+    function setFeeRates(
+        uint256 makerFee,
+        uint256 takerFee,
+        uint256 auctionFee
+    ) external onlyRole(ADMIN_ROLE) {
+        require(makerFee <= 100 && takerFee <= 100 && auctionFee <= 200, 'Fee rates too high');
         makerFeeRate = makerFee;
         takerFeeRate = takerFee;
         auctionFeeRate = auctionFee;
