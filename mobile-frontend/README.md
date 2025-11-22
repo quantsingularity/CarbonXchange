@@ -1,120 +1,97 @@
-# Mobile Frontend Directory
+# CarbonXchange Mobile Frontend
 
-## Overview
+This directory contains the mobile application for the CarbonXchange platform, designed to provide users with on-the-go access to carbon credit trading, market data, and portfolio management.
 
-The mobile-frontend directory contains the React Native application that serves as the mobile client for the Carbonxchange platform. This cross-platform mobile application provides users with a comprehensive interface to interact with the Carbonxchange ecosystem on iOS and Android devices. The mobile frontend delivers a responsive, intuitive user experience that allows users to monitor carbon credits, execute trades, view analytics, and manage their accounts while on the go.
+## 🚀 Technology Stack
 
-## Technology Stack
+The mobile application is built using the following core technologies:
 
-The mobile application is built using the following key technologies:
+| Category | Technology | Description |
+| :--- | :--- | :--- |
+| **Framework** | **React Native** | A framework for building native mobile apps using JavaScript and React. |
+| **Platform** | **Expo** | A set of tools and services built around React Native to simplify development, building, and deployment. |
+| **Language** | **JavaScript** (ES6+) | The primary language for application logic. |
+| **State Management** | **Redux Toolkit** | Used for predictable state management across the application, including asynchronous logic via Redux Thunks. |
+| **Navigation** | **React Navigation** | Handles the application's routing and screen transitions (Stack and Tab navigators). |
+| **Data Fetching** | **Axios** | Used for making HTTP requests to the backend REST API. |
+| **Security** | **Expo SecureStore** | Used for securely storing sensitive data like the user's JWT token on the device. |
+| **Charting** | **react-native-chart-kit** | Used for displaying data visualizations, such as market trends. |
 
-- **React Native**: A cross-platform framework that enables development of native mobile applications using JavaScript and React
-- **Expo**: A set of tools and services built around React Native that simplifies the development, building, and deployment processes
-- **JavaScript/ES6+**: The primary programming language used throughout the application
-- **Jest**: A testing framework for ensuring code quality and reliability
-- **ESLint**: A static code analysis tool for identifying problematic patterns in JavaScript code
+## 📁 Directory Structure
 
-## Directory Structure
+The application follows a standard structure for a React Native/Expo project, with a clear separation of concerns:
 
-The mobile-frontend directory is organized as follows:
+```
+mobile-frontend/
+├── assets/                 # Static assets (images, fonts, etc.)
+├── src/
+│   ├── navigation/         # Navigation setup (AppNavigator, AuthNavigator)
+│   ├── screens/            # Application screens/pages
+│   │   ├── Auth/           # Authentication screens (LoginScreen, RegisterScreen)
+│   │   ├── Main/           # Main application screens (MarketDataScreen, TradingScreen, etc.)
+│   │   └── LoadingScreen.js# Screen displayed during initial token check
+│   ├── services/           # API communication logic (api.js)
+│   ├── store/              # Redux store configuration and slices (e.g., authSlice)
+│   └── styles/             # Centralized styling definitions
+├── App.js                  # Main application component and navigation container
+├── app.json                # Expo configuration file
+├── package.json            # Project dependencies and scripts
+└── index.js                # Entry point for the React Native application
+```
 
-### Root Configuration Files
+## ⚙️ Setup and Installation
 
-Several configuration files exist at the root level:
+To set up the project locally, you must have Node.js and Expo CLI installed.
 
-- `app.json`: Contains Expo configuration settings for the application
-- `package.json` and `package-lock.json`: Define dependencies and scripts for the Node.js ecosystem
-- `.eslintrc.js`: Contains ESLint configuration for code quality enforcement
-- `babel.config.js`: Configures Babel for JavaScript transpilation
-- `jest.config.js`: Configures the Jest testing framework
-- `index.js`: The entry point for the React Native application
-- `App.js`: The root component of the React Native application
+1.  **Navigate to the project directory:**
+    ```bash
+    cd CarbonXchange/mobile-frontend
+    ```
 
-### Source Code
+2.  **Install dependencies:**
+    The project uses `npm` or `yarn` for package management. We recommend using the package manager that created the existing lock file (`package-lock.json` or `yarn.lock`).
+    ```bash
+    # Using npm
+    npm install
+    # OR Using yarn
+    yarn install
+    ```
 
-The `src` directory contains the main application code, organized into several subdirectories:
+3.  **Configure Backend URL:**
+    The API client in `src/services/api.js` is currently hardcoded to a placeholder:
+    ```javascript
+    const API_BASE_URL = "http://localhost:3000/api/v1"; // Replace with actual backend URL
+    ```
+    You will need to update this `API_BASE_URL` to point to your running backend server's IP address or domain. For development on a physical device, `localhost` will not work; you must use your computer's local network IP address (e.g., `http://192.168.1.x:3000/api/v1`).
 
-- **components**: Reusable UI components used throughout the application
-- **screens**: Screen components representing different views in the application
-- **navigation**: Navigation configuration and components
-- **services**: API clients and other service integrations
-- **redux**: State management using Redux (actions, reducers, store)
-- **utils**: Utility functions and helpers
-- **hooks**: Custom React hooks
-- **constants**: Application constants and configuration values
+## ▶️ Available Scripts
 
-### Assets
+In the project directory, you can run the following scripts using the Expo CLI:
 
-The `assets` directory contains static resources used by the application:
+| Script | Command | Description |
+| :--- | :--- | :--- |
+| **Start Development** | `npm start` or `expo start` | Starts the Expo development server. You can then scan the QR code with the Expo Go app on your phone or run on an emulator. |
+| **Run on Android** | `npm run android` | Builds and runs the app on a connected Android device or emulator. |
+| **Run on iOS** | `npm run ios` | Builds and runs the app on a connected iOS simulator (requires macOS). |
+| **Run on Web** | `npm run web` | Runs the app in a web browser using Expo Web. |
+| **Run Tests** | `npm test` | Executes unit and integration tests using Jest. |
+| **Lint Code** | `npm run lint` | Runs ESLint to check for code quality and style issues. |
 
-- Images and icons
-- Fonts
-- Animation files
-- Other static resources
+## 🔒 Authentication and State Management
 
-### Testing
+*   **Authentication Flow:** The application uses `App.js` to determine the initial navigation stack. It checks for a stored `userToken` using `expo-secure-store`. If a token is found, the user is directed to the `AppNavigator` (main screens); otherwise, they are directed to the `AuthNavigator` (login/register screens).
+*   **State Management:** **Redux Toolkit** is used to manage global state. The `authSlice` handles user login, registration, and logout, storing the user object and JWT token.
+*   **API Security:** The `src/services/api.js` file includes an **Axios interceptor** that automatically attaches the JWT token (retrieved from SecureStore) as a `Bearer` token in the `Authorization` header for all authenticated API requests.
 
-The `__mocks__` directory contains mock implementations used during testing to simulate dependencies and external services.
+## 📱 Key Features and Screens
 
-## Development Workflow
+The application is structured around several key functional areas:
 
-The mobile frontend development workflow typically involves:
-
-1. **Setup**: Installing dependencies using npm or yarn
-2. **Development**: Writing code with hot reloading enabled via Expo
-3. **Testing**: Running unit and integration tests using Jest
-4. **Building**: Creating production builds for iOS and Android
-5. **Deployment**: Publishing to the App Store and Google Play Store
-
-## Key Features
-
-The mobile application provides several key features:
-
-1. **User Authentication**: Secure login, registration, and account management
-2. **Carbon Credit Dashboard**: Real-time overview of carbon credit holdings and market activity
-3. **Trading Interface**: Tools for buying, selling, and trading carbon credits
-4. **Analytics**: Visualizations and insights into carbon credit performance and market trends
-5. **Notifications**: Real-time alerts for important events and transactions
-6. **Profile Management**: User profile and preference settings
-7. **Offline Support**: Basic functionality when network connectivity is limited
-
-## Integration Points
-
-The mobile frontend integrates with other Carbonxchange components through:
-
-1. **Backend API**: RESTful API calls to the backend services
-2. **Blockchain**: Integration with blockchain services for transaction verification
-3. **Analytics**: Connection to AI models for predictive insights
-
-## Getting Started
-
-To begin development on the mobile frontend:
-
-1. Ensure you have Node.js and npm installed
-2. Install Expo CLI: `npm install -g expo-cli`
-3. Install dependencies: `npm install` or `yarn install`
-4. Start the development server: `npm start` or `yarn start`
-5. Use the Expo Go app on your device or an emulator to run the application
-
-## Best Practices
-
-When contributing to the mobile frontend, follow these best practices:
-
-1. **Component Structure**: Create reusable, well-documented components
-2. **State Management**: Use Redux for global state and React hooks for local state
-3. **Testing**: Write tests for all new components and functionality
-4. **Performance**: Optimize rendering and minimize unnecessary re-renders
-5. **Accessibility**: Ensure the application is accessible to all users
-6. **Responsive Design**: Design for various screen sizes and orientations
-7. **Code Style**: Follow the established code style enforced by ESLint
-
-## Troubleshooting
-
-Common issues and their solutions:
-
-1. **Build Failures**: Ensure all dependencies are correctly installed and compatible
-2. **API Connection Issues**: Verify API endpoints and authentication configuration
-3. **Performance Problems**: Check for unnecessary re-renders or heavy computations
-4. **Testing Errors**: Ensure mocks are properly configured for external dependencies
-
-For more detailed information about the mobile frontend, refer to the comprehensive documentation in the `/docs` directory.
+| Screen/Area | Purpose | Components/Files |
+| :--- | :--- | :--- |
+| **Authentication** | User login and registration. | `src/screens/Auth/LoginScreen.js`, `src/screens/Auth/RegisterScreen.js` |
+| **Market Data** | Viewing real-time and historical carbon credit market statistics. | `src/screens/Main/MarketDataScreen.js` |
+| **Trading** | Executing buy and sell orders for carbon credits. | `src/screens/Main/TradingScreen.js` |
+| **Portfolio/Wallet** | Checking current credit holdings and fiat balance. | `src/screens/Main/WalletScreen.js` |
+| **Credit Management** | Listing and viewing details of carbon credits. | `src/screens/Main/CreditsListScreen.js`, `src/screens/Main/CreditDetailScreen.js` |
+| **Trade History** | Reviewing past trading activities. | `src/screens/Main/TradeHistoryScreen.js` |
