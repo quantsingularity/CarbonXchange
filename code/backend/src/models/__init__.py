@@ -9,46 +9,19 @@ from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
 migrate = Migrate()
 
-from .carbon_credit import (
-    CarbonCredit,
-    CarbonProject,
-    CreditCertificate,
-    CreditStandard,
-    CreditStatus,
-    ProjectStatus,
-    ProjectType,
-    VerificationStatus,
-)
+from .carbon_credit import (CarbonCredit, CarbonProject, CreditCertificate,
+                            CreditStandard, CreditStatus, ProjectStatus,
+                            ProjectType, VerificationStatus)
 from .compliance import ComplianceRecord, RegulatoryReport
 from .market import MarketData, PriceHistory
-from .trading import (
-    Order,
-    OrderSide,
-    OrderStatus,
-    OrderType,
-    Portfolio,
-    PortfolioHolding,
-    PortfolioType,
-    Trade,
-    TradeStatus,
-)
+from .trading import (Order, OrderSide, OrderStatus, OrderType, Portfolio,
+                      PortfolioHolding, PortfolioType, Trade, TradeStatus)
 from .transaction import AuditLog, Transaction, TransactionLog
-
 # Import enums for external use
 # Import all models to ensure they are registered with SQLAlchemy
-from .user import (
-    DocumentType,
-    KYCDocument,
-    KYCStatus,
-    RiskLevel,
-    User,
-    UserAuditLog,
-    UserKYC,
-    UserProfile,
-    UserRole,
-    UserSession,
-    UserStatus,
-)
+from .user import (DocumentType, KYCDocument, KYCStatus, RiskLevel, User,
+                   UserAuditLog, UserKYC, UserProfile, UserRole, UserSession,
+                   UserStatus)
 
 # Model registry for dynamic access
 MODEL_REGISTRY = {

@@ -20,11 +20,8 @@ import pandas as pd
 warnings.filterwarnings("ignore")
 
 # Machine Learning Libraries
-from sklearn.ensemble import (
-    GradientBoostingRegressor,
-    RandomForestRegressor,
-    VotingRegressor,
-)
+from sklearn.ensemble import (GradientBoostingRegressor, RandomForestRegressor,
+                              VotingRegressor)
 from sklearn.feature_selection import SelectKBest, f_regression
 from sklearn.linear_model import ElasticNet
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score

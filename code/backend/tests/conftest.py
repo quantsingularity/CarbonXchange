@@ -12,24 +12,14 @@ from unittest.mock import Mock, patch
 import pytest
 from src import create_app
 from src.models import db
-from src.models.carbon_credit import (
-    CarbonCredit,
-    CarbonProject,
-    CreditStatus,
-    ProjectStatus,
-    ProjectType,
-)
-from src.models.trading import (
-    Order,
-    OrderSide,
-    OrderType,
-    Portfolio,
-    PortfolioHolding,
-    Trade,
-    TradeStatus,
-)
-from src.models.transaction import Transaction, TransactionStatus, TransactionType
-from src.models.user import KYCStatus, RiskLevel, User, UserKYC, UserProfile, UserStatus
+from src.models.carbon_credit import (CarbonCredit, CarbonProject,
+                                      CreditStatus, ProjectStatus, ProjectType)
+from src.models.trading import (Order, OrderSide, OrderType, Portfolio,
+                                PortfolioHolding, Trade, TradeStatus)
+from src.models.transaction import (Transaction, TransactionStatus,
+                                    TransactionType)
+from src.models.user import (KYCStatus, RiskLevel, User, UserKYC, UserProfile,
+                             UserStatus)
 
 
 @pytest.fixture(scope="session")

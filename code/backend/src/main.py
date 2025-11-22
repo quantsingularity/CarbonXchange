@@ -17,14 +17,11 @@ from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
-
 # Import configuration
 from src.config import get_config
-
 # Import database and models
 from src.models import db, migrate
 from src.routes.admin import admin_bp
-
 # Import routes
 from src.routes.auth import auth_bp
 from src.routes.carbon_credits import carbon_credits_bp
