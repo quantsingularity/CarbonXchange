@@ -38,12 +38,10 @@ describe("TradingScreen", () => {
   beforeEach(() => {
     store = mockStore(initialState);
     api.createTrade.mockClear();
-    api.getWalletBalance
-      .mockClear()
-      .mockResolvedValue({
-        success: true,
-        balance: { amount: 5000, currency: "USD" },
-      });
+    api.getWalletBalance.mockClear().mockResolvedValue({
+      success: true,
+      balance: { amount: 5000, currency: "USD" },
+    });
     mockNavigation.navigate.mockClear();
     mockNavigation.goBack.mockClear();
   });
