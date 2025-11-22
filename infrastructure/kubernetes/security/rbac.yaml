@@ -1,344 +1,344 @@
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: carbonxchange-backend-sa
-  namespace: carbonxchange
-  labels:
-    app.kubernetes.io/name: carbonxchange
-    app.kubernetes.io/component: backend
-    compliance.carbonxchange.io/pci-dss: "true"
-    compliance.carbonxchange.io/sox: "true"
-  annotations:
-    compliance.carbonxchange.io/description: "Service account for backend application pods"
-    security.carbonxchange.io/principle: "least-privilege"
-automountServiceAccountToken: false
-
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: carbonxchange-frontend-sa
-  namespace: carbonxchange
-  labels:
-    app.kubernetes.io/name: carbonxchange
-    app.kubernetes.io/component: frontend
-    compliance.carbonxchange.io/pci-dss: "true"
-  annotations:
-    compliance.carbonxchange.io/description: "Service account for frontend application pods"
-    security.carbonxchange.io/principle: "least-privilege"
-automountServiceAccountToken: false
-
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: carbonxchange-worker-sa
-  namespace: carbonxchange
-  labels:
-    app.kubernetes.io/name: carbonxchange
-    app.kubernetes.io/component: worker
-    compliance.carbonxchange.io/sox: "true"
-  annotations:
-    compliance.carbonxchange.io/description: "Service account for background worker pods"
-    security.carbonxchange.io/principle: "least-privilege"
-automountServiceAccountToken: false
-
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: carbonxchange-monitoring-sa
-  namespace: carbonxchange
-  labels:
-    app.kubernetes.io/name: carbonxchange
-    app.kubernetes.io/component: monitoring
-  annotations:
-    compliance.carbonxchange.io/description: "Service account for monitoring and observability components"
-automountServiceAccountToken: true
-
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: carbonxchange-backup-sa
-  namespace: carbonxchange
-  labels:
-    app.kubernetes.io/name: carbonxchange
-    app.kubernetes.io/component: backup
-    compliance.carbonxchange.io/sox: "true"
-    compliance.carbonxchange.io/gdpr: "true"
-  annotations:
-    compliance.carbonxchange.io/description: "Service account for backup and disaster recovery operations"
-    security.carbonxchange.io/principle: "least-privilege"
-automountServiceAccountToken: true
-
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
-metadata:
-  namespace: carbonxchange
-  name: carbonxchange-backend-role
-  labels:
-    app.kubernetes.io/name: carbonxchange
-    app.kubernetes.io/component: backend
-rules:
-  # Allow reading ConfigMaps for application configuration
-  - apiGroups: [""]
-    resources: ["configmaps"]
-    verbs: ["get", "list"]
-    resourceNames: ["carbonxchange-config", "carbonxchange-backend-config"]
-  # Allow reading Secrets for credentials
-  - apiGroups: [""]
-    resources: ["secrets"]
-    verbs: ["get"]
-    resourceNames: ["carbonxchange-secrets", "carbonxchange-backend-secrets"]
-  # Allow creating events for audit logging
-  - apiGroups: [""]
-    resources: ["events"]
-    verbs: ["create"]
-
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
-metadata:
-  namespace: carbonxchange
-  name: carbonxchange-frontend-role
-  labels:
-    app.kubernetes.io/name: carbonxchange
-    app.kubernetes.io/component: frontend
-rules:
-  # Allow reading ConfigMaps for application configuration
-  - apiGroups: [""]
-    resources: ["configmaps"]
-    verbs: ["get", "list"]
-    resourceNames: ["carbonxchange-config", "carbonxchange-frontend-config"]
-  # Allow creating events for audit logging
-  - apiGroups: [""]
-    resources: ["events"]
-    verbs: ["create"]
-
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
-metadata:
-  namespace: carbonxchange
-  name: carbonxchange-worker-role
-  labels:
-    app.kubernetes.io/name: carbonxchange
-    app.kubernetes.io/component: worker
-rules:
-  # Allow reading ConfigMaps for job configuration
-  - apiGroups: [""]
-    resources: ["configmaps"]
-    verbs: ["get", "list"]
-    resourceNames: ["carbonxchange-config", "carbonxchange-worker-config"]
-  # Allow reading Secrets for credentials
-  - apiGroups: [""]
-    resources: ["secrets"]
-    verbs: ["get"]
-    resourceNames: ["carbonxchange-secrets", "carbonxchange-worker-secrets"]
-  # Allow managing Jobs for background processing
-  - apiGroups: ["batch"]
-    resources: ["jobs"]
-    verbs: ["get", "list", "create", "update", "patch", "delete"]
-  # Allow creating events for audit logging
-  - apiGroups: [""]
-    resources: ["events"]
-    verbs: ["create"]
-
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
-metadata:
-  namespace: carbonxchange
-  name: carbonxchange-monitoring-role
-  labels:
-    app.kubernetes.io/name: carbonxchange
-    app.kubernetes.io/component: monitoring
-rules:
-  # Allow reading all resources for monitoring
-  - apiGroups: [""]
-    resources: ["pods", "services", "endpoints", "configmaps"]
-    verbs: ["get", "list", "watch"]
-  # Allow reading deployments and replicasets
-  - apiGroups: ["apps"]
-    resources: ["deployments", "replicasets", "statefulsets"]
-    verbs: ["get", "list", "watch"]
-  # Allow reading ingresses
-  - apiGroups: ["networking.k8s.io"]
-    resources: ["ingresses"]
-    verbs: ["get", "list", "watch"]
-  # Allow reading metrics
-  - apiGroups: ["metrics.k8s.io"]
-    resources: ["pods", "nodes"]
-    verbs: ["get", "list"]
-
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
-metadata:
-  namespace: carbonxchange
-  name: carbonxchange-backup-role
-  labels:
-    app.kubernetes.io/name: carbonxchange
-    app.kubernetes.io/component: backup
-rules:
-  # Allow reading PVCs for backup operations
-  - apiGroups: [""]
-    resources: ["persistentvolumeclaims"]
-    verbs: ["get", "list"]
-  # Allow creating snapshots
-  - apiGroups: ["snapshot.storage.k8s.io"]
-    resources: ["volumesnapshots"]
-    verbs: ["get", "list", "create", "delete"]
-  # Allow reading Secrets for backup credentials
-  - apiGroups: [""]
-    resources: ["secrets"]
-    verbs: ["get"]
-    resourceNames: ["carbonxchange-backup-secrets"]
-  # Allow creating events for audit logging
-  - apiGroups: [""]
-    resources: ["events"]
-    verbs: ["create"]
-
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  name: carbonxchange-backend-binding
-  namespace: carbonxchange
-  labels:
-    app.kubernetes.io/name: carbonxchange
-    app.kubernetes.io/component: backend
-subjects:
-  - kind: ServiceAccount
     name: carbonxchange-backend-sa
     namespace: carbonxchange
-roleRef:
-  kind: Role
-  name: carbonxchange-backend-role
-  apiGroup: rbac.authorization.k8s.io
+    labels:
+        app.kubernetes.io/name: carbonxchange
+        app.kubernetes.io/component: backend
+        compliance.carbonxchange.io/pci-dss: 'true'
+        compliance.carbonxchange.io/sox: 'true'
+    annotations:
+        compliance.carbonxchange.io/description: 'Service account for backend application pods'
+        security.carbonxchange.io/principle: 'least-privilege'
+automountServiceAccountToken: false
 
 ---
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
+apiVersion: v1
+kind: ServiceAccount
 metadata:
-  name: carbonxchange-frontend-binding
-  namespace: carbonxchange
-  labels:
-    app.kubernetes.io/name: carbonxchange
-    app.kubernetes.io/component: frontend
-subjects:
-  - kind: ServiceAccount
     name: carbonxchange-frontend-sa
     namespace: carbonxchange
-roleRef:
-  kind: Role
-  name: carbonxchange-frontend-role
-  apiGroup: rbac.authorization.k8s.io
+    labels:
+        app.kubernetes.io/name: carbonxchange
+        app.kubernetes.io/component: frontend
+        compliance.carbonxchange.io/pci-dss: 'true'
+    annotations:
+        compliance.carbonxchange.io/description: 'Service account for frontend application pods'
+        security.carbonxchange.io/principle: 'least-privilege'
+automountServiceAccountToken: false
 
 ---
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
+apiVersion: v1
+kind: ServiceAccount
 metadata:
-  name: carbonxchange-worker-binding
-  namespace: carbonxchange
-  labels:
-    app.kubernetes.io/name: carbonxchange
-    app.kubernetes.io/component: worker
-subjects:
-  - kind: ServiceAccount
     name: carbonxchange-worker-sa
     namespace: carbonxchange
-roleRef:
-  kind: Role
-  name: carbonxchange-worker-role
-  apiGroup: rbac.authorization.k8s.io
+    labels:
+        app.kubernetes.io/name: carbonxchange
+        app.kubernetes.io/component: worker
+        compliance.carbonxchange.io/sox: 'true'
+    annotations:
+        compliance.carbonxchange.io/description: 'Service account for background worker pods'
+        security.carbonxchange.io/principle: 'least-privilege'
+automountServiceAccountToken: false
 
 ---
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
+apiVersion: v1
+kind: ServiceAccount
 metadata:
-  name: carbonxchange-monitoring-binding
-  namespace: carbonxchange
-  labels:
-    app.kubernetes.io/name: carbonxchange
-    app.kubernetes.io/component: monitoring
-subjects:
-  - kind: ServiceAccount
     name: carbonxchange-monitoring-sa
     namespace: carbonxchange
-roleRef:
-  kind: Role
-  name: carbonxchange-monitoring-role
-  apiGroup: rbac.authorization.k8s.io
+    labels:
+        app.kubernetes.io/name: carbonxchange
+        app.kubernetes.io/component: monitoring
+    annotations:
+        compliance.carbonxchange.io/description: 'Service account for monitoring and observability components'
+automountServiceAccountToken: true
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+    name: carbonxchange-backup-sa
+    namespace: carbonxchange
+    labels:
+        app.kubernetes.io/name: carbonxchange
+        app.kubernetes.io/component: backup
+        compliance.carbonxchange.io/sox: 'true'
+        compliance.carbonxchange.io/gdpr: 'true'
+    annotations:
+        compliance.carbonxchange.io/description: 'Service account for backup and disaster recovery operations'
+        security.carbonxchange.io/principle: 'least-privilege'
+automountServiceAccountToken: true
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+    namespace: carbonxchange
+    name: carbonxchange-backend-role
+    labels:
+        app.kubernetes.io/name: carbonxchange
+        app.kubernetes.io/component: backend
+rules:
+    # Allow reading ConfigMaps for application configuration
+    - apiGroups: ['']
+      resources: ['configmaps']
+      verbs: ['get', 'list']
+      resourceNames: ['carbonxchange-config', 'carbonxchange-backend-config']
+    # Allow reading Secrets for credentials
+    - apiGroups: ['']
+      resources: ['secrets']
+      verbs: ['get']
+      resourceNames: ['carbonxchange-secrets', 'carbonxchange-backend-secrets']
+    # Allow creating events for audit logging
+    - apiGroups: ['']
+      resources: ['events']
+      verbs: ['create']
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+    namespace: carbonxchange
+    name: carbonxchange-frontend-role
+    labels:
+        app.kubernetes.io/name: carbonxchange
+        app.kubernetes.io/component: frontend
+rules:
+    # Allow reading ConfigMaps for application configuration
+    - apiGroups: ['']
+      resources: ['configmaps']
+      verbs: ['get', 'list']
+      resourceNames: ['carbonxchange-config', 'carbonxchange-frontend-config']
+    # Allow creating events for audit logging
+    - apiGroups: ['']
+      resources: ['events']
+      verbs: ['create']
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+    namespace: carbonxchange
+    name: carbonxchange-worker-role
+    labels:
+        app.kubernetes.io/name: carbonxchange
+        app.kubernetes.io/component: worker
+rules:
+    # Allow reading ConfigMaps for job configuration
+    - apiGroups: ['']
+      resources: ['configmaps']
+      verbs: ['get', 'list']
+      resourceNames: ['carbonxchange-config', 'carbonxchange-worker-config']
+    # Allow reading Secrets for credentials
+    - apiGroups: ['']
+      resources: ['secrets']
+      verbs: ['get']
+      resourceNames: ['carbonxchange-secrets', 'carbonxchange-worker-secrets']
+    # Allow managing Jobs for background processing
+    - apiGroups: ['batch']
+      resources: ['jobs']
+      verbs: ['get', 'list', 'create', 'update', 'patch', 'delete']
+    # Allow creating events for audit logging
+    - apiGroups: ['']
+      resources: ['events']
+      verbs: ['create']
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+    namespace: carbonxchange
+    name: carbonxchange-monitoring-role
+    labels:
+        app.kubernetes.io/name: carbonxchange
+        app.kubernetes.io/component: monitoring
+rules:
+    # Allow reading all resources for monitoring
+    - apiGroups: ['']
+      resources: ['pods', 'services', 'endpoints', 'configmaps']
+      verbs: ['get', 'list', 'watch']
+    # Allow reading deployments and replicasets
+    - apiGroups: ['apps']
+      resources: ['deployments', 'replicasets', 'statefulsets']
+      verbs: ['get', 'list', 'watch']
+    # Allow reading ingresses
+    - apiGroups: ['networking.k8s.io']
+      resources: ['ingresses']
+      verbs: ['get', 'list', 'watch']
+    # Allow reading metrics
+    - apiGroups: ['metrics.k8s.io']
+      resources: ['pods', 'nodes']
+      verbs: ['get', 'list']
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+    namespace: carbonxchange
+    name: carbonxchange-backup-role
+    labels:
+        app.kubernetes.io/name: carbonxchange
+        app.kubernetes.io/component: backup
+rules:
+    # Allow reading PVCs for backup operations
+    - apiGroups: ['']
+      resources: ['persistentvolumeclaims']
+      verbs: ['get', 'list']
+    # Allow creating snapshots
+    - apiGroups: ['snapshot.storage.k8s.io']
+      resources: ['volumesnapshots']
+      verbs: ['get', 'list', 'create', 'delete']
+    # Allow reading Secrets for backup credentials
+    - apiGroups: ['']
+      resources: ['secrets']
+      verbs: ['get']
+      resourceNames: ['carbonxchange-backup-secrets']
+    # Allow creating events for audit logging
+    - apiGroups: ['']
+      resources: ['events']
+      verbs: ['create']
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: carbonxchange-backup-binding
-  namespace: carbonxchange
-  labels:
-    app.kubernetes.io/name: carbonxchange
-    app.kubernetes.io/component: backup
-subjects:
-  - kind: ServiceAccount
-    name: carbonxchange-backup-sa
+    name: carbonxchange-backend-binding
     namespace: carbonxchange
+    labels:
+        app.kubernetes.io/name: carbonxchange
+        app.kubernetes.io/component: backend
+subjects:
+    - kind: ServiceAccount
+      name: carbonxchange-backend-sa
+      namespace: carbonxchange
 roleRef:
-  kind: Role
-  name: carbonxchange-backup-role
-  apiGroup: rbac.authorization.k8s.io
+    kind: Role
+    name: carbonxchange-backend-role
+    apiGroup: rbac.authorization.k8s.io
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+    name: carbonxchange-frontend-binding
+    namespace: carbonxchange
+    labels:
+        app.kubernetes.io/name: carbonxchange
+        app.kubernetes.io/component: frontend
+subjects:
+    - kind: ServiceAccount
+      name: carbonxchange-frontend-sa
+      namespace: carbonxchange
+roleRef:
+    kind: Role
+    name: carbonxchange-frontend-role
+    apiGroup: rbac.authorization.k8s.io
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+    name: carbonxchange-worker-binding
+    namespace: carbonxchange
+    labels:
+        app.kubernetes.io/name: carbonxchange
+        app.kubernetes.io/component: worker
+subjects:
+    - kind: ServiceAccount
+      name: carbonxchange-worker-sa
+      namespace: carbonxchange
+roleRef:
+    kind: Role
+    name: carbonxchange-worker-role
+    apiGroup: rbac.authorization.k8s.io
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+    name: carbonxchange-monitoring-binding
+    namespace: carbonxchange
+    labels:
+        app.kubernetes.io/name: carbonxchange
+        app.kubernetes.io/component: monitoring
+subjects:
+    - kind: ServiceAccount
+      name: carbonxchange-monitoring-sa
+      namespace: carbonxchange
+roleRef:
+    kind: Role
+    name: carbonxchange-monitoring-role
+    apiGroup: rbac.authorization.k8s.io
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+    name: carbonxchange-backup-binding
+    namespace: carbonxchange
+    labels:
+        app.kubernetes.io/name: carbonxchange
+        app.kubernetes.io/component: backup
+subjects:
+    - kind: ServiceAccount
+      name: carbonxchange-backup-sa
+      namespace: carbonxchange
+roleRef:
+    kind: Role
+    name: carbonxchange-backup-role
+    apiGroup: rbac.authorization.k8s.io
 
 ---
 # ClusterRole for monitoring across namespaces (if needed)
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: carbonxchange-monitoring-cluster-role
-  labels:
-    app.kubernetes.io/name: carbonxchange
-    app.kubernetes.io/component: monitoring
+    name: carbonxchange-monitoring-cluster-role
+    labels:
+        app.kubernetes.io/name: carbonxchange
+        app.kubernetes.io/component: monitoring
 rules:
-  # Allow reading nodes for cluster monitoring
-  - apiGroups: [""]
-    resources: ["nodes", "nodes/metrics", "nodes/proxy"]
-    verbs: ["get", "list", "watch"]
-  # Allow reading cluster-level metrics
-  - apiGroups: ["metrics.k8s.io"]
-    resources: ["nodes", "pods"]
-    verbs: ["get", "list"]
+    # Allow reading nodes for cluster monitoring
+    - apiGroups: ['']
+      resources: ['nodes', 'nodes/metrics', 'nodes/proxy']
+      verbs: ['get', 'list', 'watch']
+    # Allow reading cluster-level metrics
+    - apiGroups: ['metrics.k8s.io']
+      resources: ['nodes', 'pods']
+      verbs: ['get', 'list']
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: carbonxchange-monitoring-cluster-binding
-  labels:
-    app.kubernetes.io/name: carbonxchange
-    app.kubernetes.io/component: monitoring
+    name: carbonxchange-monitoring-cluster-binding
+    labels:
+        app.kubernetes.io/name: carbonxchange
+        app.kubernetes.io/component: monitoring
 subjects:
-  - kind: ServiceAccount
-    name: carbonxchange-monitoring-sa
-    namespace: carbonxchange
+    - kind: ServiceAccount
+      name: carbonxchange-monitoring-sa
+      namespace: carbonxchange
 roleRef:
-  kind: ClusterRole
-  name: carbonxchange-monitoring-cluster-role
-  apiGroup: rbac.authorization.k8s.io
+    kind: ClusterRole
+    name: carbonxchange-monitoring-cluster-role
+    apiGroup: rbac.authorization.k8s.io
 
 ---
 # Security Context Constraints for OpenShift (if applicable)
 apiVersion: security.openshift.io/v1
 kind: SecurityContextConstraints
 metadata:
-  name: carbonxchange-restricted-scc
-  labels:
-    app.kubernetes.io/name: carbonxchange
-    app.kubernetes.io/component: security
-  annotations:
-    compliance.carbonxchange.io/description: "Restricted SCC for CarbonXchange applications"
-    kubernetes.io/description: "Restricted SCC for financial applications with enhanced security"
+    name: carbonxchange-restricted-scc
+    labels:
+        app.kubernetes.io/name: carbonxchange
+        app.kubernetes.io/component: security
+    annotations:
+        compliance.carbonxchange.io/description: 'Restricted SCC for CarbonXchange applications'
+        kubernetes.io/description: 'Restricted SCC for financial applications with enhanced security'
 allowHostDirVolumePlugin: false
 allowHostIPC: false
 allowHostNetwork: false
@@ -348,31 +348,31 @@ allowPrivilegedContainer: false
 allowedCapabilities: []
 defaultAddCapabilities: []
 requiredDropCapabilities:
-  - ALL
+    - ALL
 allowedFlexVolumes: []
 fsGroup:
-  type: MustRunAs
-  ranges:
-    - min: 10001
-      max: 65535
+    type: MustRunAs
+    ranges:
+        - min: 10001
+          max: 65535
 readOnlyRootFilesystem: true
 runAsUser:
-  type: MustRunAsNonRoot
+    type: MustRunAsNonRoot
 seLinuxContext:
-  type: MustRunAs
+    type: MustRunAs
 supplementalGroups:
-  type: MustRunAs
-  ranges:
-    - min: 10001
-      max: 65535
+    type: MustRunAs
+    ranges:
+        - min: 10001
+          max: 65535
 volumes:
-  - configMap
-  - downwardAPI
-  - emptyDir
-  - persistentVolumeClaim
-  - projected
-  - secret
+    - configMap
+    - downwardAPI
+    - emptyDir
+    - persistentVolumeClaim
+    - projected
+    - secret
 users:
-  - system:serviceaccount:carbonxchange:carbonxchange-backend-sa
-  - system:serviceaccount:carbonxchange:carbonxchange-frontend-sa
-  - system:serviceaccount:carbonxchange:carbonxchange-worker-sa
+    - system:serviceaccount:carbonxchange:carbonxchange-backend-sa
+    - system:serviceaccount:carbonxchange:carbonxchange-frontend-sa
+    - system:serviceaccount:carbonxchange:carbonxchange-worker-sa

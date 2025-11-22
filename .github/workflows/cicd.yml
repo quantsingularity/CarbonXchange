@@ -1,77 +1,77 @@
 name: CI Formatting Check
 
 on:
-  push:
-    branches: [main, develop]
-  pull_request:
-    branches: [main, develop]
-  workflow_dispatch:
+    push:
+        branches: [main, develop]
+    pull_request:
+        branches: [main, develop]
+    workflow_dispatch:
 
 jobs:
-  formatting_check:
-    runs-on: ubuntu-latest
+    formatting_check:
+        runs-on: ubuntu-latest
 
-    steps:
-      # -------------------------------
-      # Checkout
-      # -------------------------------
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+        steps:
+            # -------------------------------
+            # Checkout
+            # -------------------------------
+            - name: Checkout Repository
+              uses: actions/checkout@v4
 
-      # -------------------------------
-      # Python Setup + Formatters
-      # -------------------------------
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.10"
+            # -------------------------------
+            # Python Setup + Formatters
+            # -------------------------------
+            - name: Set up Python
+              uses: actions/setup-python@v5
+              with:
+                  python-version: '3.10'
 
-      - name: Install Python Formatters
-        run: |
-          pip install autoflake isort black
+            - name: Install Python Formatters
+              run: |
+                  pip install autoflake isort black
 
-      # -------------------------------
-      # Python Formatting Check
-      # autoflake has no check mode → use diff workaround
-      # -------------------------------
-      - name: Run Python Formatting Checks
-        run: |
-          echo "=== Running autoflake (check mode via diff) ==="
-          cp -r . /tmp/project_copy
+            # -------------------------------
+            # Python Formatting Check
+            # autoflake has no check mode → use diff workaround
+            # -------------------------------
+            - name: Run Python Formatting Checks
+              run: |
+                  echo "=== Running autoflake (check mode via diff) ==="
+                  cp -r . /tmp/project_copy
 
-          autoflake \
-            --remove-all-unused-imports \
-            --remove-unused-variables \
-            --recursive \
-            --ignore-init-module-imports \
-            --in-place \
-            /tmp/project_copy
+                  autoflake \
+                    --remove-all-unused-imports \
+                    --remove-unused-variables \
+                    --recursive \
+                    --ignore-init-module-imports \
+                    --in-place \
+                    /tmp/project_copy
 
-          echo "Comparing files..."
-          diff -r . /tmp/project_copy > /dev/null || {
-            echo "autoflake found issues."
-            exit 1
-          }
+                  echo "Comparing files..."
+                  diff -r . /tmp/project_copy > /dev/null || {
+                    echo "autoflake found issues."
+                    exit 1
+                  }
 
-          echo "=== Running black ==="
-          black . --check
+                  echo "=== Running black ==="
+                  black . --check
 
-      # -------------------------------
-      # Prettier Setup
-      # -------------------------------
-      - name: Install Prettier
-        run: npm install --global prettier
+            # -------------------------------
+            # Prettier Setup
+            # -------------------------------
+            - name: Install Prettier
+              run: npm install --global prettier
 
-      # -------------------------------
-      # Prettier Check
-      # -------------------------------
-      - name: Run Prettier Checks
-        run: |
-          echo "=== Running Prettier ==="
-          prettier --check "**/*.{js,jsx,ts,tsx,json,yml,yaml,html,css,md}"
+            # -------------------------------
+            # Prettier Check
+            # -------------------------------
+            - name: Run Prettier Checks
+              run: |
+                  echo "=== Running Prettier ==="
+                  prettier --check "**/*.{js,jsx,ts,tsx,json,yml,yaml,html,css,md}"
 
-      # -------------------------------
-      # Done
-      # -------------------------------
-      - name: Finalize Check
-        run: echo "All formatting checks completed."
+            # -------------------------------
+            # Done
+            # -------------------------------
+            - name: Finalize Check
+              run: echo "All formatting checks completed."

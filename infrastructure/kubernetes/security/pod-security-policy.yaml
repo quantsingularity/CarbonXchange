@@ -1,183 +1,183 @@
 apiVersion: policy/v1beta1
 kind: PodSecurityPolicy
 metadata:
-  name: carbonxchange-restricted
-  labels:
-    app.kubernetes.io/name: carbonxchange
-    app.kubernetes.io/component: security
-    compliance.carbonxchange.io/pci-dss: "true"
-    compliance.carbonxchange.io/sox: "true"
-    compliance.carbonxchange.io/gdpr: "true"
-  annotations:
-    seccomp.security.alpha.kubernetes.io/allowedProfileNames: "runtime/default"
-    seccomp.security.alpha.kubernetes.io/defaultProfileName: "runtime/default"
-    apparmor.security.beta.kubernetes.io/allowedProfileNames: "runtime/default"
-    apparmor.security.beta.kubernetes.io/defaultProfileName: "runtime/default"
-    compliance.carbonxchange.io/description: "Restricted Pod Security Policy for financial applications"
-    compliance.carbonxchange.io/last-reviewed: "2024-01-01"
-    compliance.carbonxchange.io/next-review: "2024-07-01"
+    name: carbonxchange-restricted
+    labels:
+        app.kubernetes.io/name: carbonxchange
+        app.kubernetes.io/component: security
+        compliance.carbonxchange.io/pci-dss: 'true'
+        compliance.carbonxchange.io/sox: 'true'
+        compliance.carbonxchange.io/gdpr: 'true'
+    annotations:
+        seccomp.security.alpha.kubernetes.io/allowedProfileNames: 'runtime/default'
+        seccomp.security.alpha.kubernetes.io/defaultProfileName: 'runtime/default'
+        apparmor.security.beta.kubernetes.io/allowedProfileNames: 'runtime/default'
+        apparmor.security.beta.kubernetes.io/defaultProfileName: 'runtime/default'
+        compliance.carbonxchange.io/description: 'Restricted Pod Security Policy for financial applications'
+        compliance.carbonxchange.io/last-reviewed: '2024-01-01'
+        compliance.carbonxchange.io/next-review: '2024-07-01'
 spec:
-  # Privilege and access controls
-  privileged: false
-  allowPrivilegeEscalation: false
+    # Privilege and access controls
+    privileged: false
+    allowPrivilegeEscalation: false
 
-  allowedCapabilities:
-    - NET_BIND_SERVICE
+    allowedCapabilities:
+        - NET_BIND_SERVICE
 
-  # Host controls
-  hostNetwork: false
-  hostIPC: false
-  hostPID: false
-  hostPorts: []
+    # Host controls
+    hostNetwork: false
+    hostIPC: false
+    hostPID: false
+    hostPorts: []
 
-  # Volume controls
-  volumes:
-    - "configMap"
-    - "emptyDir"
-    - "projected"
-    - "secret"
-    - "downwardAPI"
-    - "persistentVolumeClaim"
-  allowedHostPaths: []
+    # Volume controls
+    volumes:
+        - 'configMap'
+        - 'emptyDir'
+        - 'projected'
+        - 'secret'
+        - 'downwardAPI'
+        - 'persistentVolumeClaim'
+    allowedHostPaths: []
 
-  # Filesystem controls
-  readOnlyRootFilesystem: true
-  allowedFlexVolumes: []
+    # Filesystem controls
+    readOnlyRootFilesystem: true
+    allowedFlexVolumes: []
 
-  # User and group controls
-  runAsUser:
-    rule: "MustRunAsNonRoot"
-  runAsGroup:
-    rule: "MustRunAs"
-    ranges:
-      - min: 10001
-        max: 65535
-  supplementalGroups:
-    rule: "MustRunAs"
-    ranges:
-      - min: 10001
-        max: 65535
-  fsGroup:
-    rule: "MustRunAs"
-    ranges:
-      - min: 10001
-        max: 65535
+    # User and group controls
+    runAsUser:
+        rule: 'MustRunAsNonRoot'
+    runAsGroup:
+        rule: 'MustRunAs'
+        ranges:
+            - min: 10001
+              max: 65535
+    supplementalGroups:
+        rule: 'MustRunAs'
+        ranges:
+            - min: 10001
+              max: 65535
+    fsGroup:
+        rule: 'MustRunAs'
+        ranges:
+            - min: 10001
+              max: 65535
 
-  # SELinux controls
-  seLinux:
-    rule: "RunAsAny"
+    # SELinux controls
+    seLinux:
+        rule: 'RunAsAny'
 
-  # Forbidden sysctls
-  forbiddenSysctls:
-    - "*"
+    # Forbidden sysctls
+    forbiddenSysctls:
+        - '*'
 
-  # Default security context
-  defaultAllowPrivilegeEscalation: false
-  defaultAddCapabilities: []
+    # Default security context
+    defaultAllowPrivilegeEscalation: false
+    defaultAddCapabilities: []
 
 ---
 apiVersion: policy/v1beta1
 kind: PodSecurityPolicy
 metadata:
-  name: carbonxchange-privileged
-  labels:
-    app.kubernetes.io/name: carbonxchange
-    app.kubernetes.io/component: security
-    compliance.carbonxchange.io/pci-dss: "true"
-    compliance.carbonxchange.io/sox: "true"
-  annotations:
-    compliance.carbonxchange.io/description: "Privileged Pod Security Policy for system components only"
-    compliance.carbonxchange.io/usage: "system-components-only"
-    compliance.carbonxchange.io/last-reviewed: "2024-01-01"
-    compliance.carbonxchange.io/next-review: "2024-07-01"
+    name: carbonxchange-privileged
+    labels:
+        app.kubernetes.io/name: carbonxchange
+        app.kubernetes.io/component: security
+        compliance.carbonxchange.io/pci-dss: 'true'
+        compliance.carbonxchange.io/sox: 'true'
+    annotations:
+        compliance.carbonxchange.io/description: 'Privileged Pod Security Policy for system components only'
+        compliance.carbonxchange.io/usage: 'system-components-only'
+        compliance.carbonxchange.io/last-reviewed: '2024-01-01'
+        compliance.carbonxchange.io/next-review: '2024-07-01'
 spec:
-  privileged: true
-  allowPrivilegeEscalation: true
-  allowedCapabilities:
-    - "*"
-  volumes:
-    - "*"
-  hostNetwork: true
-  hostPorts:
-    - min: 0
-      max: 65535
-  hostIPC: true
-  hostPID: true
-  runAsUser:
-    rule: "RunAsAny"
-  seLinux:
-    rule: "RunAsAny"
-  supplementalGroups:
-    rule: "RunAsAny"
-  fsGroup:
-    rule: "RunAsAny"
+    privileged: true
+    allowPrivilegeEscalation: true
+    allowedCapabilities:
+        - '*'
+    volumes:
+        - '*'
+    hostNetwork: true
+    hostPorts:
+        - min: 0
+          max: 65535
+    hostIPC: true
+    hostPID: true
+    runAsUser:
+        rule: 'RunAsAny'
+    seLinux:
+        rule: 'RunAsAny'
+    supplementalGroups:
+        rule: 'RunAsAny'
+    fsGroup:
+        rule: 'RunAsAny'
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: carbonxchange-psp-restricted
-  labels:
-    app.kubernetes.io/name: carbonxchange
-    app.kubernetes.io/component: security
+    name: carbonxchange-psp-restricted
+    labels:
+        app.kubernetes.io/name: carbonxchange
+        app.kubernetes.io/component: security
 rules:
-  - apiGroups: ["policy"]
-    resources: ["podsecuritypolicies"]
-    verbs: ["use"]
-    resourceNames:
-      - carbonxchange-restricted
+    - apiGroups: ['policy']
+      resources: ['podsecuritypolicies']
+      verbs: ['use']
+      resourceNames:
+          - carbonxchange-restricted
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: carbonxchange-psp-privileged
-  labels:
-    app.kubernetes.io/name: carbonxchange
-    app.kubernetes.io/component: security
+    name: carbonxchange-psp-privileged
+    labels:
+        app.kubernetes.io/name: carbonxchange
+        app.kubernetes.io/component: security
 rules:
-  - apiGroups: ["policy"]
-    resources: ["podsecuritypolicies"]
-    verbs: ["use"]
-    resourceNames:
-      - carbonxchange-privileged
+    - apiGroups: ['policy']
+      resources: ['podsecuritypolicies']
+      verbs: ['use']
+      resourceNames:
+          - carbonxchange-privileged
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: carbonxchange-psp-restricted
-  labels:
-    app.kubernetes.io/name: carbonxchange
-    app.kubernetes.io/component: security
+    name: carbonxchange-psp-restricted
+    labels:
+        app.kubernetes.io/name: carbonxchange
+        app.kubernetes.io/component: security
 roleRef:
-  kind: ClusterRole
-  name: carbonxchange-psp-restricted
-  apiGroup: rbac.authorization.k8s.io
+    kind: ClusterRole
+    name: carbonxchange-psp-restricted
+    apiGroup: rbac.authorization.k8s.io
 subjects:
-  - kind: ServiceAccount
-    name: carbonxchange-backend-sa
-    namespace: carbonxchange
-  - kind: ServiceAccount
-    name: carbonxchange-frontend-sa
-    namespace: carbonxchange
-  - kind: ServiceAccount
-    name: carbonxchange-worker-sa
-    namespace: carbonxchange
+    - kind: ServiceAccount
+      name: carbonxchange-backend-sa
+      namespace: carbonxchange
+    - kind: ServiceAccount
+      name: carbonxchange-frontend-sa
+      namespace: carbonxchange
+    - kind: ServiceAccount
+      name: carbonxchange-worker-sa
+      namespace: carbonxchange
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: carbonxchange-psp-privileged
-  labels:
-    app.kubernetes.io/name: carbonxchange
-    app.kubernetes.io/component: security
+    name: carbonxchange-psp-privileged
+    labels:
+        app.kubernetes.io/name: carbonxchange
+        app.kubernetes.io/component: security
 roleRef:
-  kind: ClusterRole
-  name: carbonxchange-psp-privileged
-  apiGroup: rbac.authorization.k8s.io
+    kind: ClusterRole
+    name: carbonxchange-psp-privileged
+    apiGroup: rbac.authorization.k8s.io
 subjects:
-  - kind: ServiceAccount
-    name: carbonxchange-system-sa
-    namespace: kube-system
+    - kind: ServiceAccount
+      name: carbonxchange-system-sa
+      namespace: kube-system
