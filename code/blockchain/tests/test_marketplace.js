@@ -206,7 +206,9 @@ describe("CarbonCreditMarketplace", function () {
         marketplace
           .connect(buyer)
           .buyCredits(listingId, excessiveAmount, { value: excessivePrice }),
-      ).to.be.revertedWith("Marketplace: Purchase amount exceeds listing amount");
+      ).to.be.revertedWith(
+        "Marketplace: Purchase amount exceeds listing amount",
+      );
     });
   });
 

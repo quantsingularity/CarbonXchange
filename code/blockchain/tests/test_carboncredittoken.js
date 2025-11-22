@@ -112,7 +112,9 @@ describe("CarbonCreditToken", function () {
       expect(await carbonCreditToken.balanceOf(addr1.address)).to.equal(
         initialBalance - burnAmount,
       );
-      expect(await carbonCreditToken.totalSupply()).to.equal(toWei(1000000) - burnAmount);
+      expect(await carbonCreditToken.totalSupply()).to.equal(
+        toWei(1000000) - burnAmount,
+      );
     });
   });
 });
