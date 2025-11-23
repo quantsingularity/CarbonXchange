@@ -5,7 +5,7 @@ import axios from 'axios';
 
 // Mock axios to control API responses during tests
 jest.mock('axios');
-const mockedAxios = axios as jest.Mocked<typeof axios>;
+const mockedAxios = axios;
 
 describe('useApi Hook', () => {
     // Reset mocks before each test
@@ -67,7 +67,7 @@ describe('useApi Hook', () => {
 
             // Check loading state immediately after calling
             act(() => {
-                 result.current.get('/test-loading');
+                result.current.get('/test-loading');
             });
             expect(result.current.loading).toBe(true);
 
@@ -92,7 +92,11 @@ describe('useApi Hook', () => {
             expect(result.current.data).toEqual(mockResponseData); // Or as per your hook's logic for POST data handling
             expect(result.current.error).toBeNull();
             expect(response.data).toEqual(mockResponseData);
-            expect(mockedAxios.post).toHaveBeenCalledWith('/test-post-endpoint', postData, undefined);
+            expect(mockedAxios.post).toHaveBeenCalledWith(
+                '/test-post-endpoint',
+                postData,
+                undefined,
+            );
         });
 
         it('handles POST request error', async () => {

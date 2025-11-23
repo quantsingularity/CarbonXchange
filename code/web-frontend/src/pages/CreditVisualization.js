@@ -438,7 +438,8 @@ export default function CreditVisualization() {
             </Box>
           </CardContent>
         </Card>
-      )}
-    </Box>
-  );
+      </Box>
+    )}
+  </Box>
+);
 }
