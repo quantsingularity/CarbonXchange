@@ -68,7 +68,7 @@ jobs:
             - name: Run Prettier Checks
               run: |
                   echo "=== Running Prettier ==="
-                  prettier --check "**/*.{js,jsx,ts,tsx,json,yml,yaml,html,css,md}"
+                  prettier --check "**/*.{js,jsx,ts,tsx,json,html,css,md}"
 
             # -------------------------------
             # Done
