@@ -32,7 +32,6 @@ jobs:
 
             # -------------------------------
             # Python Formatting Check
-            # autoflake has no check mode → use diff workaround
             # -------------------------------
             - name: Run Python Formatting Checks
               run: |
@@ -57,10 +56,15 @@ jobs:
                   black . --check
 
             # -------------------------------
-            # Prettier Setup
+            # Node + Prettier Setup
             # -------------------------------
-            - name: Install Prettier
-              run: npm install --global prettier
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '18'
+
+            - name: Install Node Dependencies
+              run: npm install
 
             # -------------------------------
             # Prettier Check
@@ -68,7 +72,7 @@ jobs:
             - name: Run Prettier Checks
               run: |
                   echo "=== Running Prettier ==="
-                  prettier --check "**/*.{js,jsx,ts,tsx,json,html,css,md}"
+                  npx prettier --check "**/*.{js,jsx,ts,tsx,json,html,css,md,yaml,yml}"
 
             # -------------------------------
             # Done
