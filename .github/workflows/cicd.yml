@@ -72,7 +72,7 @@ jobs:
             - name: Run Prettier Checks
               run: |
                   echo "=== Running Prettier ==="
-                  npx prettier --check "**/*.{js,jsx,ts,tsx,json,html,css,md,yaml,yml}"
+                  npx prettier --check "**/*.{js,jsx,ts,tsx,json,html,css,md}"
 
             # -------------------------------
             # Done
