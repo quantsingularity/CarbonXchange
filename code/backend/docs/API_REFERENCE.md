@@ -43,16 +43,16 @@ Content-Type: application/json
 
 ```json
 {
-  "error": {
-    "code": "VALIDATION_ERROR",
-    "message": "Invalid request data",
-    "details": {
-      "field": "email",
-      "issue": "Invalid email format"
-    },
-    "timestamp": "2024-01-15T10:30:00Z",
-    "request_id": "req_123456789"
-  }
+    "error": {
+        "code": "VALIDATION_ERROR",
+        "message": "Invalid request data",
+        "details": {
+            "field": "email",
+            "issue": "Invalid email format"
+        },
+        "timestamp": "2024-01-15T10:30:00Z",
+        "request_id": "req_123456789"
+    }
 }
 ```
 
@@ -96,14 +96,14 @@ Register a new user account.
 
 ```json
 {
-  "email": "user@example.com",
-  "password": "SecurePassword123!",
-  "first_name": "John",
-  "last_name": "Doe",
-  "phone_number": "+1234567890",
-  "company_name": "Example Corp",
-  "country": "US",
-  "timezone": "America/New_York"
+    "email": "user@example.com",
+    "password": "SecurePassword123!",
+    "first_name": "John",
+    "last_name": "Doe",
+    "phone_number": "+1234567890",
+    "company_name": "Example Corp",
+    "country": "US",
+    "timezone": "America/New_York"
 }
 ```
 
@@ -111,20 +111,20 @@ Register a new user account.
 
 ```json
 {
-  "user": {
-    "id": 1,
-    "uuid": "123e4567-e89b-12d3-a456-426614174000",
-    "email": "user@example.com",
-    "status": "pending_verification",
-    "role": "individual",
-    "created_at": "2024-01-15T10:30:00Z"
-  },
-  "tokens": {
-    "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
-    "refresh_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
-    "token_type": "Bearer",
-    "expires_in": 3600
-  }
+    "user": {
+        "id": 1,
+        "uuid": "123e4567-e89b-12d3-a456-426614174000",
+        "email": "user@example.com",
+        "status": "pending_verification",
+        "role": "individual",
+        "created_at": "2024-01-15T10:30:00Z"
+    },
+    "tokens": {
+        "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+        "refresh_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+        "token_type": "Bearer",
+        "expires_in": 3600
+    }
 }
 ```
 
@@ -136,8 +136,8 @@ Authenticate user and receive access tokens.
 
 ```json
 {
-  "email": "user@example.com",
-  "password": "SecurePassword123!"
+    "email": "user@example.com",
+    "password": "SecurePassword123!"
 }
 ```
 
@@ -145,19 +145,19 @@ Authenticate user and receive access tokens.
 
 ```json
 {
-  "user": {
-    "id": 1,
-    "email": "user@example.com",
-    "status": "active",
-    "role": "individual",
-    "last_login": "2024-01-15T10:30:00Z"
-  },
-  "tokens": {
-    "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
-    "refresh_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
-    "token_type": "Bearer",
-    "expires_in": 3600
-  }
+    "user": {
+        "id": 1,
+        "email": "user@example.com",
+        "status": "active",
+        "role": "individual",
+        "last_login": "2024-01-15T10:30:00Z"
+    },
+    "tokens": {
+        "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+        "refresh_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+        "token_type": "Bearer",
+        "expires_in": 3600
+    }
 }
 ```
 
@@ -175,11 +175,11 @@ Authorization: Bearer <refresh_token>
 
 ```json
 {
-  "tokens": {
-    "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
-    "token_type": "Bearer",
-    "expires_in": 3600
-  }
+    "tokens": {
+        "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+        "token_type": "Bearer",
+        "expires_in": 3600
+    }
 }
 ```
 
@@ -197,7 +197,7 @@ Authorization: Bearer <access_token>
 
 ```json
 {
-  "message": "Successfully logged out"
+    "message": "Successfully logged out"
 }
 ```
 
@@ -215,28 +215,28 @@ Authorization: Bearer <access_token>
 
 ```json
 {
-  "user": {
-    "id": 1,
-    "uuid": "123e4567-e89b-12d3-a456-426614174000",
-    "email": "user@example.com",
-    "status": "active",
-    "role": "individual",
-    "profile": {
-      "first_name": "John",
-      "last_name": "Doe",
-      "phone_number": "+1234567890",
-      "company_name": "Example Corp",
-      "country": "US",
-      "timezone": "America/New_York"
-    },
-    "kyc": {
-      "status": "approved",
-      "verification_level": 2,
-      "approved_at": "2024-01-10T15:30:00Z"
-    },
-    "created_at": "2024-01-01T10:00:00Z",
-    "last_login": "2024-01-15T10:30:00Z"
-  }
+    "user": {
+        "id": 1,
+        "uuid": "123e4567-e89b-12d3-a456-426614174000",
+        "email": "user@example.com",
+        "status": "active",
+        "role": "individual",
+        "profile": {
+            "first_name": "John",
+            "last_name": "Doe",
+            "phone_number": "+1234567890",
+            "company_name": "Example Corp",
+            "country": "US",
+            "timezone": "America/New_York"
+        },
+        "kyc": {
+            "status": "approved",
+            "verification_level": 2,
+            "approved_at": "2024-01-10T15:30:00Z"
+        },
+        "created_at": "2024-01-01T10:00:00Z",
+        "last_login": "2024-01-15T10:30:00Z"
+    }
 }
 ```
 
@@ -256,21 +256,21 @@ Authorization: Bearer <access_token>
 
 ```json
 {
-  "profile": {
-    "user_id": 1,
-    "first_name": "John",
-    "last_name": "Doe",
-    "phone_number": "+1234567890",
-    "company_name": "Example Corp",
-    "country": "US",
-    "state_province": "NY",
-    "city": "New York",
-    "postal_code": "10001",
-    "timezone": "America/New_York",
-    "currency": "USD",
-    "language": "en",
-    "updated_at": "2024-01-15T10:30:00Z"
-  }
+    "profile": {
+        "user_id": 1,
+        "first_name": "John",
+        "last_name": "Doe",
+        "phone_number": "+1234567890",
+        "company_name": "Example Corp",
+        "country": "US",
+        "state_province": "NY",
+        "city": "New York",
+        "postal_code": "10001",
+        "timezone": "America/New_York",
+        "currency": "USD",
+        "language": "en",
+        "updated_at": "2024-01-15T10:30:00Z"
+    }
 }
 ```
 
@@ -288,25 +288,6 @@ Authorization: Bearer <access_token>
 
 ```json
 {
-  "first_name": "John",
-  "last_name": "Doe",
-  "phone_number": "+1234567890",
-  "company_name": "Example Corp",
-  "country": "US",
-  "state_province": "NY",
-  "city": "New York",
-  "postal_code": "10001",
-  "timezone": "America/New_York"
-}
-```
-
-**Response (200):**
-
-```json
-{
-  "message": "Profile updated successfully",
-  "profile": {
-    "user_id": 1,
     "first_name": "John",
     "last_name": "Doe",
     "phone_number": "+1234567890",
@@ -315,9 +296,28 @@ Authorization: Bearer <access_token>
     "state_province": "NY",
     "city": "New York",
     "postal_code": "10001",
-    "timezone": "America/New_York",
-    "updated_at": "2024-01-15T11:00:00Z"
-  }
+    "timezone": "America/New_York"
+}
+```
+
+**Response (200):**
+
+```json
+{
+    "message": "Profile updated successfully",
+    "profile": {
+        "user_id": 1,
+        "first_name": "John",
+        "last_name": "Doe",
+        "phone_number": "+1234567890",
+        "company_name": "Example Corp",
+        "country": "US",
+        "state_province": "NY",
+        "city": "New York",
+        "postal_code": "10001",
+        "timezone": "America/New_York",
+        "updated_at": "2024-01-15T11:00:00Z"
+    }
 }
 ```
 
@@ -335,18 +335,18 @@ Authorization: Bearer <access_token>
 
 ```json
 {
-  "kyc": {
-    "user_id": 1,
-    "status": "approved",
-    "verification_level": 2,
-    "document_type": "passport",
-    "document_number": "A12345678",
-    "document_country": "US",
-    "submitted_at": "2024-01-05T10:00:00Z",
-    "approved_at": "2024-01-10T15:30:00Z",
-    "expires_at": "2025-01-10T15:30:00Z",
-    "notes": "All documents verified successfully"
-  }
+    "kyc": {
+        "user_id": 1,
+        "status": "approved",
+        "verification_level": 2,
+        "document_type": "passport",
+        "document_number": "A12345678",
+        "document_country": "US",
+        "submitted_at": "2024-01-05T10:00:00Z",
+        "approved_at": "2024-01-10T15:30:00Z",
+        "expires_at": "2025-01-10T15:30:00Z",
+        "notes": "All documents verified successfully"
+    }
 }
 ```
 
@@ -376,16 +376,16 @@ selfie: [file]
 
 ```json
 {
-  "message": "KYC documents submitted successfully",
-  "kyc": {
-    "user_id": 1,
-    "status": "pending_review",
-    "verification_level": 0,
-    "document_type": "passport",
-    "document_number": "A12345678",
-    "document_country": "US",
-    "submitted_at": "2024-01-15T11:00:00Z"
-  }
+    "message": "KYC documents submitted successfully",
+    "kyc": {
+        "user_id": 1,
+        "status": "pending_review",
+        "verification_level": 0,
+        "document_type": "passport",
+        "document_number": "A12345678",
+        "document_country": "US",
+        "submitted_at": "2024-01-15T11:00:00Z"
+    }
 }
 ```
 
@@ -416,40 +416,40 @@ Authorization: Bearer <access_token>
 
 ```json
 {
-  "projects": [
-    {
-      "id": 1,
-      "name": "Amazon Rainforest Conservation Project",
-      "description": "Large-scale forest conservation project in Brazil",
-      "project_type": "forestry",
-      "status": "active",
-      "country": "BR",
-      "state_province": "Amazonas",
-      "coordinates": {
-        "latitude": -3.4653,
-        "longitude": -62.2159
-      },
-      "total_credits": 1000000.0,
-      "available_credits": 750000.0,
-      "price_per_credit": 45.5,
-      "vintage_year": 2023,
-      "verification_standard": "VCS",
-      "registry_id": "VCS-12345",
-      "project_developer": "Green Earth Solutions",
-      "verifier": "SCS Global Services",
-      "methodology": "VM0015",
-      "created_at": "2023-01-01T00:00:00Z",
-      "updated_at": "2024-01-15T10:30:00Z"
+    "projects": [
+        {
+            "id": 1,
+            "name": "Amazon Rainforest Conservation Project",
+            "description": "Large-scale forest conservation project in Brazil",
+            "project_type": "forestry",
+            "status": "active",
+            "country": "BR",
+            "state_province": "Amazonas",
+            "coordinates": {
+                "latitude": -3.4653,
+                "longitude": -62.2159
+            },
+            "total_credits": 1000000.0,
+            "available_credits": 750000.0,
+            "price_per_credit": 45.5,
+            "vintage_year": 2023,
+            "verification_standard": "VCS",
+            "registry_id": "VCS-12345",
+            "project_developer": "Green Earth Solutions",
+            "verifier": "SCS Global Services",
+            "methodology": "VM0015",
+            "created_at": "2023-01-01T00:00:00Z",
+            "updated_at": "2024-01-15T10:30:00Z"
+        }
+    ],
+    "pagination": {
+        "page": 1,
+        "per_page": 20,
+        "total": 150,
+        "pages": 8,
+        "has_next": true,
+        "has_prev": false
     }
-  ],
-  "pagination": {
-    "page": 1,
-    "per_page": 20,
-    "total": 150,
-    "pages": 8,
-    "has_next": true,
-    "has_prev": false
-  }
 }
 ```
 
@@ -467,47 +467,47 @@ Authorization: Bearer <access_token>
 
 ```json
 {
-  "project": {
-    "id": 1,
-    "name": "Amazon Rainforest Conservation Project",
-    "description": "Large-scale forest conservation project in Brazil focusing on preventing deforestation and promoting sustainable forest management practices.",
-    "project_type": "forestry",
-    "status": "active",
-    "country": "BR",
-    "state_province": "Amazonas",
-    "coordinates": {
-      "latitude": -3.4653,
-      "longitude": -62.2159
-    },
-    "area_hectares": 50000.0,
-    "total_credits": 1000000.0,
-    "available_credits": 750000.0,
-    "issued_credits": 250000.0,
-    "retired_credits": 0.0,
-    "price_per_credit": 45.5,
-    "vintage_year": 2023,
-    "verification_standard": "VCS",
-    "registry_id": "VCS-12345",
-    "project_developer": "Green Earth Solutions",
-    "verifier": "SCS Global Services",
-    "methodology": "VM0015",
-    "project_documents": [
-      {
-        "type": "project_design_document",
-        "url": "https://documents.carbonxchange.com/projects/1/pdd.pdf",
-        "uploaded_at": "2023-01-01T00:00:00Z"
-      }
-    ],
-    "monitoring_reports": [
-      {
-        "period": "2023-Q1",
-        "url": "https://documents.carbonxchange.com/projects/1/monitoring-2023-q1.pdf",
-        "uploaded_at": "2023-04-01T00:00:00Z"
-      }
-    ],
-    "created_at": "2023-01-01T00:00:00Z",
-    "updated_at": "2024-01-15T10:30:00Z"
-  }
+    "project": {
+        "id": 1,
+        "name": "Amazon Rainforest Conservation Project",
+        "description": "Large-scale forest conservation project in Brazil focusing on preventing deforestation and promoting sustainable forest management practices.",
+        "project_type": "forestry",
+        "status": "active",
+        "country": "BR",
+        "state_province": "Amazonas",
+        "coordinates": {
+            "latitude": -3.4653,
+            "longitude": -62.2159
+        },
+        "area_hectares": 50000.0,
+        "total_credits": 1000000.0,
+        "available_credits": 750000.0,
+        "issued_credits": 250000.0,
+        "retired_credits": 0.0,
+        "price_per_credit": 45.5,
+        "vintage_year": 2023,
+        "verification_standard": "VCS",
+        "registry_id": "VCS-12345",
+        "project_developer": "Green Earth Solutions",
+        "verifier": "SCS Global Services",
+        "methodology": "VM0015",
+        "project_documents": [
+            {
+                "type": "project_design_document",
+                "url": "https://documents.carbonxchange.com/projects/1/pdd.pdf",
+                "uploaded_at": "2023-01-01T00:00:00Z"
+            }
+        ],
+        "monitoring_reports": [
+            {
+                "period": "2023-Q1",
+                "url": "https://documents.carbonxchange.com/projects/1/monitoring-2023-q1.pdf",
+                "uploaded_at": "2023-04-01T00:00:00Z"
+            }
+        ],
+        "created_at": "2023-01-01T00:00:00Z",
+        "updated_at": "2024-01-15T10:30:00Z"
+    }
 }
 ```
 

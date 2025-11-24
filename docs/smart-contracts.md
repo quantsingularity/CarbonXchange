@@ -21,7 +21,13 @@ The main token contract implementing ERC-1155 for carbon credit tokens.
 interface ICarbonCredit {
     function mint(address to, uint256 id, uint256 amount, bytes calldata data) external;
     function burn(address from, uint256 id, uint256 amount) external;
-    function safeTransferFrom(address from, address to, uint256 id, uint256 amount, bytes calldata data) external;
+    function safeTransferFrom(
+        address from,
+        address to,
+        uint256 id,
+        uint256 amount,
+        bytes calldata data
+    ) external;
 }
 ```
 
@@ -81,39 +87,35 @@ CarbonGovernance: 0x...
 ### Using Web3.js
 
 ```javascript
-const Web3 = require("web3");
-const web3 = new Web3("YOUR_PROVIDER_URL");
+const Web3 = require('web3');
+const web3 = new Web3('YOUR_PROVIDER_URL');
 
 const marketplace = new web3.eth.Contract(MARKETPLACE_ABI, MARKETPLACE_ADDRESS);
 
 // Create sell order
 async function createSellOrder(tokenId, amount, price) {
-  const tx = await marketplace.methods
-    .createSellOrder(tokenId, amount, price)
-    .send({ from: userAddress });
-  return tx;
+    const tx = await marketplace.methods
+        .createSellOrder(tokenId, amount, price)
+        .send({ from: userAddress });
+    return tx;
 }
 ```
 
 ### Using Ethers.js
 
 ```javascript
-const { ethers } = require("ethers");
+const { ethers } = require('ethers');
 
-const provider = new ethers.providers.JsonRpcProvider("YOUR_PROVIDER_URL");
+const provider = new ethers.providers.JsonRpcProvider('YOUR_PROVIDER_URL');
 const signer = provider.getSigner();
 
-const marketplace = new ethers.Contract(
-  MARKETPLACE_ADDRESS,
-  MARKETPLACE_ABI,
-  signer,
-);
+const marketplace = new ethers.Contract(MARKETPLACE_ADDRESS, MARKETPLACE_ABI, signer);
 
 // Create buy order
 async function createBuyOrder(tokenId, amount, price) {
-  const tx = await marketplace.createBuyOrder(tokenId, amount, price);
-  await tx.wait();
-  return tx;
+    const tx = await marketplace.createBuyOrder(tokenId, amount, price);
+    await tx.wait();
+    return tx;
 }
 ```
 
@@ -128,16 +130,16 @@ async function createBuyOrder(tokenId, amount, price) {
 ### Safety Measures
 
 1. **Reentrancy Protection**
-   - All contracts use OpenZeppelin's `ReentrancyGuard`
-   - Check-Effects-Interactions pattern implemented
+    - All contracts use OpenZeppelin's `ReentrancyGuard`
+    - Check-Effects-Interactions pattern implemented
 
 2. **Integer Overflow Protection**
-   - SafeMath library used for all mathematical operations
-   - Input validation on all public functions
+    - SafeMath library used for all mathematical operations
+    - Input validation on all public functions
 
 3. **Emergency Controls**
-   - Circuit breaker pattern implemented
-   - Admin functions for emergency situations
+    - Circuit breaker pattern implemented
+    - Admin functions for emergency situations
 
 ## Events
 
@@ -161,12 +163,12 @@ event OrderCancelled(uint256 indexed orderId);
 The contracts use the OpenZeppelin upgrades pattern:
 
 1. **Proxy Pattern**
-   - Transparent proxy pattern for upgradeability
-   - Admin multisig for upgrade control
+    - Transparent proxy pattern for upgradeability
+    - Admin multisig for upgrade control
 
 2. **Storage Layout**
-   - Structured storage pattern
-   - Storage gaps for future upgrades
+    - Structured storage pattern
+    - Storage gaps for future upgrades
 
 ## Gas Optimization
 
@@ -192,19 +194,19 @@ npx hardhat coverage
 ### Key Test Cases
 
 1. Token Operations
-   - Minting
-   - Burning
-   - Transfers
+    - Minting
+    - Burning
+    - Transfers
 
 2. Market Operations
-   - Order creation
-   - Order execution
-   - Price mechanics
+    - Order creation
+    - Order execution
+    - Price mechanics
 
 3. Security
-   - Access control
-   - Edge cases
-   - Attack vectors
+    - Access control
+    - Edge cases
+    - Attack vectors
 
 ## Audits
 
@@ -218,16 +220,16 @@ The smart contracts have been audited by:
 ## Development Guidelines
 
 1. **Code Style**
-   - Follow Solidity style guide
-   - Use explicit visibility modifiers
-   - Document all functions with NatSpec
+    - Follow Solidity style guide
+    - Use explicit visibility modifiers
+    - Document all functions with NatSpec
 
 2. **Testing Requirements**
-   - 100% test coverage required
-   - Integration tests for all features
-   - Fuzz testing for critical functions
+    - 100% test coverage required
+    - Integration tests for all features
+    - Fuzz testing for critical functions
 
 3. **Deployment Process**
-   - Multi-sig requirement for upgrades
-   - Timelock for critical changes
-   - Testing on testnet first
+    - Multi-sig requirement for upgrades
+    - Timelock for critical changes
+    - Testing on testnet first

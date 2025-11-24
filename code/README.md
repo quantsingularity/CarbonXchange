@@ -96,60 +96,60 @@ CarbonXchange/code/
 
 1. **Clone the repository**
 
-   ```bash
-   git clone https://github.com/your-org/CarbonXchange.git
-   cd CarbonXchange/code
-   ```
+    ```bash
+    git clone https://github.com/your-org/CarbonXchange.git
+    cd CarbonXchange/code
+    ```
 
 2. **Backend Setup**
 
-   ```bash
-   cd backend
+    ```bash
+    cd backend
 
-   # Create virtual environment
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
+    # Create virtual environment
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
 
-   # Install dependencies
-   pip install -r requirements.txt
+    # Install dependencies
+    pip install -r requirements.txt
 
-   # Set up environment variables
-   cp .env.example .env
-   # Edit .env with your configuration
+    # Set up environment variables
+    cp .env.example .env
+    # Edit .env with your configuration
 
-   # Initialize database
-   flask db upgrade
+    # Initialize database
+    flask db upgrade
 
-   # Start the server
-   flask run --host=0.0.0.0 --port=8000
-   ```
+    # Start the server
+    flask run --host=0.0.0.0 --port=8000
+    ```
 
 3. **Frontend Setup**
 
-   ```bash
-   cd ../web-frontend
+    ```bash
+    cd ../web-frontend
 
-   # Install dependencies
-   npm install
+    # Install dependencies
+    npm install
 
-   # Start development server
-   npm start
-   ```
+    # Start development server
+    npm start
+    ```
 
 4. **Blockchain Setup** (Optional)
 
-   ```bash
-   cd ../blockchain
+    ```bash
+    cd ../blockchain
 
-   # Install dependencies
-   npm install
+    # Install dependencies
+    npm install
 
-   # Compile contracts
-   npx hardhat compile
+    # Compile contracts
+    npx hardhat compile
 
-   # Deploy to local network
-   npx hardhat run scripts/deploy.js --network localhost
-   ```
+    # Deploy to local network
+    npx hardhat run scripts/deploy.js --network localhost
+    ```
 
 ## 📊 Enhanced Features
 

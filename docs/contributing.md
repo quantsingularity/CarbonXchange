@@ -41,28 +41,28 @@ We pledge to make participation in our project a harassment-free experience for 
 
 1. Fork the repository
 2. Clone your fork:
-   ```bash
-   git clone https://github.com/YOUR-USERNAME/CarbonXchange.git
-   ```
+    ```bash
+    git clone https://github.com/YOUR-USERNAME/CarbonXchange.git
+    ```
 3. Add upstream remote:
-   ```bash
-   git remote add upstream https://github.com/original/CarbonXchange.git
-   ```
+    ```bash
+    git remote add upstream https://github.com/original/CarbonXchange.git
+    ```
 4. Install dependencies:
 
-   ```bash
-   # Frontend
-   cd frontend
-   npm install
+    ```bash
+    # Frontend
+    cd frontend
+    npm install
 
-   # Backend
-   cd ../backend
-   npm install
+    # Backend
+    cd ../backend
+    npm install
 
-   # Smart Contracts
-   cd ../blockchain
-   npm install
-   ```
+    # Smart Contracts
+    cd ../blockchain
+    npm install
+    ```
 
 ## Development Process
 
@@ -119,25 +119,25 @@ Closes #123
 ## Pull Request Process
 
 1. **Update Documentation**
-   - Update README.md if necessary
-   - Add/update API documentation
-   - Update architecture diagrams if needed
+    - Update README.md if necessary
+    - Add/update API documentation
+    - Update architecture diagrams if needed
 
 2. **Testing Requirements**
-   - Add/update unit tests
-   - Add/update integration tests
-   - Ensure all tests pass
-   - Maintain or improve code coverage
+    - Add/update unit tests
+    - Add/update integration tests
+    - Ensure all tests pass
+    - Maintain or improve code coverage
 
 3. **Code Review Process**
-   - At least two approvals required
-   - All comments must be resolved
-   - CI/CD checks must pass
+    - At least two approvals required
+    - All comments must be resolved
+    - CI/CD checks must pass
 
 4. **Merge Requirements**
-   - Squash commits into meaningful units
-   - Ensure branch is up to date with develop
-   - No merge conflicts
+    - Squash commits into meaningful units
+    - Ensure branch is up to date with develop
+    - No merge conflicts
 
 ## Coding Standards
 

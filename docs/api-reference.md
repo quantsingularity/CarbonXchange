@@ -29,10 +29,10 @@ Register a new user account.
 
 ```json
 {
-  "email": "user@example.com",
-  "password": "securepassword",
-  "fullName": "John Doe",
-  "walletAddress": "0x..."
+    "email": "user@example.com",
+    "password": "securepassword",
+    "fullName": "John Doe",
+    "walletAddress": "0x..."
 }
 ```
 
@@ -40,14 +40,14 @@ Register a new user account.
 
 ```json
 {
-  "success": true,
-  "token": "jwt_token_here",
-  "user": {
-    "id": "user_id",
-    "email": "user@example.com",
-    "fullName": "John Doe",
-    "walletAddress": "0x..."
-  }
+    "success": true,
+    "token": "jwt_token_here",
+    "user": {
+        "id": "user_id",
+        "email": "user@example.com",
+        "fullName": "John Doe",
+        "walletAddress": "0x..."
+    }
 }
 ```
 
@@ -59,8 +59,8 @@ Authenticate a user and receive a JWT token.
 
 ```json
 {
-  "email": "user@example.com",
-  "password": "securepassword"
+    "email": "user@example.com",
+    "password": "securepassword"
 }
 ```
 
@@ -83,23 +83,23 @@ List available carbon credits.
 
 ```json
 {
-  "success": true,
-  "data": {
-    "credits": [
-      {
-        "id": "credit_id",
-        "type": "renewable_energy",
-        "amount": 100,
-        "price": "25.50",
-        "status": "available",
-        "verificationStatus": "verified",
-        "createdAt": "2024-01-01T00:00:00Z"
-      }
-    ],
-    "total": 100,
-    "page": 1,
-    "pages": 10
-  }
+    "success": true,
+    "data": {
+        "credits": [
+            {
+                "id": "credit_id",
+                "type": "renewable_energy",
+                "amount": 100,
+                "price": "25.50",
+                "status": "available",
+                "verificationStatus": "verified",
+                "createdAt": "2024-01-01T00:00:00Z"
+            }
+        ],
+        "total": 100,
+        "page": 1,
+        "pages": 10
+    }
 }
 ```
 
@@ -111,11 +111,11 @@ Create a new carbon credit listing.
 
 ```json
 {
-  "type": "renewable_energy",
-  "amount": 100,
-  "price": "25.50",
-  "description": "Solar power project credits",
-  "verificationDocuments": ["doc1_url", "doc2_url"]
+    "type": "renewable_energy",
+    "amount": 100,
+    "price": "25.50",
+    "description": "Solar power project credits",
+    "verificationDocuments": ["doc1_url", "doc2_url"]
 }
 ```
 
@@ -129,10 +129,10 @@ Create a new trade order.
 
 ```json
 {
-  "creditId": "credit_id",
-  "amount": 50,
-  "price": "25.50",
-  "type": "buy"
+    "creditId": "credit_id",
+    "amount": 50,
+    "price": "25.50",
+    "type": "buy"
 }
 ```
 
@@ -156,13 +156,13 @@ Get market statistics and analytics.
 
 ```json
 {
-  "success": true,
-  "data": {
-    "totalVolume": "1000000",
-    "24hVolume": "50000",
-    "averagePrice": "25.75",
-    "priceChange24h": "2.5"
-  }
+    "success": true,
+    "data": {
+        "totalVolume": "1000000",
+        "24hVolume": "50000",
+        "averagePrice": "25.75",
+        "priceChange24h": "2.5"
+    }
 }
 ```
 
@@ -185,12 +185,12 @@ Get user's wallet balance.
 
 ```json
 {
-  "success": true,
-  "data": {
-    "tokenBalance": "1000.00",
-    "creditBalance": "500",
-    "pendingTrades": 2
-  }
+    "success": true,
+    "data": {
+        "tokenBalance": "1000.00",
+        "creditBalance": "500",
+        "pendingTrades": 2
+    }
 }
 ```
 
@@ -200,12 +200,12 @@ All endpoints return error responses in the following format:
 
 ```json
 {
-  "success": false,
-  "error": {
-    "code": "ERROR_CODE",
-    "message": "Human readable error message",
-    "details": {} // Optional additional error details
-  }
+    "success": false,
+    "error": {
+        "code": "ERROR_CODE",
+        "message": "Human readable error message",
+        "details": {} // Optional additional error details
+    }
 }
 ```
 
@@ -249,9 +249,9 @@ npm install @carbonxchange/sdk
 Example usage:
 
 ```javascript
-const CarbonXchange = require("@carbonxchange/sdk");
+const CarbonXchange = require('@carbonxchange/sdk');
 const client = new CarbonXchange({
-  apiKey: "your_api_key",
-  environment: "production",
+    apiKey: 'your_api_key',
+    environment: 'production',
 });
 ```

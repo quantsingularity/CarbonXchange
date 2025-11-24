@@ -224,12 +224,12 @@ Register a new user account.
 
 ```json
 {
-  "email": "user@example.com",
-  "password": "SecurePassword123!",
-  "first_name": "John",
-  "last_name": "Doe",
-  "phone_number": "+1234567890",
-  "company_name": "Example Corp"
+    "email": "user@example.com",
+    "password": "SecurePassword123!",
+    "first_name": "John",
+    "last_name": "Doe",
+    "phone_number": "+1234567890",
+    "company_name": "Example Corp"
 }
 ```
 
@@ -237,17 +237,17 @@ Register a new user account.
 
 ```json
 {
-  "message": "User registered successfully",
-  "user": {
-    "id": 1,
-    "uuid": "123e4567-e89b-12d3-a456-426614174000",
-    "email": "user@example.com",
-    "status": "pending",
-    "role": "individual"
-  },
-  "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
-  "refresh_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
-  "token_type": "Bearer"
+    "message": "User registered successfully",
+    "user": {
+        "id": 1,
+        "uuid": "123e4567-e89b-12d3-a456-426614174000",
+        "email": "user@example.com",
+        "status": "pending",
+        "role": "individual"
+    },
+    "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+    "refresh_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+    "token_type": "Bearer"
 }
 ```
 
@@ -259,8 +259,8 @@ Authenticate user and receive access tokens.
 
 ```json
 {
-  "email": "user@example.com",
-  "password": "SecurePassword123!"
+    "email": "user@example.com",
+    "password": "SecurePassword123!"
 }
 ```
 
@@ -316,12 +316,12 @@ Create a new trading order.
 
 ```json
 {
-  "order_type": "limit",
-  "side": "buy",
-  "quantity": 100.0,
-  "price": 25.5,
-  "project_id": 1,
-  "vintage_year": 2023
+    "order_type": "limit",
+    "side": "buy",
+    "quantity": 100.0,
+    "price": 25.5,
+    "project_id": 1,
+    "vintage_year": 2023
 }
 ```
 
@@ -356,15 +356,15 @@ System health check endpoint.
 
 ```json
 {
-  "status": "healthy",
-  "timestamp": "2025-08-18T10:30:00Z",
-  "version": "1.0.0",
-  "environment": "development",
-  "services": {
-    "database": "healthy",
-    "redis": "healthy",
-    "api": "healthy"
-  }
+    "status": "healthy",
+    "timestamp": "2025-08-18T10:30:00Z",
+    "version": "1.0.0",
+    "environment": "development",
+    "services": {
+        "database": "healthy",
+        "redis": "healthy",
+        "api": "healthy"
+    }
 }
 ```
 
@@ -408,10 +408,10 @@ The system uses PostgreSQL with the following optimizations:
 ### Production Deployment
 
 1. **Server Requirements:**
-   - CPU: 4+ cores
-   - RAM: 8GB+
-   - Storage: 100GB+ SSD
-   - Network: 1Gbps+
+    - CPU: 4+ cores
+    - RAM: 8GB+
+    - Storage: 100GB+ SSD
+    - Network: 1Gbps+
 
 2. **Docker Deployment:**
 
@@ -433,28 +433,28 @@ docker run -d \
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: carbonxchange-backend
+    name: carbonxchange-backend
 spec:
-  replicas: 3
-  selector:
-    matchLabels:
-      app: carbonxchange-backend
-  template:
-    metadata:
-      labels:
-        app: carbonxchange-backend
-    spec:
-      containers:
-        - name: carbonxchange-backend
-          image: carbonxchange-backend:latest
-          ports:
-            - containerPort: 5000
-          env:
-            - name: DATABASE_URL
-              valueFrom:
-                secretKeyRef:
-                  name: carbonxchange-secrets
-                  key: database-url
+    replicas: 3
+    selector:
+        matchLabels:
+            app: carbonxchange-backend
+    template:
+        metadata:
+            labels:
+                app: carbonxchange-backend
+        spec:
+            containers:
+                - name: carbonxchange-backend
+                  image: carbonxchange-backend:latest
+                  ports:
+                      - containerPort: 5000
+                  env:
+                      - name: DATABASE_URL
+                        valueFrom:
+                            secretKeyRef:
+                                name: carbonxchange-secrets
+                                key: database-url
 ```
 
 ### Load Balancing
@@ -618,24 +618,24 @@ Comprehensive audit trail including:
 ### Common Issues
 
 1. **Database Connection Errors**
-   - Check DATABASE_URL configuration
-   - Verify PostgreSQL service is running
-   - Check network connectivity and firewall rules
+    - Check DATABASE_URL configuration
+    - Verify PostgreSQL service is running
+    - Check network connectivity and firewall rules
 
 2. **Redis Connection Issues**
-   - Verify Redis service is running
-   - Check REDIS_URL configuration
-   - Monitor Redis memory usage
+    - Verify Redis service is running
+    - Check REDIS_URL configuration
+    - Monitor Redis memory usage
 
 3. **Authentication Failures**
-   - Verify JWT_SECRET_KEY configuration
-   - Check token expiration settings
-   - Review user account status
+    - Verify JWT_SECRET_KEY configuration
+    - Check token expiration settings
+    - Review user account status
 
 4. **Performance Issues**
-   - Monitor database query performance
-   - Check Redis cache hit rates
-   - Review application logs for bottlenecks
+    - Monitor database query performance
+    - Check Redis cache hit rates
+    - Review application logs for bottlenecks
 
 ### Debug Mode
 

@@ -23,10 +23,10 @@ This guide helps developers and users resolve common issues encountered while wo
 
 1. Install nvm (Node Version Manager)
 2. Run:
-   ```bash
-   nvm install 14
-   nvm use 14
-   ```
+    ```bash
+    nvm install 14
+    nvm use 14
+    ```
 
 #### Error: Package installation fails
 
@@ -34,14 +34,14 @@ This guide helps developers and users resolve common issues encountered while wo
 **Solution**:
 
 1. Clear npm cache:
-   ```bash
-   npm cache clean --force
-   ```
+    ```bash
+    npm cache clean --force
+    ```
 2. Delete node_modules:
-   ```bash
-   rm -rf node_modules package-lock.json
-   npm install
-   ```
+    ```bash
+    rm -rf node_modules package-lock.json
+    npm install
+    ```
 
 ### Git Issues
 
@@ -51,11 +51,11 @@ This guide helps developers and users resolve common issues encountered while wo
 **Solution**:
 
 1. Stash local changes:
-   ```bash
-   git stash
-   git pull origin main
-   git stash pop
-   ```
+    ```bash
+    git stash
+    git pull origin main
+    git stash pop
+    ```
 
 ## Smart Contract Issues
 
@@ -68,9 +68,9 @@ This guide helps developers and users resolve common issues encountered while wo
 
 1. Update solidity version in hardhat.config.js
 2. Install correct solidity version:
-   ```bash
-   npm install --save-dev @nomiclabs/hardhat-waffle@^version
-   ```
+    ```bash
+    npm install --save-dev @nomiclabs/hardhat-waffle@^version
+    ```
 
 ### Deployment Issues
 
@@ -105,9 +105,9 @@ This guide helps developers and users resolve common issues encountered while wo
 **Solution**:
 
 1. Install missing type definitions:
-   ```bash
-   npm install --save-dev @types/missing-module
-   ```
+    ```bash
+    npm install --save-dev @types/missing-module
+    ```
 2. Check tsconfig.json configuration
 
 ### Runtime Errors
@@ -120,11 +120,11 @@ This guide helps developers and users resolve common issues encountered while wo
 1. Install MetaMask
 2. Connect to correct network
 3. Add fallback Web3 provider:
-   ```javascript
-   if (typeof window.ethereum === "undefined") {
-     web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
-   }
-   ```
+    ```javascript
+    if (typeof window.ethereum === 'undefined') {
+        web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'));
+    }
+    ```
 
 ## Backend Issues
 
@@ -162,9 +162,9 @@ This guide helps developers and users resolve common issues encountered while wo
 **Solution**:
 
 1. Start PostgreSQL service:
-   ```bash
-   sudo service postgresql start
-   ```
+    ```bash
+    sudo service postgresql start
+    ```
 2. Check PostgreSQL configuration
 3. Verify port availability
 
@@ -176,9 +176,9 @@ This guide helps developers and users resolve common issues encountered while wo
 **Solution**:
 
 1. Roll back failed migration:
-   ```bash
-   npx sequelize-cli db:migrate:undo
-   ```
+    ```bash
+    npx sequelize-cli db:migrate:undo
+    ```
 2. Fix migration file
 3. Re-run migration
 
@@ -296,16 +296,16 @@ npx hardhat console --verbose
 ## Prevention Tips
 
 1. Regular Testing
-   - Run automated tests
-   - Perform manual testing
-   - Use staging environment
+    - Run automated tests
+    - Perform manual testing
+    - Use staging environment
 
 2. Monitoring
-   - Set up alerts
-   - Monitor system metrics
-   - Track error rates
+    - Set up alerts
+    - Monitor system metrics
+    - Track error rates
 
 3. Documentation
-   - Keep docs updated
-   - Document known issues
-   - Maintain changelog
+    - Keep docs updated
+    - Document known issues
+    - Maintain changelog

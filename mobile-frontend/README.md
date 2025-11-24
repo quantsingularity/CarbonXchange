@@ -62,7 +62,7 @@ To set up the project locally, you must have Node.js and Expo CLI installed.
 3.  **Configure Backend URL:**
     The API client in `src/services/api.js` is currently hardcoded to a placeholder:
     ```javascript
-    const API_BASE_URL = "http://localhost:3000/api/v1"; // Replace with actual backend URL
+    const API_BASE_URL = 'http://localhost:3000/api/v1'; // Replace with actual backend URL
     ```
     You will need to update this `API_BASE_URL` to point to your running backend server's IP address or domain. For development on a physical device, `localhost` will not work; you must use your computer's local network IP address (e.g., `http://192.168.1.x:3000/api/v1`).
 

@@ -95,7 +95,7 @@ The UI is built using a component-driven approach:
 
 - **Main Layout:** Defined in `App.tsx`, featuring a header with navigation, a main content area, and a footer.
 - **Dashboard:** The primary view is `Dashboard.tsx`, which organizes the main features:
-  - **Market Statistics:** Displayed via the `MarketStats.tsx` component.
-  - **Charts:** Interactive charts for price and volume are implemented in `CarbonPriceChart.tsx` and `TradingVolumeChart.tsx`, utilizing a tabbed interface.
+    - **Market Statistics:** Displayed via the `MarketStats.tsx` component.
+    - **Charts:** Interactive charts for price and volume are implemented in `CarbonPriceChart.tsx` and `TradingVolumeChart.tsx`, utilizing a tabbed interface.
 - **Theming:** The application uses `next-themes` and a `ThemeProvider` (`src/components/theme-provider.tsx`) to support light and dark modes.
 - **UI Primitives:** The `src/components/ui` directory contains a comprehensive set of UI components based on Shadcn/ui, ensuring consistency and accessibility across the application.

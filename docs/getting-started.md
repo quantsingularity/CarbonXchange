@@ -17,92 +17,92 @@ Before you begin, ensure you have the following installed:
 
 1. **Clone the Repository**
 
-   ```bash
-   git clone https://github.com/abrar2030/CarbonExchange.git
-   cd CarbonExchange
-   ```
+    ```bash
+    git clone https://github.com/abrar2030/CarbonExchange.git
+    cd CarbonExchange
+    ```
 
 2. **Environment Configuration**
-   - Copy `.env.example` to `.env`
-   - Update the environment variables with your local settings
+    - Copy `.env.example` to `.env`
+    - Update the environment variables with your local settings
 
-   ```bash
-   cp .env.example .env
-   ```
+    ```bash
+    cp .env.example .env
+    ```
 
 3. **Install Dependencies**
 
-   ```bash
-   # Backend dependencies
-   cd backend
-   npm install
+    ```bash
+    # Backend dependencies
+    cd backend
+    npm install
 
-   # Frontend dependencies
-   cd ../frontend
-   npm install
+    # Frontend dependencies
+    cd ../frontend
+    npm install
 
-   # AI/ML dependencies
-   cd ../ml
-   pip install -r requirements.txt
-   ```
+    # AI/ML dependencies
+    cd ../ml
+    pip install -r requirements.txt
+    ```
 
 4. **Database Setup**
 
-   ```bash
-   # Create database
-   psql -U postgres
-   CREATE DATABASE carbonxchange;
-   ```
+    ```bash
+    # Create database
+    psql -U postgres
+    CREATE DATABASE carbonxchange;
+    ```
 
 5. **Smart Contract Deployment**
-   ```bash
-   cd ../blockchain
-   npm install
-   npx hardhat compile
-   npx hardhat deploy --network localhost
-   ```
+    ```bash
+    cd ../blockchain
+    npm install
+    npx hardhat compile
+    npx hardhat deploy --network localhost
+    ```
 
 ## Running the Application
 
 1. **Start the Backend Server**
 
-   ```bash
-   cd backend
-   npm run dev
-   ```
+    ```bash
+    cd backend
+    npm run dev
+    ```
 
 2. **Start the Frontend Application**
 
-   ```bash
-   cd frontend
-   npm start
-   ```
+    ```bash
+    cd frontend
+    npm start
+    ```
 
 3. **Run AI/ML Services**
-   ```bash
-   cd ml
-   python app.py
-   ```
+    ```bash
+    cd ml
+    python app.py
+    ```
 
 ## Development Workflow
 
 1. Create a new branch for your feature
 
-   ```bash
-   git checkout -b feature/your-feature-name
-   ```
+    ```bash
+    git checkout -b feature/your-feature-name
+    ```
 
 2. Make your changes and commit them
 
-   ```bash
-   git add .
-   git commit -m "Description of your changes"
-   ```
+    ```bash
+    git add .
+    git commit -m "Description of your changes"
+    ```
 
 3. Push your changes and create a pull request
-   ```bash
-   git push origin feature/your-feature-name
-   ```
+    ```bash
+    git push origin feature/your-feature-name
+    ```
 
 ## Testing
 
@@ -113,16 +113,16 @@ Before you begin, ensure you have the following installed:
 ## Common Issues and Solutions
 
 1. **Smart Contract Deployment Failures**
-   - Ensure you have sufficient test ETH in your wallet
-   - Check network configuration in `hardhat.config.js`
+    - Ensure you have sufficient test ETH in your wallet
+    - Check network configuration in `hardhat.config.js`
 
 2. **Database Connection Issues**
-   - Verify PostgreSQL is running
-   - Check database credentials in `.env`
+    - Verify PostgreSQL is running
+    - Check database credentials in `.env`
 
 3. **Frontend Build Errors**
-   - Clear npm cache: `npm cache clean --force`
-   - Delete node_modules and reinstall: `rm -rf node_modules && npm install`
+    - Clear npm cache: `npm cache clean --force`
+    - Delete node_modules and reinstall: `rm -rf node_modules && npm install`
 
 ## Additional Resources
 
