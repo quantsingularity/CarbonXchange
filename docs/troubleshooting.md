@@ -285,27 +285,3 @@ DEBUG=app:* npm start
 # Smart Contracts
 npx hardhat console --verbose
 ```
-
-## Support Channels
-
-1. GitHub Issues
-2. Discord Support Channel
-3. Stack Overflow Tags
-4. Community Forums
-
-## Prevention Tips
-
-1. Regular Testing
-    - Run automated tests
-    - Perform manual testing
-    - Use staging environment
-
-2. Monitoring
-    - Set up alerts
-    - Monitor system metrics
-    - Track error rates
-
-3. Documentation
-    - Keep docs updated
-    - Document known issues
-    - Maintain changelog
