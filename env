@@ -1,0 +1,92 @@
+#
+# CarbonXchange Backend Environment Variables - Development Setup
+#
+# NOTE: This file was generated based on a thorough review of the project's
+# configuration (code/backend/src/config.py) and is intended to be a complete
+# set of variables for a development environment.
+#
+
+# -----------------------------------------------------------------------------
+# 1. APPLICATION & SECURITY
+# -----------------------------------------------------------------------------
+# A secret key for signing session cookies and other security-related needs.
+# Generate a strong, random string for production. Using a simple one for dev.
+SECRET_KEY=dev-secret-key-change-me-in-prod
+# A separate secret key for signing JWT access and refresh tokens.
+# Generate a strong, random string for production. Using a simple one for dev.
+JWT_SECRET_KEY=dev-jwt-secret-key-change-me-in-prod
+# Set the environment mode
+FLASK_ENV=development
+# The base URL for the frontend application to allow CORS requests.
+# Allow all origins for local development
+CORS_ORIGINS=*
+
+# -----------------------------------------------------------------------------
+# 2. DATABASE
+# -----------------------------------------------------------------------------
+# The connection string for the primary application database.
+# Use SQLite for simple local development
+SQLALCHEMY_DATABASE_URI=sqlite:///./database/dev.db
+
+# -----------------------------------------------------------------------------
+# 3. EXTERNAL SERVICES (Redis, Celery, Caching)
+# -----------------------------------------------------------------------------
+# Assuming Redis is running locally on default port
+REDIS_URL=redis://localhost:6379/0
+RATELIMIT_STORAGE_URL=redis://localhost:6379/1
+CELERY_BROKER_URL=redis://localhost:6379/2
+CELERY_RESULT_BACKEND=redis://localhost:6379/3
+CACHE_REDIS_URL=redis://localhost:6379/4
+
+# -----------------------------------------------------------------------------
+# 4. BLOCKCHAIN INTEGRATION
+# -----------------------------------------------------------------------------
+# Disabled in DevelopmentConfig, but variables are included for completeness
+FEATURE_BLOCKCHAIN_INTEGRATION=false
+# The URL for the Web3 provider (e.g., Infura, Alchemy, or a local node).
+WEB3_PROVIDER_URL=
+# The private key for the wallet used by the backend to sign transactions.
+WEB3_PRIVATE_KEY=
+# The chain ID for the target network (e.g., 137 for Polygon Mainnet).
+WEB3_CHAIN_ID=137
+# Smart Contract Addresses
+CARBON_TOKEN_CONTRACT_ADDRESS=
+MARKETPLACE_CONTRACT_ADDRESS=
+REGISTRY_CONTRACT_ADDRESS=
+ESCROW_CONTRACT_ADDRESS=
+
+# -----------------------------------------------------------------------------
+# 5. EMAIL & SMS NOTIFICATIONS
+# -----------------------------------------------------------------------------
+# Standard SMTP Configuration
+MAIL_SERVER=localhost
+MAIL_PORT=1025 # Common port for local mail catchers like MailHog
+MAIL_USE_TLS=false
+MAIL_USE_SSL=false
+MAIL_USERNAME=
+MAIL_PASSWORD=
+MAIL_DEFAULT_SENDER=noreply@carbonxchange.com
+
+# Third-Party Communication Services (Leave blank for development)
+SENDGRID_API_KEY=
+TWILIO_ACCOUNT_SID=
+TWILIO_AUTH_TOKEN=
+TWILIO_PHONE_NUMBER=
+
+# -----------------------------------------------------------------------------
+# 6. MONITORING & LOGGING
+# -----------------------------------------------------------------------------
+# Sentry DSN for error tracking and performance monitoring.
+SENTRY_DSN=
+# Logging level (e.g., DEBUG, INFO, WARNING, ERROR, CRITICAL)
+LOG_LEVEL=DEBUG
+
+# -----------------------------------------------------------------------------
+# 7. FEATURE FLAGS & COMPLIANCE
+# -----------------------------------------------------------------------------
+FEATURE_ADVANCED_ANALYTICS=true
+FEATURE_AUTOMATED_COMPLIANCE=true
+FEATURE_REAL_TIME_NOTIFICATIONS=true
+AML_RISK_THRESHOLD=0.7
+DATA_RETENTION_DAYS=2555
+MARKET_DATA_UPDATE_INTERVAL=60
