@@ -420,8 +420,8 @@ class AdvancedTradingService:
             if len(returns_data) < 2:
                 raise ValueError("Insufficient price history for optimization")
             returns_df = pd.DataFrame(returns_data)
-            expected_returns = returns_df.mean() * 252
-            cov_matrix = returns_df.cov() * 252
+            returns_df.mean() * 252
+            returns_df.cov() * 252
             risk_params = {
                 "conservative": {"max_volatility": 0.1, "min_return": 0.05},
                 "moderate": {"max_volatility": 0.15, "min_return": 0.08},

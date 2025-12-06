@@ -30,13 +30,11 @@ from sklearn.preprocessing import RobustScaler
 from sklearn.svm import SVR
 
 try:
-    pass
     STATSMODELS_AVAILABLE = True
 except ImportError:
     STATSMODELS_AVAILABLE = False
     logging.warning("Statsmodels not available, ARIMA models will be disabled")
 try:
-    pass
     TENSORFLOW_AVAILABLE = True
 except ImportError:
     TENSORFLOW_AVAILABLE = False

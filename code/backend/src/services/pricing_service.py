@@ -612,7 +612,7 @@ class PricingService:
         ema_fast = self._calculate_ema(prices, fast)
         ema_slow = self._calculate_ema(prices, slow)
         macd_line = ema_fast - ema_slow
-        macd_values = np.array([macd_line])
+        np.array([macd_line])
         signal_line = macd_line
         histogram = macd_line - signal_line
         return (float(macd_line), float(signal_line), float(histogram))
