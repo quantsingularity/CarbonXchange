@@ -6,7 +6,6 @@ Implements comprehensive carbon credit and project management with enhanced trad
 import uuid
 from datetime import datetime, timezone
 from enum import Enum
-
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import JSON, Boolean, Column, DateTime
 from sqlalchemy import Enum as SQLEnum
@@ -68,18 +67,16 @@ class CreditStatus(Enum):
 class CreditStandard(Enum):
     """Carbon credit standard enumeration"""
 
-    VCS = "vcs"  # Verified Carbon Standard
-    CDM = "cdm"  # Clean Development Mechanism
+    VCS = "vcs"
+    CDM = "cdm"
     GOLD_STANDARD = "gold_standard"
-    CAR = "car"  # Climate Action Reserve
-    ACR = "acr"  # American Carbon Registry
+    CAR = "car"
+    ACR = "acr"
     PLAN_VIVO = "plan_vivo"
-    CCBS = "ccbs"  # Climate, Community & Biodiversity Standards
+    CCBS = "ccbs"
     REDD_PLUS = "redd_plus"
-    JI = "ji"  # Joint Implementation
-    CORSIA = (
-        "corsia"  # Carbon Offsetting and Reduction Scheme for International Aviation
-    )
+    JI = "ji"
+    CORSIA = "corsia"
 
 
 class VerificationStatus(Enum):
@@ -97,13 +94,10 @@ class CarbonProject(db.Model):
     """Carbon project model representing emission reduction projects"""
 
     __tablename__ = "carbon_projects"
-
     id = Column(Integer, primary_key=True)
     uuid = Column(
         String(36), unique=True, nullable=False, default=lambda: str(uuid.uuid4())
     )
-
-    # Basic project information
     name = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
     project_type = Column(SQLEnum(ProjectType), nullable=False, index=True)
@@ -113,37 +107,25 @@ class CarbonProject(db.Model):
         default=ProjectStatus.DEVELOPMENT,
         index=True,
     )
-
-    # Project identification
-    project_id = Column(
-        String(100), unique=True, nullable=False, index=True
-    )  # External project ID
-    registry_id = Column(String(100), nullable=True, index=True)  # Registry-specific ID
+    project_id = Column(String(100), unique=True, nullable=False, index=True)
+    registry_id = Column(String(100), nullable=True, index=True)
     standard = Column(SQLEnum(CreditStandard), nullable=False, index=True)
-
-    # Location information
-    country = Column(String(3), nullable=False, index=True)  # ISO 3166-1 alpha-3
+    country = Column(String(3), nullable=False, index=True)
     region = Column(String(100), nullable=True)
     latitude = Column(Numeric(10, 8), nullable=True)
     longitude = Column(Numeric(11, 8), nullable=True)
-
-    # Project details
     methodology = Column(String(100), nullable=True)
     baseline_scenario = Column(Text, nullable=True)
     additionality_test = Column(Text, nullable=True)
     monitoring_plan = Column(Text, nullable=True)
-    safeguards = Column(JSON, nullable=True)  # Environmental and social safeguards
-
-    # Capacity and timeline
-    annual_emission_reductions = Column(Numeric(15, 4), nullable=True)  # tCO2e per year
-    total_emission_reductions = Column(Numeric(15, 4), nullable=True)  # Total tCO2e
+    safeguards = Column(JSON, nullable=True)
+    annual_emission_reductions = Column(Numeric(15, 4), nullable=True)
+    total_emission_reductions = Column(Numeric(15, 4), nullable=True)
     actual_reductions_to_date = Column(Numeric(15, 4), nullable=False, default=0)
     project_start_date = Column(DateTime, nullable=True)
     project_end_date = Column(DateTime, nullable=True)
     crediting_period_start = Column(DateTime, nullable=True)
     crediting_period_end = Column(DateTime, nullable=True)
-
-    # Validation and verification
     validation_date = Column(DateTime, nullable=True)
     validator = Column(String(255), nullable=True)
     validation_status = Column(
@@ -159,44 +141,28 @@ class CarbonProject(db.Model):
         default=VerificationStatus.NOT_STARTED,
     )
     next_verification_due = Column(DateTime, nullable=True)
-
-    # Project developer information
     developer_name = Column(String(255), nullable=False)
     developer_contact = Column(String(255), nullable=True)
     developer_website = Column(String(500), nullable=True)
     developer_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
-
-    # Financial information
     project_cost = Column(Numeric(15, 2), nullable=True)
     project_currency = Column(String(3), nullable=False, default="USD")
-    funding_status = Column(
-        String(50), nullable=True
-    )  # funded, seeking_funding, partially_funded
-
-    # Documentation
+    funding_status = Column(String(50), nullable=True)
     project_document_url = Column(String(500), nullable=True)
     monitoring_report_url = Column(String(500), nullable=True)
     validation_report_url = Column(String(500), nullable=True)
     verification_report_url = Column(String(500), nullable=True)
-
-    # Sustainability metrics
-    sdg_contributions = Column(JSON, nullable=True)  # JSON array of SDG goals
-    co_benefits = Column(JSON, nullable=True)  # JSON array of co-benefits
+    sdg_contributions = Column(JSON, nullable=True)
+    co_benefits = Column(JSON, nullable=True)
     biodiversity_impact = Column(Text, nullable=True)
     community_impact = Column(Text, nullable=True)
-
-    # Risk assessment
-    permanence_risk = Column(String(20), nullable=True)  # low, medium, high
-    leakage_risk = Column(String(20), nullable=True)  # low, medium, high
-    additionality_risk = Column(String(20), nullable=True)  # low, medium, high
-    overall_risk_rating = Column(String(20), nullable=True)  # low, medium, high
-
-    # Market information
+    permanence_risk = Column(String(20), nullable=True)
+    leakage_risk = Column(String(20), nullable=True)
+    additionality_risk = Column(String(20), nullable=True)
+    overall_risk_rating = Column(String(20), nullable=True)
     estimated_credit_price = Column(Numeric(10, 2), nullable=True)
     minimum_credit_price = Column(Numeric(10, 2), nullable=True)
     price_currency = Column(String(3), nullable=False, default="USD")
-
-    # Timestamps
     created_at = Column(
         DateTime, nullable=False, default=lambda: datetime.now(timezone.utc), index=True
     )
@@ -206,8 +172,6 @@ class CarbonProject(db.Model):
         default=lambda: datetime.now(timezone.utc),
         onupdate=lambda: datetime.now(timezone.utc),
     )
-
-    # Relationships
     credits = relationship(
         "CarbonCredit", back_populates="project", cascade="all, delete-orphan"
     )
@@ -217,72 +181,74 @@ class CarbonProject(db.Model):
     developer = relationship("User", foreign_keys=[developer_id])
 
     @hybrid_property
-    def is_active(self):
+    def is_active(self) -> Any:
         """Check if project is active"""
         return self.status == ProjectStatus.ACTIVE
 
     @hybrid_property
-    def total_credits_issued(self):
+    def total_credits_issued(self) -> Any:
         """Get total credits issued for this project"""
         return sum(
-            credit.quantity
-            for credit in self.credits
-            if credit.status
-            in [
-                CreditStatus.ISSUED,
-                CreditStatus.AVAILABLE,
-                CreditStatus.TRADED,
-                CreditStatus.RETIRED,
-            ]
+            (
+                credit.quantity
+                for credit in self.credits
+                if credit.status
+                in [
+                    CreditStatus.ISSUED,
+                    CreditStatus.AVAILABLE,
+                    CreditStatus.TRADED,
+                    CreditStatus.RETIRED,
+                ]
+            )
         )
 
     @hybrid_property
-    def available_credits(self):
+    def available_credits(self) -> Any:
         """Get available credits for trading"""
         return sum(
-            credit.quantity
-            for credit in self.credits
-            if credit.status == CreditStatus.AVAILABLE
+            (
+                credit.quantity
+                for credit in self.credits
+                if credit.status == CreditStatus.AVAILABLE
+            )
         )
 
     @hybrid_property
-    def retired_credits(self):
+    def retired_credits(self) -> Any:
         """Get total retired credits"""
         return sum(
-            credit.quantity
-            for credit in self.credits
-            if credit.status == CreditStatus.RETIRED
+            (
+                credit.quantity
+                for credit in self.credits
+                if credit.status == CreditStatus.RETIRED
+            )
         )
 
     @hybrid_property
-    def completion_percentage(self):
+    def completion_percentage(self) -> Any:
         """Get project completion percentage"""
         if not self.total_emission_reductions or self.total_emission_reductions == 0:
             return 0
         return min(
-            100, (self.actual_reductions_to_date / self.total_emission_reductions) * 100
+            100, self.actual_reductions_to_date / self.total_emission_reductions * 100
         )
 
     @hybrid_property
-    def is_verified(self):
+    def is_verified(self) -> Any:
         """Check if project is verified"""
         return self.verification_status == VerificationStatus.VERIFIED
 
-    def update_risk_rating(self):
+    def update_risk_rating(self) -> Any:
         """Update overall risk rating based on individual risk factors"""
         risks = [self.permanence_risk, self.leakage_risk, self.additionality_risk]
         risk_scores = {"low": 1, "medium": 2, "high": 3}
-
-        # Filter out None values and calculate average
         valid_risks = [risk for risk in risks if risk is not None]
         if not valid_risks:
             self.overall_risk_rating = None
             return
-
-        avg_score = sum(risk_scores.get(risk, 2) for risk in valid_risks) / len(
+        avg_score = sum((risk_scores.get(risk, 2) for risk in valid_risks)) / len(
             valid_risks
         )
-
         if avg_score <= 1.5:
             self.overall_risk_rating = "low"
         elif avg_score <= 2.5:
@@ -290,7 +256,7 @@ class CarbonProject(db.Model):
         else:
             self.overall_risk_rating = "high"
 
-    def to_dict(self, include_sensitive=False):
+    def to_dict(self, include_sensitive: Any = False) -> Any:
         """Convert project to dictionary"""
         data = {
             "id": self.id,
@@ -349,7 +315,6 @@ class CarbonProject(db.Model):
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat(),
         }
-
         if include_sensitive:
             data.update(
                 {
@@ -385,10 +350,9 @@ class CarbonProject(db.Model):
                     ),
                 }
             )
-
         return data
 
-    def __repr__(self):
+    def __repr__(self) -> Any:
         return f"<CarbonProject {self.name}>"
 
 
@@ -396,34 +360,23 @@ class CarbonCredit(db.Model):
     """Carbon credit model representing individual credit units"""
 
     __tablename__ = "carbon_credits"
-
     id = Column(Integer, primary_key=True)
     uuid = Column(
         String(36), unique=True, nullable=False, default=lambda: str(uuid.uuid4())
     )
-
-    # Credit identification
     serial_number = Column(String(100), unique=True, nullable=False, index=True)
     batch_id = Column(String(100), nullable=False, index=True)
     project_id = Column(
         Integer, ForeignKey("carbon_projects.id"), nullable=False, index=True
     )
-
-    # Credit details
-    quantity = Column(Numeric(15, 4), nullable=False)  # tCO2e
-    vintage_year = Column(
-        Integer, nullable=False, index=True
-    )  # Year of emission reduction
+    quantity = Column(Numeric(15, 4), nullable=False)
+    vintage_year = Column(Integer, nullable=False, index=True)
     status = Column(
         SQLEnum(CreditStatus), nullable=False, default=CreditStatus.PENDING, index=True
     )
-
-    # Issuance information
     issued_date = Column(DateTime, nullable=True)
-    issued_to = Column(String(255), nullable=True)  # Initial owner
+    issued_to = Column(String(255), nullable=True)
     registry_account = Column(String(100), nullable=True)
-
-    # Current ownership
     current_owner_id = Column(
         Integer, ForeignKey("users.id"), nullable=True, index=True
     )
@@ -431,55 +384,33 @@ class CarbonCredit(db.Model):
         Integer, ForeignKey("users.id"), nullable=True, index=True
     )
     owner_wallet_address = Column(String(42), nullable=True, index=True)
-
-    # Trading information
     is_tradeable = Column(Boolean, nullable=False, default=True)
     last_trade_date = Column(DateTime, nullable=True)
     last_trade_price = Column(Numeric(10, 4), nullable=True)
     last_trade_currency = Column(String(3), nullable=False, default="USD")
-    market_price = Column(Numeric(10, 4), nullable=True)  # Current market price
-    reserve_price = Column(Numeric(10, 4), nullable=True)  # Minimum acceptable price
-
-    # Retirement information
+    market_price = Column(Numeric(10, 4), nullable=True)
+    reserve_price = Column(Numeric(10, 4), nullable=True)
     retired_date = Column(DateTime, nullable=True)
     retired_by_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     retirement_reason = Column(String(255), nullable=True)
     retirement_certificate = Column(String(500), nullable=True)
-    retirement_beneficiary = Column(String(255), nullable=True)  # On behalf of whom
-
-    # Blockchain integration
+    retirement_beneficiary = Column(String(255), nullable=True)
     token_id = Column(String(100), nullable=True, unique=True, index=True)
     blockchain_tx_hash = Column(String(66), nullable=True, index=True)
     smart_contract_address = Column(String(42), nullable=True)
     is_tokenized = Column(Boolean, nullable=False, default=False)
-
-    # Quality attributes
-    buffer_pool_percentage = Column(
-        Numeric(5, 2), nullable=True
-    )  # Risk buffer percentage
+    buffer_pool_percentage = Column(Numeric(5, 2), nullable=True)
     leakage_percentage = Column(Numeric(5, 2), nullable=True)
-    permanence_risk = Column(String(20), nullable=True)  # low, medium, high
+    permanence_risk = Column(String(20), nullable=True)
     additionality_verified = Column(Boolean, nullable=False, default=False)
-
-    # Verification details
     verification_body = Column(String(255), nullable=True)
     verification_date = Column(DateTime, nullable=True)
     verification_report_url = Column(String(500), nullable=True)
-
-    # Expiry and validity
     expiry_date = Column(DateTime, nullable=True)
     valid_from = Column(DateTime, nullable=True)
     valid_until = Column(DateTime, nullable=True)
-
-    # Additional metadata
-    co_benefits = Column(
-        JSON, nullable=True
-    )  # Additional environmental/social benefits
-    compliance_standards = Column(
-        JSON, nullable=True
-    )  # Compliance with various standards
-
-    # Timestamps
+    co_benefits = Column(JSON, nullable=True)
+    compliance_standards = Column(JSON, nullable=True)
     created_at = Column(
         DateTime, nullable=False, default=lambda: datetime.now(timezone.utc), index=True
     )
@@ -489,8 +420,6 @@ class CarbonCredit(db.Model):
         default=lambda: datetime.now(timezone.utc),
         onupdate=lambda: datetime.now(timezone.utc),
     )
-
-    # Relationships
     project = relationship("CarbonProject", back_populates="credits")
     current_owner = relationship("User", foreign_keys=[current_owner_id])
     original_owner = relationship("User", foreign_keys=[original_owner_id])
@@ -503,30 +432,30 @@ class CarbonCredit(db.Model):
     )
 
     @hybrid_property
-    def is_available(self):
+    def is_available(self) -> Any:
         """Check if credit is available for trading"""
         return self.status == CreditStatus.AVAILABLE and self.is_tradeable
 
     @hybrid_property
-    def is_retired(self):
+    def is_retired(self) -> Any:
         """Check if credit is retired"""
         return self.status == CreditStatus.RETIRED
 
     @hybrid_property
-    def is_expired(self):
+    def is_expired(self) -> Any:
         """Check if credit has expired"""
         if self.expiry_date is None:
             return False
         return datetime.now(timezone.utc) > self.expiry_date
 
     @hybrid_property
-    def age_in_years(self):
+    def age_in_years(self) -> Any:
         """Get age of credit in years"""
         current_year = datetime.now(timezone.utc).year
         return current_year - self.vintage_year
 
     @hybrid_property
-    def is_valid(self):
+    def is_valid(self) -> Any:
         """Check if credit is currently valid"""
         now = datetime.now(timezone.utc)
         if self.valid_from and now < self.valid_from:
@@ -535,7 +464,9 @@ class CarbonCredit(db.Model):
             return False
         return not self.is_expired
 
-    def retire(self, retired_by_id, reason=None, beneficiary=None):
+    def retire(
+        self, retired_by_id: Any, reason: Any = None, beneficiary: Any = None
+    ) -> Any:
         """Retire the carbon credit"""
         self.status = CreditStatus.RETIRED
         self.retired_date = datetime.now(timezone.utc)
@@ -543,8 +474,6 @@ class CarbonCredit(db.Model):
         self.retirement_reason = reason
         self.retirement_beneficiary = beneficiary
         self.is_tradeable = False
-
-        # Create retirement transaction
         transaction = CreditTransaction(
             credit_id=self.id,
             transaction_type="retirement",
@@ -558,20 +487,19 @@ class CarbonCredit(db.Model):
         db.session.add(transaction)
 
     def transfer_ownership(
-        self, new_owner_id, transaction_price=None, wallet_address=None
-    ):
+        self,
+        new_owner_id: Any,
+        transaction_price: Any = None,
+        wallet_address: Any = None,
+    ) -> Any:
         """Transfer ownership of the credit"""
         old_owner_id = self.current_owner_id
         self.current_owner_id = new_owner_id
         self.owner_wallet_address = wallet_address
         self.updated_at = datetime.now(timezone.utc)
-
-        # Update last trade information
         if transaction_price:
             self.last_trade_price = transaction_price
             self.last_trade_date = datetime.now(timezone.utc)
-
-        # Create transfer transaction
         transaction = CreditTransaction(
             credit_id=self.id,
             transaction_type="transfer",
@@ -583,12 +511,10 @@ class CarbonCredit(db.Model):
         )
         db.session.add(transaction)
 
-    def lock_credit(self, reason=None):
+    def lock_credit(self, reason: Any = None) -> Any:
         """Lock credit to prevent trading"""
         self.status = CreditStatus.LOCKED
         self.is_tradeable = False
-
-        # Create lock transaction
         transaction = CreditTransaction(
             credit_id=self.id,
             transaction_type="lock",
@@ -601,13 +527,11 @@ class CarbonCredit(db.Model):
         )
         db.session.add(transaction)
 
-    def unlock_credit(self):
+    def unlock_credit(self) -> Any:
         """Unlock credit to allow trading"""
         if self.status == CreditStatus.LOCKED:
             self.status = CreditStatus.AVAILABLE
             self.is_tradeable = True
-
-            # Create unlock transaction
             transaction = CreditTransaction(
                 credit_id=self.id,
                 transaction_type="unlock",
@@ -620,7 +544,7 @@ class CarbonCredit(db.Model):
             )
             db.session.add(transaction)
 
-    def to_dict(self, include_sensitive=False):
+    def to_dict(self, include_sensitive: Any = False) -> Any:
         """Convert credit to dictionary"""
         data = {
             "id": self.id,
@@ -654,7 +578,6 @@ class CarbonCredit(db.Model):
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat(),
         }
-
         if include_sensitive:
             data.update(
                 {
@@ -685,10 +608,9 @@ class CarbonCredit(db.Model):
                     "retirement_beneficiary": self.retirement_beneficiary,
                 }
             )
-
         return data
 
-    def __repr__(self):
+    def __repr__(self) -> Any:
         return f"<CarbonCredit {self.serial_number}>"
 
 
@@ -696,44 +618,27 @@ class CreditTransaction(db.Model):
     """Carbon credit transaction history"""
 
     __tablename__ = "credit_transactions"
-
     id = Column(Integer, primary_key=True)
     uuid = Column(
         String(36), unique=True, nullable=False, default=lambda: str(uuid.uuid4())
     )
-
-    # Credit and transaction details
     credit_id = Column(
         Integer, ForeignKey("carbon_credits.id"), nullable=False, index=True
     )
-    transaction_type = Column(
-        String(50), nullable=False, index=True
-    )  # issuance, transfer, retirement, lock, unlock
-
-    # Parties involved
+    transaction_type = Column(String(50), nullable=False, index=True)
     from_user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
     to_user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
-
-    # Transaction details
     quantity = Column(Numeric(15, 4), nullable=False)
-    price = Column(Numeric(10, 4), nullable=True)  # Price per unit
-    total_amount = Column(Numeric(15, 2), nullable=True)  # Total transaction amount
+    price = Column(Numeric(10, 4), nullable=True)
+    total_amount = Column(Numeric(15, 2), nullable=True)
     currency = Column(String(3), nullable=False, default="USD")
-
-    # Transaction metadata
     transaction_date = Column(
         DateTime, nullable=False, default=lambda: datetime.now(timezone.utc), index=True
     )
     settlement_date = Column(DateTime, nullable=True)
-    transaction_hash = Column(
-        String(66), nullable=True, index=True
-    )  # Blockchain transaction hash
-
-    # Additional information
+    transaction_hash = Column(String(66), nullable=True, index=True)
     notes = Column(Text, nullable=True)
-    external_reference = Column(String(100), nullable=True)  # External system reference
-
-    # Timestamps
+    external_reference = Column(String(100), nullable=True)
     created_at = Column(
         DateTime, nullable=False, default=lambda: datetime.now(timezone.utc)
     )
@@ -743,13 +648,11 @@ class CreditTransaction(db.Model):
         default=lambda: datetime.now(timezone.utc),
         onupdate=lambda: datetime.now(timezone.utc),
     )
-
-    # Relationships
     credit = relationship("CarbonCredit", back_populates="transactions")
     from_user = relationship("User", foreign_keys=[from_user_id])
     to_user = relationship("User", foreign_keys=[to_user_id])
 
-    def to_dict(self):
+    def to_dict(self) -> Any:
         """Convert transaction to dictionary"""
         return {
             "id": self.id,
@@ -772,7 +675,7 @@ class CreditTransaction(db.Model):
             "created_at": self.created_at.isoformat(),
         }
 
-    def __repr__(self):
+    def __repr__(self) -> Any:
         return f"<CreditTransaction {self.uuid}: {self.transaction_type}>"
 
 
@@ -780,54 +683,35 @@ class CreditCertificate(db.Model):
     """Certificate model for carbon credit verification and compliance"""
 
     __tablename__ = "credit_certificates"
-
     id = Column(Integer, primary_key=True)
     uuid = Column(
         String(36), unique=True, nullable=False, default=lambda: str(uuid.uuid4())
     )
-
-    # Certificate identification
     certificate_number = Column(String(100), unique=True, nullable=False, index=True)
-    certificate_type = Column(
-        String(50), nullable=False, index=True
-    )  # verification, validation, issuance, retirement
-
-    # Associated entities
+    certificate_type = Column(String(50), nullable=False, index=True)
     project_id = Column(
         Integer, ForeignKey("carbon_projects.id"), nullable=True, index=True
     )
     credit_id = Column(
         Integer, ForeignKey("carbon_credits.id"), nullable=True, index=True
     )
-
-    # Certificate details
     issuer = Column(String(255), nullable=False)
     issued_date = Column(DateTime, nullable=False)
     valid_from = Column(DateTime, nullable=False)
     valid_until = Column(DateTime, nullable=True)
-
-    # Certificate content
     title = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
     scope = Column(Text, nullable=True)
     methodology_used = Column(String(100), nullable=True)
-
-    # Verification details
     verifier_name = Column(String(255), nullable=True)
     verifier_accreditation = Column(String(100), nullable=True)
     verification_date = Column(DateTime, nullable=True)
     verification_standard = Column(String(100), nullable=True)
-
-    # Document storage
     certificate_document_url = Column(String(500), nullable=True)
-    certificate_hash = Column(String(64), nullable=True)  # SHA-256 hash
-
-    # Status
+    certificate_hash = Column(String(64), nullable=True)
     is_active = Column(Boolean, nullable=False, default=True)
     revoked_date = Column(DateTime, nullable=True)
     revocation_reason = Column(Text, nullable=True)
-
-    # Timestamps
     created_at = Column(
         DateTime, nullable=False, default=lambda: datetime.now(timezone.utc)
     )
@@ -837,13 +721,11 @@ class CreditCertificate(db.Model):
         default=lambda: datetime.now(timezone.utc),
         onupdate=lambda: datetime.now(timezone.utc),
     )
-
-    # Relationships
     project = relationship("CarbonProject", back_populates="certificates")
     credit = relationship("CarbonCredit", back_populates="certificates")
 
     @hybrid_property
-    def is_valid(self):
+    def is_valid(self) -> Any:
         """Check if certificate is currently valid"""
         now = datetime.now(timezone.utc)
         if not self.is_active or self.revoked_date:
@@ -853,20 +735,20 @@ class CreditCertificate(db.Model):
         return now >= self.valid_from
 
     @hybrid_property
-    def days_until_expiry(self):
+    def days_until_expiry(self) -> Any:
         """Get days until certificate expires"""
         if self.valid_until is None:
             return None
         delta = self.valid_until - datetime.now(timezone.utc)
         return delta.days if delta.days > 0 else 0
 
-    def revoke(self, reason):
+    def revoke(self, reason: Any) -> Any:
         """Revoke the certificate"""
         self.is_active = False
         self.revoked_date = datetime.now(timezone.utc)
         self.revocation_reason = reason
 
-    def to_dict(self):
+    def to_dict(self) -> Any:
         """Convert certificate to dictionary"""
         return {
             "id": self.id,

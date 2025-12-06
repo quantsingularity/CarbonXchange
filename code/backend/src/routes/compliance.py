@@ -10,7 +10,7 @@ compliance_bp = Blueprint("compliance", __name__)
 
 @compliance_bp.route("/records", methods=["GET"])
 @jwt_required()
-def get_compliance_records():
+def get_compliance_records() -> Any:
     """Get compliance records"""
     return (
         jsonify(
@@ -22,7 +22,7 @@ def get_compliance_records():
 
 @compliance_bp.route("/reports", methods=["GET"])
 @jwt_required()
-def get_reports():
+def get_reports() -> Any:
     """Get compliance reports"""
     return (
         jsonify(

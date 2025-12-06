@@ -8,7 +8,6 @@ import uuid
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 from enum import Enum
-
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import JSON, Boolean, Column, DateTime
 from sqlalchemy import Enum as SQLEnum
@@ -89,22 +88,16 @@ class User(db.Model):
     """Core user model with authentication and basic information"""
 
     __tablename__ = "users"
-
-    # Primary identification
     id = Column(Integer, primary_key=True)
     uuid = Column(
         String(36), unique=True, nullable=False, default=lambda: str(uuid.uuid4())
     )
     email = Column(String(255), unique=True, nullable=False, index=True)
     password_hash = Column(String(255), nullable=False)
-
-    # Basic information
     first_name = Column(String(100), nullable=False)
     last_name = Column(String(100), nullable=False)
     phone_number = Column(String(20), nullable=True, index=True)
     date_of_birth = Column(DateTime, nullable=True)
-
-    # Account management
     status = Column(
         SQLEnum(UserStatus), nullable=False, default=UserStatus.PENDING, index=True
     )
@@ -113,35 +106,25 @@ class User(db.Model):
     )
     is_verified = Column(Boolean, nullable=False, default=False)
     is_active = Column(Boolean, nullable=False, default=True)
-
-    # Security and authentication
     failed_login_attempts = Column(Integer, nullable=False, default=0)
     last_login_at = Column(DateTime, nullable=True)
-    last_login_ip = Column(String(45), nullable=True)  # IPv6 support
+    last_login_ip = Column(String(45), nullable=True)
     password_changed_at = Column(DateTime, nullable=False, default=datetime.utcnow)
     mfa_enabled = Column(Boolean, nullable=False, default=False)
     mfa_secret = Column(String(32), nullable=True)
-
-    # Timestamps
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow, index=True)
     updated_at = Column(
         DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow
     )
     last_activity_at = Column(DateTime, nullable=True, index=True)
-
-    # Compliance and risk
     risk_level = Column(
         SQLEnum(RiskLevel), nullable=False, default=RiskLevel.MEDIUM, index=True
     )
-    risk_score = Column(Numeric(5, 2), nullable=True)  # 0.00 to 999.99
+    risk_score = Column(Numeric(5, 2), nullable=True)
     risk_last_assessed = Column(DateTime, nullable=True)
-
-    # Account lockout and suspension
     locked_until = Column(DateTime, nullable=True)
     suspension_reason = Column(Text, nullable=True)
     suspension_until = Column(DateTime, nullable=True)
-
-    # Relationships
     profile = relationship(
         "UserProfile",
         back_populates="user",
@@ -158,34 +141,31 @@ class User(db.Model):
         "UserAuditLog", back_populates="user", cascade="all, delete-orphan"
     )
 
-    def __init__(self, email, password, first_name, last_name, **kwargs):
+    def __init__(
+        self, email: Any, password: Any, first_name: Any, last_name: Any, **kwargs
+    ) -> Any:
         self.email = email.lower().strip()
         self.set_password(password)
         self.first_name = first_name.strip()
         self.last_name = last_name.strip()
-
-        # Set optional fields
         for key, value in kwargs.items():
             if hasattr(self, key):
                 setattr(self, key, value)
 
-    def set_password(self, password):
+    def set_password(self, password: Any) -> Any:
         """Set password with security validation"""
         if not self._validate_password(password):
             raise ValueError("Password does not meet security requirements")
-
         self.password_hash = generate_password_hash(
             password, method="pbkdf2:sha256:150000"
         )
         self.password_changed_at = datetime.utcnow()
 
-    def check_password(self, password):
+    def check_password(self, password: Any) -> Any:
         """Check password and handle failed attempts"""
         if self.is_locked:
             return False
-
         is_valid = check_password_hash(self.password_hash, password)
-
         if not is_valid:
             self.failed_login_attempts += 1
             if self.failed_login_attempts >= 5:
@@ -193,87 +173,83 @@ class User(db.Model):
         else:
             self.failed_login_attempts = 0
             self.last_login_at = datetime.utcnow()
-
         return is_valid
 
-    def _validate_password(self, password):
+    def _validate_password(self, password: Any) -> Any:
         """Validate password against security requirements"""
         if len(password) < 8:
             return False
-
-        # Check for uppercase, lowercase, digit, and special character
-        if not re.search(r"[A-Z]", password):
+        if not re.search("[A-Z]", password):
             return False
-        if not re.search(r"[a-z]", password):
+        if not re.search("[a-z]", password):
             return False
-        if not re.search(r"\d", password):
+        if not re.search("\\d", password):
             return False
-        if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
+        if not re.search('[!@#$%^&*(),.?":{}|<>]', password):
             return False
-
         return True
 
     @hybrid_property
-    def is_locked(self):
+    def is_locked(self) -> Any:
         """Check if account is currently locked"""
         if self.locked_until is None:
             return False
         return datetime.utcnow() < self.locked_until
 
     @hybrid_property
-    def is_suspended(self):
+    def is_suspended(self) -> Any:
         """Check if account is currently suspended"""
         if self.suspension_until is None:
             return self.status == UserStatus.SUSPENDED
         return datetime.utcnow() < self.suspension_until
 
     @hybrid_property
-    def full_name(self):
+    def full_name(self) -> Any:
         """Get user's full name"""
         return f"{self.first_name} {self.last_name}"
 
     @hybrid_property
-    def is_kyc_approved(self):
+    def is_kyc_approved(self) -> Any:
         """Check if user has approved KYC"""
         if not self.kyc_records:
             return False
         latest_kyc = max(self.kyc_records, key=lambda x: x.created_at)
         return latest_kyc.status == KYCStatus.APPROVED
 
-    def lock_account(self, duration_minutes=30):
+    def lock_account(self, duration_minutes: Any = 30) -> Any:
         """Lock account for specified duration"""
         self.locked_until = datetime.utcnow() + timedelta(minutes=duration_minutes)
         self.status = UserStatus.LOCKED
 
-    def unlock_account(self):
+    def unlock_account(self) -> Any:
         """Unlock account"""
         self.locked_until = None
         self.failed_login_attempts = 0
         if self.status == UserStatus.LOCKED:
             self.status = UserStatus.ACTIVE
 
-    def suspend_account(self, reason, duration_days=None):
+    def suspend_account(self, reason: Any, duration_days: Any = None) -> Any:
         """Suspend account with reason"""
         self.status = UserStatus.SUSPENDED
         self.suspension_reason = reason
         if duration_days:
             self.suspension_until = datetime.utcnow() + timedelta(days=duration_days)
 
-    def activate_account(self):
+    def activate_account(self) -> Any:
         """Activate account"""
         self.status = UserStatus.ACTIVE
         self.suspension_reason = None
         self.suspension_until = None
         self.locked_until = None
 
-    def update_risk_assessment(self, risk_level, risk_score=None):
+    def update_risk_assessment(self, risk_level: Any, risk_score: Any = None) -> Any:
         """Update user risk assessment"""
         self.risk_level = risk_level
         if risk_score is not None:
             self.risk_score = Decimal(str(risk_score))
         self.risk_last_assessed = datetime.utcnow()
 
-    def to_dict(self, include_sensitive=False):
+    def to_dict(self, include_sensitive: Any = False) -> Any:
         """Convert user to dictionary"""
         data = {
             "id": self.id,
@@ -295,7 +271,6 @@ class User(db.Model):
             ),
             "mfa_enabled": self.mfa_enabled,
         }
-
         if include_sensitive:
             data.update(
                 {
@@ -306,10 +281,9 @@ class User(db.Model):
                     "last_login_ip": self.last_login_ip,
                 }
             )
-
         return data
 
-    def __repr__(self):
+    def __repr__(self) -> Any:
         return f"<User {self.email}>"
 
 
@@ -317,60 +291,39 @@ class UserProfile(db.Model):
     """Extended user profile information"""
 
     __tablename__ = "user_profiles"
-
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False, unique=True)
-
-    # Personal information
     middle_name = Column(String(100), nullable=True)
-    nationality = Column(String(3), nullable=True)  # ISO 3166-1 alpha-3
-    country_of_residence = Column(String(3), nullable=True)  # ISO 3166-1 alpha-3
-
-    # Address information
+    nationality = Column(String(3), nullable=True)
+    country_of_residence = Column(String(3), nullable=True)
     address_line_1 = Column(String(255), nullable=True)
     address_line_2 = Column(String(255), nullable=True)
     city = Column(String(100), nullable=True)
     state_province = Column(String(100), nullable=True)
     postal_code = Column(String(20), nullable=True)
-    country = Column(String(3), nullable=True)  # ISO 3166-1 alpha-3
-
-    # Professional information
+    country = Column(String(3), nullable=True)
     occupation = Column(String(100), nullable=True)
     employer = Column(String(255), nullable=True)
     annual_income = Column(Numeric(15, 2), nullable=True)
     source_of_funds = Column(String(255), nullable=True)
-
-    # Corporate information (for corporate accounts)
     company_name = Column(String(255), nullable=True)
     company_registration_number = Column(String(100), nullable=True)
     company_tax_id = Column(String(100), nullable=True)
     company_incorporation_country = Column(String(3), nullable=True)
     company_business_type = Column(String(100), nullable=True)
-
-    # Trading preferences
-    trading_experience = Column(
-        String(50), nullable=True
-    )  # beginner, intermediate, advanced
+    trading_experience = Column(String(50), nullable=True)
     investment_objectives = Column(Text, nullable=True)
-    risk_tolerance = Column(
-        String(20), nullable=True
-    )  # conservative, moderate, aggressive
-
-    # Communication preferences
-    preferred_language = Column(String(5), nullable=True, default="en")  # ISO 639-1
+    risk_tolerance = Column(String(20), nullable=True)
+    preferred_language = Column(String(5), nullable=True, default="en")
     timezone = Column(String(50), nullable=True, default="UTC")
     marketing_consent = Column(Boolean, nullable=False, default=False)
-
-    # Metadata
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
     updated_at = Column(
         DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow
     )
-
-    # Relationships
     user = relationship("User", back_populates="profile")
 
-    def to_dict(self):
+    def to_dict(self) -> Any:
         """Convert profile to dictionary"""
         return {
             "middle_name": self.middle_name,
@@ -416,84 +369,53 @@ class UserKYC(db.Model):
     """KYC verification records"""
 
     __tablename__ = "user_kyc"
-
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
-
-    # KYC status and workflow
     status = Column(
         SQLEnum(KYCStatus), nullable=False, default=KYCStatus.NOT_STARTED, index=True
     )
-    verification_level = Column(
-        Integer, nullable=False, default=1
-    )  # 1=basic, 2=enhanced, 3=premium
-
-    # Document verification
-    documents_submitted = Column(
-        JSON, nullable=True
-    )  # List of submitted document types
-    documents_verified = Column(JSON, nullable=True)  # List of verified document types
-
-    # Identity verification
+    verification_level = Column(Integer, nullable=False, default=1)
+    documents_submitted = Column(JSON, nullable=True)
+    documents_verified = Column(JSON, nullable=True)
     identity_verified = Column(Boolean, nullable=False, default=False)
     address_verified = Column(Boolean, nullable=False, default=False)
     phone_verified = Column(Boolean, nullable=False, default=False)
     email_verified = Column(Boolean, nullable=False, default=False)
-
-    # Verification details
-    verification_method = Column(
-        String(50), nullable=True
-    )  # manual, automated, third_party
-    verified_by = Column(String(255), nullable=True)  # Staff member or system
+    verification_method = Column(String(50), nullable=True)
+    verified_by = Column(String(255), nullable=True)
     verification_notes = Column(Text, nullable=True)
-
-    # Risk assessment
-    aml_screening_status = Column(
-        String(20), nullable=True
-    )  # clear, flagged, under_review
-    pep_status = Column(
-        Boolean, nullable=False, default=False
-    )  # Politically Exposed Person
-    sanctions_screening = Column(
-        String(20), nullable=True
-    )  # clear, flagged, under_review
-
-    # Dates and expiry
+    aml_screening_status = Column(String(20), nullable=True)
+    pep_status = Column(Boolean, nullable=False, default=False)
+    sanctions_screening = Column(String(20), nullable=True)
     submitted_at = Column(DateTime, nullable=True)
     reviewed_at = Column(DateTime, nullable=True)
     approved_at = Column(DateTime, nullable=True)
     expires_at = Column(DateTime, nullable=True)
-
-    # Rejection details
     rejection_reason = Column(Text, nullable=True)
     rejection_date = Column(DateTime, nullable=True)
-
-    # Metadata
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow, index=True)
     updated_at = Column(
         DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow
     )
-
-    # Relationships
     user = relationship("User", back_populates="kyc_records")
     documents = relationship(
         "KYCDocument", back_populates="kyc_record", cascade="all, delete-orphan"
     )
 
-    def is_expired(self):
+    def is_expired(self) -> Any:
         """Check if KYC verification has expired"""
         if self.expires_at is None:
             return False
         return datetime.utcnow() > self.expires_at
 
-    def days_until_expiry(self):
+    def days_until_expiry(self) -> Any:
         """Get days until KYC expiry"""
         if self.expires_at is None:
             return None
         delta = self.expires_at - datetime.utcnow()
         return delta.days if delta.days > 0 else 0
 
-    def to_dict(self):
+    def to_dict(self) -> Any:
         """Convert KYC record to dictionary"""
         return {
             "id": self.id,
@@ -521,52 +443,39 @@ class KYCDocument(db.Model):
     """KYC document storage and verification"""
 
     __tablename__ = "kyc_documents"
-
     id = Column(Integer, primary_key=True)
     kyc_record_id = Column(
         Integer, ForeignKey("user_kyc.id"), nullable=False, index=True
     )
-
-    # Document information
     document_type = Column(SQLEnum(DocumentType), nullable=False, index=True)
     document_number = Column(String(100), nullable=True)
-    issuing_country = Column(String(3), nullable=True)  # ISO 3166-1 alpha-3
+    issuing_country = Column(String(3), nullable=True)
     issuing_authority = Column(String(255), nullable=True)
     issue_date = Column(DateTime, nullable=True)
     expiry_date = Column(DateTime, nullable=True)
-
-    # File information
     file_path = Column(String(500), nullable=False)
     file_name = Column(String(255), nullable=False)
     file_size = Column(Integer, nullable=False)
-    file_hash = Column(String(64), nullable=False)  # SHA-256 hash
+    file_hash = Column(String(64), nullable=False)
     mime_type = Column(String(100), nullable=False)
-
-    # Verification status
-    verification_status = Column(
-        String(20), nullable=False, default="pending"
-    )  # pending, verified, rejected
+    verification_status = Column(String(20), nullable=False, default="pending")
     verification_notes = Column(Text, nullable=True)
     verified_by = Column(String(255), nullable=True)
     verified_at = Column(DateTime, nullable=True)
-
-    # Metadata
     uploaded_at = Column(DateTime, nullable=False, default=datetime.utcnow, index=True)
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
     updated_at = Column(
         DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow
     )
-
-    # Relationships
     kyc_record = relationship("UserKYC", back_populates="documents")
 
-    def is_expired(self):
+    def is_expired(self) -> Any:
         """Check if document has expired"""
         if self.expiry_date is None:
             return False
         return datetime.utcnow().date() > self.expiry_date.date()
 
-    def to_dict(self):
+    def to_dict(self) -> Any:
         """Convert document to dictionary"""
         return {
             "id": self.id,
@@ -590,39 +499,30 @@ class UserSession(db.Model):
     """User session tracking for security"""
 
     __tablename__ = "user_sessions"
-
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
-
-    # Session information
     session_token = Column(String(255), nullable=False, unique=True, index=True)
     refresh_token = Column(String(255), nullable=True, unique=True, index=True)
     device_fingerprint = Column(String(255), nullable=True)
     user_agent = Column(Text, nullable=True)
-    ip_address = Column(String(45), nullable=False)  # IPv6 support
-
-    # Session status
+    ip_address = Column(String(45), nullable=False)
     is_active = Column(Boolean, nullable=False, default=True)
     expires_at = Column(DateTime, nullable=False, index=True)
-
-    # Metadata
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow, index=True)
     last_activity_at = Column(DateTime, nullable=False, default=datetime.utcnow)
     terminated_at = Column(DateTime, nullable=True)
-
-    # Relationships
     user = relationship("User", back_populates="sessions")
 
-    def is_expired(self):
+    def is_expired(self) -> Any:
         """Check if session has expired"""
         return datetime.utcnow() > self.expires_at
 
-    def terminate(self):
+    def terminate(self) -> Any:
         """Terminate session"""
         self.is_active = False
         self.terminated_at = datetime.utcnow()
 
-    def to_dict(self):
+    def to_dict(self) -> Any:
         """Convert session to dictionary"""
         return {
             "id": self.id,
@@ -641,42 +541,23 @@ class UserAuditLog(db.Model):
     """Comprehensive audit logging for user activities"""
 
     __tablename__ = "user_audit_logs"
-
     id = Column(Integer, primary_key=True)
-    user_id = Column(
-        Integer, ForeignKey("users.id"), nullable=True, index=True
-    )  # Nullable for system events
-
-    # Event information
-    event_type = Column(
-        String(50), nullable=False, index=True
-    )  # login, logout, password_change, etc.
-    event_category = Column(
-        String(30), nullable=False, index=True
-    )  # authentication, profile, trading, etc.
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
+    event_type = Column(String(50), nullable=False, index=True)
+    event_category = Column(String(30), nullable=False, index=True)
     event_description = Column(Text, nullable=False)
-
-    # Request context
     ip_address = Column(String(45), nullable=True)
     user_agent = Column(Text, nullable=True)
     session_id = Column(String(255), nullable=True)
-
-    # Event details
-    old_values = Column(JSON, nullable=True)  # Previous values for changes
-    new_values = Column(JSON, nullable=True)  # New values for changes
-    metadata = Column(JSON, nullable=True)  # Additional event metadata
-
-    # Status and outcome
+    old_values = Column(JSON, nullable=True)
+    new_values = Column(JSON, nullable=True)
+    metadata = Column(JSON, nullable=True)
     success = Column(Boolean, nullable=False, default=True)
     error_message = Column(Text, nullable=True)
-
-    # Timestamp
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow, index=True)
-
-    # Relationships
     user = relationship("User", back_populates="audit_logs")
 
-    def to_dict(self):
+    def to_dict(self) -> Any:
         """Convert audit log to dictionary"""
         return {
             "id": self.id,
@@ -692,12 +573,8 @@ class UserAuditLog(db.Model):
         }
 
     wallet_address = Column(String(42), unique=True, nullable=True, index=True)
-
-    # Account status and role
     status = Column(SQLEnum(UserStatus), nullable=False, default=UserStatus.PENDING)
     role = Column(SQLEnum(UserRole), nullable=False, default=UserRole.INDIVIDUAL)
-
-    # Timestamps
     created_at = Column(
         DateTime, nullable=False, default=lambda: datetime.now(timezone.utc)
     )
@@ -709,20 +586,14 @@ class UserAuditLog(db.Model):
     )
     last_login_at = Column(DateTime, nullable=True)
     email_verified_at = Column(DateTime, nullable=True)
-
-    # Security fields
     failed_login_attempts = Column(Integer, nullable=False, default=0)
     locked_until = Column(DateTime, nullable=True)
     password_changed_at = Column(
         DateTime, nullable=False, default=lambda: datetime.now(timezone.utc)
     )
-
-    # Two-factor authentication
     two_factor_enabled = Column(Boolean, nullable=False, default=False)
     two_factor_secret = Column(String(32), nullable=True)
-    backup_codes = Column(Text, nullable=True)  # JSON array of backup codes
-
-    # Relationships
+    backup_codes = Column(Text, nullable=True)
     profile = relationship(
         "UserProfile",
         back_populates="user",
@@ -733,67 +604,67 @@ class UserAuditLog(db.Model):
         "UserKYC", back_populates="user", uselist=False, cascade="all, delete-orphan"
     )
 
-    def __init__(self, email, password, **kwargs):
+    def __init__(self, email: Any, password: Any, **kwargs) -> Any:
         self.email = email.lower().strip()
         self.set_password(password)
         for key, value in kwargs.items():
             if hasattr(self, key):
                 setattr(self, key, value)
 
-    def set_password(self, password):
+    def set_password(self, password: Any) -> Any:
         """Set password hash"""
         self.password_hash = generate_password_hash(password)
         self.password_changed_at = datetime.now(timezone.utc)
 
-    def check_password(self, password):
+    def check_password(self, password: Any) -> Any:
         """Check password against hash"""
         return check_password_hash(self.password_hash, password)
 
     @hybrid_property
-    def is_active(self):
+    def is_active(self) -> Any:
         """Check if user account is active"""
         return self.status == UserStatus.ACTIVE
 
     @hybrid_property
-    def is_locked(self):
+    def is_locked(self) -> Any:
         """Check if user account is locked"""
         if self.locked_until is None:
             return False
         return datetime.now(timezone.utc) < self.locked_until
 
     @hybrid_property
-    def is_email_verified(self):
+    def is_email_verified(self) -> Any:
         """Check if email is verified"""
         return self.email_verified_at is not None
 
     @hybrid_property
-    def is_kyc_approved(self):
+    def is_kyc_approved(self) -> Any:
         """Check if KYC is approved"""
         return self.kyc and self.kyc.status == KYCStatus.APPROVED
 
-    def lock_account(self, duration_minutes=30):
+    def lock_account(self, duration_minutes: Any = 30) -> Any:
         """Lock user account for specified duration"""
         self.locked_until = datetime.now(timezone.utc) + timedelta(
             minutes=duration_minutes
         )
         self.failed_login_attempts = 0
 
-    def unlock_account(self):
+    def unlock_account(self) -> Any:
         """Unlock user account"""
         self.locked_until = None
         self.failed_login_attempts = 0
 
-    def increment_failed_login(self):
+    def increment_failed_login(self) -> Any:
         """Increment failed login attempts"""
         self.failed_login_attempts += 1
         if self.failed_login_attempts >= 5:
             self.lock_account()
 
-    def reset_failed_login(self):
+    def reset_failed_login(self) -> Any:
         """Reset failed login attempts"""
         self.failed_login_attempts = 0
 
-    def to_dict(self, include_sensitive=False):
+    def to_dict(self, include_sensitive: Any = False) -> Any:
         """Convert user to dictionary"""
         data = {
             "id": self.id,
@@ -811,7 +682,6 @@ class UserAuditLog(db.Model):
             "kyc_approved": self.is_kyc_approved,
             "two_factor_enabled": self.two_factor_enabled,
         }
-
         if include_sensitive:
             data.update(
                 {
@@ -822,10 +692,9 @@ class UserAuditLog(db.Model):
                     "password_changed_at": self.password_changed_at.isoformat(),
                 }
             )
-
         return data
 
-    def __repr__(self):
+    def __repr__(self) -> Any:
         return f"<User {self.email}>"
 
 
@@ -833,44 +702,29 @@ class UserProfile(db.Model):
     """Extended user profile information"""
 
     __tablename__ = "user_profiles"
-
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False, unique=True)
-
-    # Personal information
     first_name = Column(String(100), nullable=True)
     last_name = Column(String(100), nullable=True)
     middle_name = Column(String(100), nullable=True)
     date_of_birth = Column(DateTime, nullable=True)
-    nationality = Column(String(3), nullable=True)  # ISO 3166-1 alpha-3
-
-    # Contact information
+    nationality = Column(String(3), nullable=True)
     phone_number = Column(String(20), nullable=True)
     phone_verified_at = Column(DateTime, nullable=True)
-
-    # Address information
     address_line1 = Column(String(255), nullable=True)
     address_line2 = Column(String(255), nullable=True)
     city = Column(String(100), nullable=True)
     state_province = Column(String(100), nullable=True)
     postal_code = Column(String(20), nullable=True)
-    country = Column(String(3), nullable=True)  # ISO 3166-1 alpha-3
-
-    # Corporate information (for corporate users)
+    country = Column(String(3), nullable=True)
     company_name = Column(String(255), nullable=True)
     company_registration_number = Column(String(100), nullable=True)
     tax_id = Column(String(50), nullable=True)
-
-    # Preferences
     timezone = Column(String(50), nullable=False, default="UTC")
     language = Column(String(5), nullable=False, default="en")
     currency = Column(String(3), nullable=False, default="USD")
-
-    # Marketing preferences
     marketing_emails_enabled = Column(Boolean, nullable=False, default=True)
     trading_notifications_enabled = Column(Boolean, nullable=False, default=True)
-
-    # Timestamps
     created_at = Column(
         DateTime, nullable=False, default=lambda: datetime.now(timezone.utc)
     )
@@ -880,22 +734,20 @@ class UserProfile(db.Model):
         default=lambda: datetime.now(timezone.utc),
         onupdate=lambda: datetime.now(timezone.utc),
     )
-
-    # Relationships
     user = relationship("User", back_populates="profile")
 
     @hybrid_property
-    def full_name(self):
+    def full_name(self) -> Any:
         """Get full name"""
         parts = [self.first_name, self.middle_name, self.last_name]
         return " ".join(filter(None, parts))
 
     @hybrid_property
-    def is_phone_verified(self):
+    def is_phone_verified(self) -> Any:
         """Check if phone is verified"""
         return self.phone_verified_at is not None
 
-    def to_dict(self):
+    def to_dict(self) -> Any:
         """Convert profile to dictionary"""
         return {
             "id": self.id,
@@ -916,7 +768,7 @@ class UserProfile(db.Model):
             "updated_at": self.updated_at.isoformat(),
         }
 
-    def __repr__(self):
+    def __repr__(self) -> Any:
         return f"<UserProfile {self.full_name}>"
 
 
@@ -924,49 +776,30 @@ class UserKYC(db.Model):
     """KYC (Know Your Customer) verification information"""
 
     __tablename__ = "user_kyc"
-
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False, unique=True)
-
-    # KYC status and verification
     status = Column(SQLEnum(KYCStatus), nullable=False, default=KYCStatus.NOT_STARTED)
-    verification_level = Column(Integer, nullable=False, default=0)  # 0-3 levels
-
-    # Document information
-    document_type = Column(
-        String(50), nullable=True
-    )  # passport, driver_license, national_id
+    verification_level = Column(Integer, nullable=False, default=0)
+    document_type = Column(String(50), nullable=True)
     document_number = Column(String(100), nullable=True)
     document_country = Column(String(3), nullable=True)
     document_expiry_date = Column(DateTime, nullable=True)
-
-    # Verification details
     submitted_at = Column(DateTime, nullable=True)
     reviewed_at = Column(DateTime, nullable=True)
     approved_at = Column(DateTime, nullable=True)
     rejected_at = Column(DateTime, nullable=True)
     expires_at = Column(DateTime, nullable=True)
-
-    # Review information
     reviewed_by = Column(Integer, ForeignKey("users.id"), nullable=True)
     rejection_reason = Column(Text, nullable=True)
     notes = Column(Text, nullable=True)
-
-    # Risk assessment
-    risk_score = Column(Integer, nullable=True)  # 0-100
-    risk_level = Column(String(20), nullable=True)  # low, medium, high
-
-    # PEP (Politically Exposed Person) and sanctions screening
+    risk_score = Column(Integer, nullable=True)
+    risk_level = Column(String(20), nullable=True)
     pep_status = Column(Boolean, nullable=False, default=False)
     sanctions_status = Column(Boolean, nullable=False, default=False)
     screening_date = Column(DateTime, nullable=True)
-
-    # Document storage (file paths or external IDs)
     identity_document_path = Column(String(500), nullable=True)
     proof_of_address_path = Column(String(500), nullable=True)
-    additional_documents = Column(Text, nullable=True)  # JSON array
-
-    # Timestamps
+    additional_documents = Column(Text, nullable=True)
     created_at = Column(
         DateTime, nullable=False, default=lambda: datetime.now(timezone.utc)
     )
@@ -976,32 +809,32 @@ class UserKYC(db.Model):
         default=lambda: datetime.now(timezone.utc),
         onupdate=lambda: datetime.now(timezone.utc),
     )
-
-    # Relationships
     user = relationship("User", back_populates="kyc", foreign_keys=[user_id])
     reviewer = relationship("User", foreign_keys=[reviewed_by])
 
     @hybrid_property
-    def is_approved(self):
+    def is_approved(self) -> Any:
         """Check if KYC is approved"""
         return self.status == KYCStatus.APPROVED
 
     @hybrid_property
-    def is_expired(self):
+    def is_expired(self) -> Any:
         """Check if KYC is expired"""
         if self.expires_at is None:
             return False
         return datetime.now(timezone.utc) > self.expires_at
 
     @hybrid_property
-    def days_until_expiry(self):
+    def days_until_expiry(self) -> Any:
         """Get days until KYC expires"""
         if self.expires_at is None:
             return None
         delta = self.expires_at - datetime.now(timezone.utc)
         return delta.days if delta.days > 0 else 0
 
-    def approve(self, reviewer_id, verification_level=1, expires_in_days=365):
+    def approve(
+        self, reviewer_id: Any, verification_level: Any = 1, expires_in_days: Any = 365
+    ) -> Any:
         """Approve KYC verification"""
         self.status = KYCStatus.APPROVED
         self.verification_level = verification_level
@@ -1011,7 +844,7 @@ class UserKYC(db.Model):
         self.expires_at = datetime.now(timezone.utc) + timedelta(days=expires_in_days)
         self.rejection_reason = None
 
-    def reject(self, reviewer_id, reason):
+    def reject(self, reviewer_id: Any, reason: Any) -> Any:
         """Reject KYC verification"""
         self.status = KYCStatus.REJECTED
         self.reviewed_by = reviewer_id
@@ -1019,12 +852,12 @@ class UserKYC(db.Model):
         self.reviewed_at = datetime.now(timezone.utc)
         self.rejection_reason = reason
 
-    def submit_for_review(self):
+    def submit_for_review(self) -> Any:
         """Submit KYC for review"""
         self.status = KYCStatus.PENDING_REVIEW
         self.submitted_at = datetime.now(timezone.utc)
 
-    def to_dict(self, include_sensitive=False):
+    def to_dict(self, include_sensitive: Any = False) -> Any:
         """Convert KYC to dictionary"""
         data = {
             "id": self.id,
@@ -1040,7 +873,6 @@ class UserKYC(db.Model):
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat(),
         }
-
         if include_sensitive:
             data.update(
                 {
@@ -1053,8 +885,7 @@ class UserKYC(db.Model):
                     "notes": self.notes,
                 }
             )
-
         return data
 
-    def __repr__(self):
+    def __repr__(self) -> Any:
         return f"<UserKYC {self.user_id} - {self.status.value}>"

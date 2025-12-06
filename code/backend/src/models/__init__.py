@@ -8,7 +8,6 @@ from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 migrate = Migrate()
-
 from .carbon_credit import (
     CarbonCredit,
     CarbonProject,
@@ -33,9 +32,6 @@ from .trading import (
     TradeStatus,
 )
 from .transaction import AuditLog, Transaction, TransactionLog
-
-# Import enums for external use
-# Import all models to ensure they are registered with SQLAlchemy
 from .user import (
     DocumentType,
     KYCDocument,
@@ -50,7 +46,6 @@ from .user import (
     UserStatus,
 )
 
-# Model registry for dynamic access
 MODEL_REGISTRY = {
     "User": User,
     "UserProfile": UserProfile,
@@ -75,35 +70,34 @@ MODEL_REGISTRY = {
 }
 
 
-def get_model(model_name: str):
+def get_model(model_name: str) -> Any:
     """Get model class by name"""
     return MODEL_REGISTRY.get(model_name)
 
 
-def get_all_models():
+def get_all_models() -> Any:
     """Get all registered models"""
     return MODEL_REGISTRY.values()
 
 
-def setup_model_relationships():
+def setup_model_relationships() -> Any:
     """Setup additional model relationships and constraints"""
-    # Additional relationships can be defined here if needed
 
 
-def create_all_tables(app):
+def create_all_tables(app: Any) -> Any:
     """Create all database tables"""
     with app.app_context():
         db.create_all()
         setup_model_relationships()
 
 
-def drop_all_tables(app):
+def drop_all_tables(app: Any) -> Any:
     """Drop all database tables"""
     with app.app_context():
         db.drop_all()
 
 
-def init_db(app):
+def init_db(app: Any) -> Any:
     """Initialize database with app"""
     db.init_app(app)
     migrate.init_app(app, db)

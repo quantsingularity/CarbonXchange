@@ -6,11 +6,9 @@ Implements comprehensive trading functionality with financial industry standards
 import logging
 from datetime import datetime
 from decimal import Decimal, InvalidOperation
-
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from sqlalchemy import and_, asc, desc, or_
-
 from ..models import db
 from ..models.trading import (
     Order,
@@ -31,8 +29,6 @@ from ..utils import handle_api_error, paginate_query, validate_request_data
 
 logger = logging.getLogger(__name__)
 trading_bp = Blueprint("trading", __name__)
-
-# Initialize services
 trading_service = TradingService()
 risk_service = RiskService()
 compliance_service = ComplianceService()
@@ -41,54 +37,40 @@ audit_service = AuditService()
 
 @trading_bp.route("/orders", methods=["POST"])
 @jwt_required()
-def create_order():
+def create_order() -> Any:
     """Create a new trading order"""
     try:
         user_id = get_jwt_identity()
         data = request.get_json()
-
-        # Validate required fields
         required_fields = ["order_type", "side", "quantity", "credit_type"]
         if not validate_request_data(data, required_fields):
-            return jsonify({"error": "Missing required fields"}), 400
-
-        # Validate order type and side
+            return (jsonify({"error": "Missing required fields"}), 400)
         try:
             order_type = OrderType(data["order_type"])
             side = OrderSide(data["side"])
         except ValueError:
-            return jsonify({"error": "Invalid order type or side"}), 400
-
-        # Validate quantity
+            return (jsonify({"error": "Invalid order type or side"}), 400)
         try:
             quantity = Decimal(str(data["quantity"]))
             if quantity <= 0:
                 raise ValueError("Quantity must be positive")
         except (InvalidOperation, ValueError):
-            return jsonify({"error": "Invalid quantity"}), 400
-
-        # Validate price for limit orders
+            return (jsonify({"error": "Invalid quantity"}), 400)
         price = None
         if order_type in [OrderType.LIMIT, OrderType.STOP_LIMIT]:
             if "price" not in data:
-                return jsonify({"error": "Price required for limit orders"}), 400
+                return (jsonify({"error": "Price required for limit orders"}), 400)
             try:
                 price = Decimal(str(data["price"]))
                 if price <= 0:
                     raise ValueError("Price must be positive")
             except (InvalidOperation, ValueError):
-                return jsonify({"error": "Invalid price"}), 400
-
-        # Risk management checks
+                return (jsonify({"error": "Invalid price"}), 400)
         user = User.query.get(user_id)
         if not user:
-            return jsonify({"error": "User not found"}), 404
-
-        # Check user trading permissions
+            return (jsonify({"error": "User not found"}), 404)
         if not user.is_verified or user.status.value not in ["active"]:
-            return jsonify({"error": "Account not authorized for trading"}), 403
-
-        # Perform risk checks
+            return (jsonify({"error": "Account not authorized for trading"}), 403)
         risk_check = risk_service.check_order_risk(
             user_id,
             {
@@ -99,18 +81,15 @@ def create_order():
                 "credit_type": data["credit_type"],
             },
         )
-
         if not risk_check["approved"]:
             audit_service.log_event(
                 user_id=user_id,
                 event_type="order_rejected",
                 event_category="trading",
-                event_description=f'Order rejected due to risk: {risk_check["reason"]}',
+                event_description=f"Order rejected due to risk: {risk_check['reason']}",
                 success=False,
             )
-            return jsonify({"error": f'Order rejected: {risk_check["reason"]}'}), 400
-
-        # Compliance checks
+            return (jsonify({"error": f"Order rejected: {risk_check['reason']}"}), 400)
         compliance_check = compliance_service.check_order_compliance(
             user_id,
             {
@@ -120,21 +99,18 @@ def create_order():
                 "credit_type": data["credit_type"],
             },
         )
-
         if not compliance_check["approved"]:
             audit_service.log_event(
                 user_id=user_id,
                 event_type="order_rejected",
                 event_category="compliance",
-                event_description=f'Order rejected due to compliance: {compliance_check["reason"]}',
+                event_description=f"Order rejected due to compliance: {compliance_check['reason']}",
                 success=False,
             )
             return (
-                jsonify({"error": f'Order rejected: {compliance_check["reason"]}'}),
+                jsonify({"error": f"Order rejected: {compliance_check['reason']}"}),
                 400,
             )
-
-        # Create order
         order_data = {
             "user_id": user_id,
             "order_type": order_type,
@@ -148,8 +124,6 @@ def create_order():
             "risk_limit_checked": True,
             "compliance_checked": True,
         }
-
-        # Add optional fields
         if "vintage_year" in data:
             order_data["vintage_year"] = data["vintage_year"]
         if "project_id" in data:
@@ -158,20 +132,17 @@ def create_order():
             try:
                 order_data["stop_price"] = Decimal(str(data["stop_price"]))
             except (InvalidOperation, ValueError):
-                return jsonify({"error": "Invalid stop price"}), 400
+                return (jsonify({"error": "Invalid stop price"}), 400)
         if "expires_at" in data:
             try:
                 order_data["expires_at"] = datetime.fromisoformat(
                     data["expires_at"].replace("Z", "+00:00")
                 )
             except ValueError:
-                return jsonify({"error": "Invalid expiry date format"}), 400
-
+                return (jsonify({"error": "Invalid expiry date format"}), 400)
         order = Order(**order_data)
         db.session.add(order)
         db.session.commit()
-
-        # Submit order to trading engine
         try:
             trading_service.submit_order(order)
             order.status = OrderStatus.OPEN
@@ -182,8 +153,6 @@ def create_order():
             order.status = OrderStatus.REJECTED
             order.notes = f"{order.notes or ''}\nRejected: {str(e)}".strip()
             db.session.commit()
-
-        # Log order creation
         audit_service.log_event(
             user_id=user_id,
             event_type="order_created",
@@ -196,14 +165,12 @@ def create_order():
             },
             success=True,
         )
-
         return (
             jsonify(
                 {"message": "Order created successfully", "order": order.to_dict()}
             ),
             201,
         )
-
     except Exception as e:
         logger.error(f"Error creating order: {str(e)}")
         return handle_api_error(e)
@@ -211,47 +178,37 @@ def create_order():
 
 @trading_bp.route("/orders", methods=["GET"])
 @jwt_required()
-def get_orders():
+def get_orders() -> Any:
     """Get user's trading orders with filtering and pagination"""
     try:
         user_id = get_jwt_identity()
-
-        # Build query
         query = Order.query.filter_by(user_id=user_id)
-
-        # Apply filters
         if request.args.get("status"):
             try:
                 status = OrderStatus(request.args.get("status"))
                 query = query.filter(Order.status == status)
             except ValueError:
-                return jsonify({"error": "Invalid status filter"}), 400
-
+                return (jsonify({"error": "Invalid status filter"}), 400)
         if request.args.get("side"):
             try:
                 side = OrderSide(request.args.get("side"))
                 query = query.filter(Order.side == side)
             except ValueError:
-                return jsonify({"error": "Invalid side filter"}), 400
-
+                return (jsonify({"error": "Invalid side filter"}), 400)
         if request.args.get("order_type"):
             try:
                 order_type = OrderType(request.args.get("order_type"))
                 query = query.filter(Order.order_type == order_type)
             except ValueError:
-                return jsonify({"error": "Invalid order type filter"}), 400
-
+                return (jsonify({"error": "Invalid order type filter"}), 400)
         if request.args.get("credit_type"):
             query = query.filter(Order.credit_type == request.args.get("credit_type"))
-
         if request.args.get("vintage_year"):
             try:
                 vintage_year = int(request.args.get("vintage_year"))
                 query = query.filter(Order.vintage_year == vintage_year)
             except ValueError:
-                return jsonify({"error": "Invalid vintage year"}), 400
-
-        # Date range filters
+                return (jsonify({"error": "Invalid vintage year"}), 400)
         if request.args.get("start_date"):
             try:
                 start_date = datetime.fromisoformat(
@@ -259,8 +216,7 @@ def get_orders():
                 )
                 query = query.filter(Order.created_at >= start_date)
             except ValueError:
-                return jsonify({"error": "Invalid start date format"}), 400
-
+                return (jsonify({"error": "Invalid start date format"}), 400)
         if request.args.get("end_date"):
             try:
                 end_date = datetime.fromisoformat(
@@ -268,12 +224,9 @@ def get_orders():
                 )
                 query = query.filter(Order.created_at <= end_date)
             except ValueError:
-                return jsonify({"error": "Invalid end date format"}), 400
-
-        # Sorting
+                return (jsonify({"error": "Invalid end date format"}), 400)
         sort_by = request.args.get("sort_by", "created_at")
         sort_order = request.args.get("sort_order", "desc")
-
         if hasattr(Order, sort_by):
             if sort_order == "asc":
                 query = query.order_by(asc(getattr(Order, sort_by)))
@@ -281,13 +234,9 @@ def get_orders():
                 query = query.order_by(desc(getattr(Order, sort_by)))
         else:
             query = query.order_by(desc(Order.created_at))
-
-        # Pagination
         page = int(request.args.get("page", 1))
         per_page = min(int(request.args.get("per_page", 50)), 100)
-
         paginated_orders = paginate_query(query, page, per_page)
-
         return (
             jsonify(
                 {
@@ -304,7 +253,6 @@ def get_orders():
             ),
             200,
         )
-
     except Exception as e:
         logger.error(f"Error fetching orders: {str(e)}")
         return handle_api_error(e)
@@ -312,22 +260,16 @@ def get_orders():
 
 @trading_bp.route("/orders/<order_id>", methods=["GET"])
 @jwt_required()
-def get_order(order_id):
+def get_order(order_id: Any) -> Any:
     """Get specific order details"""
     try:
         user_id = get_jwt_identity()
-
         order = Order.query.filter_by(order_id=order_id, user_id=user_id).first()
-
         if not order:
-            return jsonify({"error": "Order not found"}), 404
-
-        # Include trades in response
+            return (jsonify({"error": "Order not found"}), 404)
         order_dict = order.to_dict(include_sensitive=True)
         order_dict["trades"] = [trade.to_dict() for trade in order.trades]
-
-        return jsonify({"order": order_dict}), 200
-
+        return (jsonify({"order": order_dict}), 200)
     except Exception as e:
         logger.error(f"Error fetching order {order_id}: {str(e)}")
         return handle_api_error(e)
@@ -335,21 +277,16 @@ def get_order(order_id):
 
 @trading_bp.route("/orders/<order_id>", methods=["PUT"])
 @jwt_required()
-def modify_order(order_id):
+def modify_order(order_id: Any) -> Any:
     """Modify an existing order"""
     try:
         user_id = get_jwt_identity()
         data = request.get_json()
-
         order = Order.query.filter_by(order_id=order_id, user_id=user_id).first()
-
         if not order:
-            return jsonify({"error": "Order not found"}), 404
-
+            return (jsonify({"error": "Order not found"}), 404)
         if not order.is_active:
-            return jsonify({"error": "Cannot modify inactive order"}), 400
-
-        # Only allow modification of certain fields
+            return (jsonify({"error": "Cannot modify inactive order"}), 400)
         modifiable_fields = [
             "quantity",
             "price",
@@ -358,17 +295,16 @@ def modify_order(order_id):
             "expires_at",
             "notes",
         ]
-
         for field in modifiable_fields:
             if field in data:
                 if field in ["quantity", "price", "stop_price"]:
                     try:
                         value = Decimal(str(data[field]))
                         if value <= 0:
-                            return jsonify({"error": f"Invalid {field}"}), 400
+                            return (jsonify({"error": f"Invalid {field}"}), 400)
                         setattr(order, field, value)
                     except (InvalidOperation, ValueError):
-                        return jsonify({"error": f"Invalid {field} format"}), 400
+                        return (jsonify({"error": f"Invalid {field} format"}), 400)
                 elif field == "expires_at":
                     try:
                         value = datetime.fromisoformat(
@@ -376,11 +312,9 @@ def modify_order(order_id):
                         )
                         setattr(order, field, value)
                     except ValueError:
-                        return jsonify({"error": "Invalid expiry date format"}), 400
+                        return (jsonify({"error": "Invalid expiry date format"}), 400)
                 else:
                     setattr(order, field, data[field])
-
-        # Update remaining quantity if quantity changed
         if "quantity" in data:
             order.remaining_quantity = order.quantity - order.filled_quantity
             if order.remaining_quantity <= 0:
@@ -390,10 +324,7 @@ def modify_order(order_id):
                     ),
                     400,
                 )
-
         db.session.commit()
-
-        # Log order modification
         audit_service.log_event(
             user_id=user_id,
             event_type="order_modified",
@@ -402,14 +333,12 @@ def modify_order(order_id):
             metadata={"order_id": order.order_id, "modified_fields": list(data.keys())},
             success=True,
         )
-
         return (
             jsonify(
                 {"message": "Order modified successfully", "order": order.to_dict()}
             ),
             200,
         )
-
     except Exception as e:
         logger.error(f"Error modifying order {order_id}: {str(e)}")
         return handle_api_error(e)
@@ -417,33 +346,23 @@ def modify_order(order_id):
 
 @trading_bp.route("/orders/<order_id>", methods=["DELETE"])
 @jwt_required()
-def cancel_order(order_id):
+def cancel_order(order_id: Any) -> Any:
     """Cancel an existing order"""
     try:
         user_id = get_jwt_identity()
         data = request.get_json() or {}
-
         order = Order.query.filter_by(order_id=order_id, user_id=user_id).first()
-
         if not order:
-            return jsonify({"error": "Order not found"}), 404
-
+            return (jsonify({"error": "Order not found"}), 404)
         if not order.is_active:
-            return jsonify({"error": "Cannot cancel inactive order"}), 400
-
-        # Cancel order
+            return (jsonify({"error": "Cannot cancel inactive order"}), 400)
         reason = data.get("reason", "User requested cancellation")
         order.cancel(reason)
-
-        # Notify trading engine
         try:
             trading_service.cancel_order(order)
         except Exception as e:
             logger.warning(f"Failed to notify trading engine of cancellation: {str(e)}")
-
         db.session.commit()
-
-        # Log order cancellation
         audit_service.log_event(
             user_id=user_id,
             event_type="order_cancelled",
@@ -452,14 +371,12 @@ def cancel_order(order_id):
             metadata={"order_id": order.order_id, "reason": reason},
             success=True,
         )
-
         return (
             jsonify(
                 {"message": "Order cancelled successfully", "order": order.to_dict()}
             ),
             200,
         )
-
     except Exception as e:
         logger.error(f"Error cancelling order {order_id}: {str(e)}")
         return handle_api_error(e)
@@ -467,12 +384,10 @@ def cancel_order(order_id):
 
 @trading_bp.route("/trades", methods=["GET"])
 @jwt_required()
-def get_trades():
+def get_trades() -> Any:
     """Get user's trade history with filtering and pagination"""
     try:
         user_id = get_jwt_identity()
-
-        # Build query for trades where user is buyer or seller
         query = db.session.query(Trade).join(
             Order,
             or_(
@@ -480,23 +395,18 @@ def get_trades():
                 and_(Trade.sell_order_id == Order.id, Order.user_id == user_id),
             ),
         )
-
-        # Apply filters
         if request.args.get("status"):
             try:
                 status = TradeStatus(request.args.get("status"))
                 query = query.filter(Trade.status == status)
             except ValueError:
-                return jsonify({"error": "Invalid status filter"}), 400
-
+                return (jsonify({"error": "Invalid status filter"}), 400)
         if request.args.get("vintage_year"):
             try:
                 vintage_year = int(request.args.get("vintage_year"))
                 query = query.filter(Trade.vintage_year == vintage_year)
             except ValueError:
-                return jsonify({"error": "Invalid vintage year"}), 400
-
-        # Date range filters
+                return (jsonify({"error": "Invalid vintage year"}), 400)
         if request.args.get("start_date"):
             try:
                 start_date = datetime.fromisoformat(
@@ -504,8 +414,7 @@ def get_trades():
                 )
                 query = query.filter(Trade.executed_at >= start_date)
             except ValueError:
-                return jsonify({"error": "Invalid start date format"}), 400
-
+                return (jsonify({"error": "Invalid start date format"}), 400)
         if request.args.get("end_date"):
             try:
                 end_date = datetime.fromisoformat(
@@ -513,12 +422,9 @@ def get_trades():
                 )
                 query = query.filter(Trade.executed_at <= end_date)
             except ValueError:
-                return jsonify({"error": "Invalid end date format"}), 400
-
-        # Sorting
+                return (jsonify({"error": "Invalid end date format"}), 400)
         sort_by = request.args.get("sort_by", "executed_at")
         sort_order = request.args.get("sort_order", "desc")
-
         if hasattr(Trade, sort_by):
             if sort_order == "asc":
                 query = query.order_by(asc(getattr(Trade, sort_by)))
@@ -526,28 +432,19 @@ def get_trades():
                 query = query.order_by(desc(getattr(Trade, sort_by)))
         else:
             query = query.order_by(desc(Trade.executed_at))
-
-        # Pagination
         page = int(request.args.get("page", 1))
         per_page = min(int(request.args.get("per_page", 50)), 100)
-
         paginated_trades = paginate_query(query, page, per_page)
-
-        # Enhance trade data with user perspective
         trades_data = []
         for trade in paginated_trades.items:
             trade_dict = trade.to_dict(include_sensitive=True)
-
-            # Determine if user was buyer or seller
             if trade.buyer_id == user_id:
                 trade_dict["user_side"] = "buy"
                 trade_dict["user_fee"] = float(trade.buyer_fee)
             else:
                 trade_dict["user_side"] = "sell"
                 trade_dict["user_fee"] = float(trade.seller_fee)
-
             trades_data.append(trade_dict)
-
         return (
             jsonify(
                 {
@@ -564,7 +461,6 @@ def get_trades():
             ),
             200,
         )
-
     except Exception as e:
         logger.error(f"Error fetching trades: {str(e)}")
         return handle_api_error(e)
@@ -572,18 +468,14 @@ def get_trades():
 
 @trading_bp.route("/portfolio", methods=["GET"])
 @jwt_required()
-def get_portfolio():
+def get_portfolio() -> Any:
     """Get user's portfolio summary"""
     try:
         user_id = get_jwt_identity()
-
-        # Get or create default portfolio
         portfolio = Portfolio.query.filter_by(
             user_id=user_id, portfolio_type=PortfolioType.TRADING, is_active=True
         ).first()
-
         if not portfolio:
-            # Create default portfolio
             portfolio = Portfolio(
                 user_id=user_id,
                 name="Trading Portfolio",
@@ -591,22 +483,15 @@ def get_portfolio():
             )
             db.session.add(portfolio)
             db.session.commit()
-
-        # Update portfolio valuation
         portfolio.update_valuation()
         db.session.commit()
-
-        # Get portfolio holdings
         holdings = (
             PortfolioHolding.query.filter_by(portfolio_id=portfolio.id)
             .filter(PortfolioHolding.quantity > 0)
             .all()
         )
-
         portfolio_dict = portfolio.to_dict(include_sensitive=True)
         portfolio_dict["holdings"] = [holding.to_dict() for holding in holdings]
-
-        # Calculate additional metrics
         portfolio_dict["metrics"] = {
             "total_holdings": len(holdings),
             "diversification_score": trading_service.calculate_diversification_score(
@@ -616,9 +501,7 @@ def get_portfolio():
                 user_id, portfolio.id
             ),
         }
-
-        return jsonify({"portfolio": portfolio_dict}), 200
-
+        return (jsonify({"portfolio": portfolio_dict}), 200)
     except Exception as e:
         logger.error(f"Error fetching portfolio: {str(e)}")
         return handle_api_error(e)
@@ -626,13 +509,10 @@ def get_portfolio():
 
 @trading_bp.route("/market-data", methods=["GET"])
 @jwt_required()
-def get_market_data():
+def get_market_data() -> Any:
     """Get market data and statistics"""
     try:
-        # Get market statistics
         market_stats = trading_service.get_market_statistics()
-
-        # Get recent trades (public data)
         recent_trades = (
             db.session.query(Trade)
             .filter(Trade.status == TradeStatus.SETTLED)
@@ -640,10 +520,7 @@ def get_market_data():
             .limit(50)
             .all()
         )
-
-        # Get order book summary
         order_book = trading_service.get_order_book_summary()
-
         return (
             jsonify(
                 {
@@ -655,7 +532,6 @@ def get_market_data():
             ),
             200,
         )
-
     except Exception as e:
         logger.error(f"Error fetching market data: {str(e)}")
         return handle_api_error(e)
@@ -663,26 +539,20 @@ def get_market_data():
 
 @trading_bp.route("/price-history", methods=["GET"])
 @jwt_required()
-def get_price_history():
+def get_price_history() -> Any:
     """Get price history for carbon credits"""
     try:
-        # Get query parameters
         credit_type = request.args.get("credit_type")
         vintage_year = request.args.get("vintage_year")
-        period = request.args.get("period", "30d")  # 1d, 7d, 30d, 90d, 1y
-
-        # Validate period
+        period = request.args.get("period", "30d")
         valid_periods = ["1d", "7d", "30d", "90d", "1y"]
         if period not in valid_periods:
-            return jsonify({"error": "Invalid period"}), 400
-
-        # Get price history
+            return (jsonify({"error": "Invalid period"}), 400)
         price_history = trading_service.get_price_history(
             credit_type=credit_type,
             vintage_year=int(vintage_year) if vintage_year else None,
             period=period,
         )
-
         return (
             jsonify(
                 {
@@ -694,7 +564,6 @@ def get_price_history():
             ),
             200,
         )
-
     except Exception as e:
         logger.error(f"Error fetching price history: {str(e)}")
         return handle_api_error(e)
@@ -702,16 +571,12 @@ def get_price_history():
 
 @trading_bp.route("/risk-metrics", methods=["GET"])
 @jwt_required()
-def get_risk_metrics():
+def get_risk_metrics() -> Any:
     """Get user's risk metrics and limits"""
     try:
         user_id = get_jwt_identity()
-
-        # Get risk metrics
         risk_metrics = risk_service.get_user_risk_metrics(user_id)
-
-        return jsonify({"risk_metrics": risk_metrics}), 200
-
+        return (jsonify({"risk_metrics": risk_metrics}), 200)
     except Exception as e:
         logger.error(f"Error fetching risk metrics: {str(e)}")
         return handle_api_error(e)
@@ -719,16 +584,12 @@ def get_risk_metrics():
 
 @trading_bp.route("/compliance-status", methods=["GET"])
 @jwt_required()
-def get_compliance_status():
+def get_compliance_status() -> Any:
     """Get user's compliance status"""
     try:
         user_id = get_jwt_identity()
-
-        # Get compliance status
         compliance_status = compliance_service.get_user_compliance_status(user_id)
-
-        return jsonify({"compliance_status": compliance_status}), 200
-
+        return (jsonify({"compliance_status": compliance_status}), 200)
     except Exception as e:
         logger.error(f"Error fetching compliance status: {str(e)}")
         return handle_api_error(e)

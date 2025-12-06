@@ -11,7 +11,6 @@ import secrets
 import time
 from datetime import datetime
 from typing import Callable, Optional
-
 from flask import current_app, g, jsonify, request
 from flask_jwt_extended import get_jwt, get_jwt_identity, verify_jwt_in_request
 from src.models import db
@@ -34,19 +33,18 @@ class RateLimitExceeded(SecurityError):
     """Raised when rate limit is exceeded"""
 
 
-def require_roles(*roles: UserRole):
+def require_roles(*roles: UserRole) -> Any:
     """Decorator to require specific user roles"""
 
     def decorator(f: Callable) -> Callable:
+
         @functools.wraps(f)
         def decorated_function(*args, **kwargs):
             verify_jwt_in_request()
             current_user_uuid = get_jwt_identity()
-
             user = User.query.filter_by(uuid=current_user_uuid).first()
             if not user:
                 raise Unauthorized("User not found")
-
             if user.role not in roles:
                 logger.warning(
                     f"Access denied for user {user.email} - required roles: {[r.value for r in roles]}, user role: {user.role.value}"
@@ -54,7 +52,6 @@ def require_roles(*roles: UserRole):
                 raise Forbidden(
                     f"Access denied. Required roles: {[r.value for r in roles]}"
                 )
-
             g.current_user = user
             return f(*args, **kwargs)
 
@@ -70,15 +67,12 @@ def require_kyc_approval(f: Callable) -> Callable:
     def decorated_function(*args, **kwargs):
         verify_jwt_in_request()
         current_user_uuid = get_jwt_identity()
-
         user = User.query.filter_by(uuid=current_user_uuid).first()
         if not user:
             raise Unauthorized("User not found")
-
         if not user.is_kyc_approved:
             logger.warning(f"KYC required for user {user.email}")
             raise Forbidden("KYC approval required for this operation")
-
         g.current_user = user
         return f(*args, **kwargs)
 
@@ -92,36 +86,32 @@ def require_active_account(f: Callable) -> Callable:
     def decorated_function(*args, **kwargs):
         verify_jwt_in_request()
         current_user_uuid = get_jwt_identity()
-
         user = User.query.filter_by(uuid=current_user_uuid).first()
         if not user:
             raise Unauthorized("User not found")
-
         if user.status != UserStatus.ACTIVE:
             logger.warning(
                 f"Inactive account access attempt: {user.email} - status: {user.status.value}"
             )
             raise Forbidden(f"Account is {user.status.value}. Please contact support.")
-
         g.current_user = user
         return f(*args, **kwargs)
 
     return decorated_function
 
 
-def audit_log_required(action: AuditAction, resource_type: str):
+def audit_log_required(action: AuditAction, resource_type: str) -> Any:
     """Decorator to automatically log API actions"""
 
     def decorator(f: Callable) -> Callable:
+
         @functools.wraps(f)
         def decorated_function(*args, **kwargs):
             start_time = time.time()
             user_id = None
             outcome = "success"
             error_message = None
-
             try:
-                # Try to get current user if JWT is present
                 try:
                     verify_jwt_in_request(optional=True)
                     current_user_uuid = get_jwt_identity()
@@ -130,23 +120,16 @@ def audit_log_required(action: AuditAction, resource_type: str):
                         if user:
                             user_id = user.id
                 except:
-                    pass  # No JWT or invalid JWT
-
-                # Execute the function
+                    pass
                 result = f(*args, **kwargs)
-
                 return result
-
             except Exception as e:
                 outcome = "failure"
                 error_message = str(e)
                 raise
-
             finally:
-                # Log the action
                 try:
                     response_time_ms = int((time.time() - start_time) * 1000)
-
                     audit_log = AuditLog.log_event(
                         user_id=user_id,
                         action=action,
@@ -165,10 +148,8 @@ def audit_log_required(action: AuditAction, resource_type: str):
                         request_url=request.url,
                         response_time_ms=response_time_ms,
                     )
-
                     db.session.add(audit_log)
                     db.session.commit()
-
                 except Exception as log_error:
                     logger.error(f"Failed to create audit log: {log_error}")
 
@@ -181,50 +162,21 @@ class SecurityHeaders:
     """Security headers middleware"""
 
     @staticmethod
-    def apply_security_headers(response):
+    def apply_security_headers(response: Any) -> Any:
         """Apply security headers to response"""
-        # Prevent clickjacking
         response.headers["X-Frame-Options"] = "DENY"
-
-        # Prevent MIME type sniffing
         response.headers["X-Content-Type-Options"] = "nosniff"
-
-        # Enable XSS protection
         response.headers["X-XSS-Protection"] = "1; mode=block"
-
-        # Strict transport security (HTTPS only)
         if request.is_secure:
             response.headers["Strict-Transport-Security"] = (
                 "max-age=31536000; includeSubDomains"
             )
-
-        # Content Security Policy
-        csp = (
-            "default-src 'self'; "
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval'; "
-            "style-src 'self' 'unsafe-inline'; "
-            "img-src 'self' data: https:; "
-            "font-src 'self' https:; "
-            "connect-src 'self' https:; "
-            "frame-ancestors 'none';"
-        )
+        csp = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' https:; connect-src 'self' https:; frame-ancestors 'none';"
         response.headers["Content-Security-Policy"] = csp
-
-        # Referrer policy
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
-
-        # Permissions policy
         response.headers["Permissions-Policy"] = (
-            "geolocation=(), "
-            "microphone=(), "
-            "camera=(), "
-            "payment=(), "
-            "usb=(), "
-            "magnetometer=(), "
-            "gyroscope=(), "
-            "speaker=()"
+            "geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), speaker=()"
         )
-
         return response
 
 
@@ -237,7 +189,7 @@ class InputValidator:
         import re
 
         uuid_pattern = re.compile(
-            r"^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
             re.IGNORECASE,
         )
         return bool(uuid_pattern.match(uuid_string))
@@ -249,8 +201,7 @@ class InputValidator:
 
         if not address or len(address) != 42:
             return False
-
-        pattern = re.compile(r"^0x[a-fA-F0-9]{40}$")
+        pattern = re.compile("^0x[a-fA-F0-9]{40}$")
         return bool(pattern.match(address))
 
     @staticmethod
@@ -258,13 +209,9 @@ class InputValidator:
         """Sanitize string input"""
         if not input_string:
             return ""
-
-        # Remove null bytes and control characters
         sanitized = "".join(
-            char for char in input_string if ord(char) >= 32 or char in "\t\n\r"
+            (char for char in input_string if ord(char) >= 32 or char in "\t\n\r")
         )
-
-        # Truncate to max length
         return sanitized[:max_length].strip()
 
     @staticmethod
@@ -276,16 +223,11 @@ class InputValidator:
             from decimal import Decimal, InvalidOperation
 
             decimal_value = Decimal(value)
-
-            # Check total digits
             sign, digits, exponent = decimal_value.as_tuple()
             if len(digits) > max_digits:
                 return False
-
-            # Check decimal places
             if exponent < -decimal_places:
                 return False
-
             return True
         except (InvalidOperation, ValueError):
             return False
@@ -304,22 +246,15 @@ class CryptoUtils:
         """Hash sensitive data with salt"""
         if salt is None:
             salt = secrets.token_hex(16)
-
-        # Use PBKDF2 for key derivation
         import base64
-
         from cryptography.hazmat.primitives import hashes
         from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
         kdf = PBKDF2HMAC(
-            algorithm=hashes.SHA256(),
-            length=32,
-            salt=salt.encode(),
-            iterations=100000,
+            algorithm=hashes.SHA256(), length=32, salt=salt.encode(), iterations=100000
         )
-
         key = base64.urlsafe_b64encode(kdf.derive(data.encode()))
-        return key.decode(), salt
+        return (key.decode(), salt)
 
     @staticmethod
     def verify_signature(message: str, signature: str, secret_key: str) -> bool:
@@ -328,7 +263,6 @@ class CryptoUtils:
             expected_signature = hmac.new(
                 secret_key.encode(), message.encode(), hashlib.sha256
             ).hexdigest()
-
             return hmac.compare_digest(signature, expected_signature)
         except Exception:
             return False
@@ -364,8 +298,6 @@ class RiskAssessment:
         geographic_risk: int = 0,
     ) -> int:
         """Calculate transaction risk score (0-100)"""
-
-        # Base risk from amount
         if amount > 100000:
             amount_risk = 30
         elif amount > 50000:
@@ -374,14 +306,8 @@ class RiskAssessment:
             amount_risk = 10
         else:
             amount_risk = 5
-
-        # User history risk (inverse of score)
         user_risk = max(0, 20 - user_history_score)
-
-        # Counterparty risk (inverse of score)
         counterparty_risk = max(0, 20 - counterparty_score)
-
-        # Transaction type risk
         type_risk_map = {
             "deposit": 5,
             "withdrawal": 15,
@@ -391,13 +317,10 @@ class RiskAssessment:
             "retirement": 5,
         }
         type_risk = type_risk_map.get(transaction_type, 10)
-
-        # Calculate total risk
         total_risk = min(
             100,
             amount_risk + user_risk + counterparty_risk + type_risk + geographic_risk,
         )
-
         return total_risk
 
     @staticmethod
@@ -405,20 +328,11 @@ class RiskAssessment:
         user_id: int, ip_address: str, user_agent: str, failed_attempts: int = 0
     ) -> tuple:
         """Assess login risk and return risk level and score"""
-
         risk_score = 0
         risk_factors = []
-
-        # Failed attempts risk
         if failed_attempts > 0:
             risk_score += min(30, failed_attempts * 10)
             risk_factors.append(f"Failed attempts: {failed_attempts}")
-
-        # TODO: Add IP geolocation risk assessment
-        # TODO: Add device fingerprinting
-        # TODO: Add time-based risk (unusual login times)
-
-        # Determine risk level
         if risk_score >= 70:
             risk_level = "critical"
         elif risk_score >= 50:
@@ -427,25 +341,21 @@ class RiskAssessment:
             risk_level = "medium"
         else:
             risk_level = "low"
-
-        return risk_level, risk_score, risk_factors
+        return (risk_level, risk_score, risk_factors)
 
 
 class AdvancedSecurityManager:
     """Advanced security manager for financial applications"""
 
-    def __init__(self, app=None):
+    def __init__(self, app: Any = None) -> Any:
         self.app = app
         self.redis_client = None
-
         if app is not None:
             self.init_app(app)
 
-    def init_app(self, app):
+    def init_app(self, app: Any) -> Any:
         """Initialize advanced security manager"""
         self.app = app
-
-        # Initialize Redis for session management
         try:
             import redis
 
@@ -461,27 +371,20 @@ class AdvancedSecurityManager:
         try:
             import base64
             from io import BytesIO
-
             import pyotp
             import qrcode
 
             secret = pyotp.random_base32()
-
-            # Create TOTP URI
             totp_uri = pyotp.totp.TOTP(secret).provisioning_uri(
                 name=user_email, issuer_name="CarbonXchange"
             )
-
-            # Generate QR code
             qr = qrcode.QRCode(version=1, box_size=10, border=5)
             qr.add_data(totp_uri)
             qr.make(fit=True)
-
             img = qr.make_image(fill_color="black", back_color="white")
             buffer = BytesIO()
             img.save(buffer, format="PNG")
             qr_code_data = base64.b64encode(buffer.getvalue()).decode()
-
             return {
                 "secret": secret,
                 "qr_code": f"data:image/png;base64,{qr_code_data}",
@@ -513,26 +416,15 @@ class AdvancedSecurityManager:
         """Advanced rate limiting with sliding window"""
         if not self.redis_client:
             return True
-
         try:
             now = time.time()
             pipeline = self.redis_client.pipeline()
-
-            # Remove old entries
             pipeline.zremrangebyscore(f"rate_limit:{key}", 0, now - window)
-
-            # Count current requests
             pipeline.zcard(f"rate_limit:{key}")
-
-            # Add current request
             pipeline.zadd(f"rate_limit:{key}", {str(now): now})
-
-            # Set expiry
             pipeline.expire(f"rate_limit:{key}", window)
-
             results = pipeline.execute()
             current_count = results[1]
-
             return current_count < limit
         except Exception as e:
             logger.error(f"Rate limiting error: {e}")
@@ -544,16 +436,10 @@ class AdvancedSecurityManager:
         """Detect anomalous user behavior patterns"""
         if not self.redis_client:
             return {"anomaly_score": 0, "risk_level": "low"}
-
         try:
-            # Get user's historical behavior
             behavior_key = f"user_behavior:{user_id}"
             recent_actions = self.redis_client.lrange(f"{behavior_key}:actions", 0, 99)
-
-            # Calculate anomaly score based on various factors
             anomaly_score = 0
-
-            # Time-based anomalies
             current_hour = datetime.now().hour
             typical_hours = [
                 int(h)
@@ -561,22 +447,16 @@ class AdvancedSecurityManager:
             ]
             if typical_hours and current_hour not in typical_hours:
                 anomaly_score += 20
-
-            # Frequency anomalies
             action_count_today = len(
                 [a for a in recent_actions if action in a.decode()]
             )
-            if action_count_today > 10:  # Threshold for suspicious activity
+            if action_count_today > 10:
                 anomaly_score += 30
-
-            # Geographic anomalies (if IP tracking is available)
             current_ip = request.remote_addr if request else None
             if current_ip:
                 known_ips = self.redis_client.smembers(f"{behavior_key}:ips")
                 if known_ips and current_ip.encode() not in known_ips:
                     anomaly_score += 25
-
-            # Update behavior patterns
             self.redis_client.lpush(
                 f"{behavior_key}:actions", f"{action}:{time.time()}"
             )
@@ -584,8 +464,6 @@ class AdvancedSecurityManager:
             self.redis_client.sadd(f"{behavior_key}:hours", current_hour)
             if current_ip:
                 self.redis_client.sadd(f"{behavior_key}:ips", current_ip)
-
-            # Determine risk level
             if anomaly_score >= 60:
                 risk_level = "critical"
             elif anomaly_score >= 40:
@@ -594,7 +472,6 @@ class AdvancedSecurityManager:
                 risk_level = "medium"
             else:
                 risk_level = "low"
-
             return {
                 "anomaly_score": anomaly_score,
                 "risk_level": risk_level,
@@ -612,45 +489,39 @@ class AdvancedSecurityManager:
             return {"anomaly_score": 0, "risk_level": "low"}
 
 
-# Advanced security decorators
-def require_mfa_verification(f):
+def require_mfa_verification(f: Any) -> Any:
     """Require MFA verification for sensitive operations"""
 
     @functools.wraps(f)
     def decorated_function(*args, **kwargs):
         verify_jwt_in_request()
         claims = get_jwt()
-
         if not claims.get("mfa_verified"):
             return (
                 jsonify({"error": "MFA verification required for this operation"}),
                 403,
             )
-
         return f(*args, **kwargs)
 
     return decorated_function
 
 
-def advanced_rate_limit(limit: int, window: int = 3600):
+def advanced_rate_limit(limit: int, window: int = 3600) -> Any:
     """Advanced rate limiting decorator"""
 
     def decorator(f):
+
         @functools.wraps(f)
         def decorated_function(*args, **kwargs):
-            # Create rate limit key
             key = f"{request.remote_addr}:{request.endpoint}"
-
-            # Check if advanced security manager is available
             security_manager = getattr(current_app, "advanced_security_manager", None)
-            if security_manager and not security_manager.check_rate_limit(
-                key, limit, window
+            if security_manager and (
+                not security_manager.check_rate_limit(key, limit, window)
             ):
                 return (
                     jsonify({"error": "Rate limit exceeded", "retry_after": window}),
                     429,
                 )
-
             return f(*args, **kwargs)
 
         return decorated_function
@@ -658,7 +529,7 @@ def advanced_rate_limit(limit: int, window: int = 3600):
     return decorator
 
 
-def anomaly_detection(f):
+def anomaly_detection(f: Any) -> Any:
     """Anomaly detection decorator"""
 
     @functools.wraps(f)
@@ -667,7 +538,6 @@ def anomaly_detection(f):
             verify_jwt_in_request()
             current_user_uuid = get_jwt_identity()
             user = User.query.filter_by(uuid=current_user_uuid).first()
-
             if user:
                 security_manager = getattr(
                     current_app, "advanced_security_manager", None
@@ -678,14 +548,10 @@ def anomaly_detection(f):
                         request.endpoint or "unknown",
                         {"method": request.method, "ip": request.remote_addr},
                     )
-
-                    # Log high-risk anomalies
                     if anomaly_result["risk_level"] in ["high", "critical"]:
                         logger.warning(
                             f"Anomalous behavior detected for user {user.email}: {anomaly_result}"
                         )
-
-                        # For critical anomalies, require additional verification
                         if anomaly_result["risk_level"] == "critical":
                             return (
                                 jsonify(
@@ -700,25 +566,20 @@ def anomaly_detection(f):
                             )
         except Exception as e:
             logger.error(f"Anomaly detection error: {e}")
-
         return f(*args, **kwargs)
 
     return decorated_function
 
 
-def init_security(app):
+def init_security(app: Any) -> Any:
     """Initialize security features for the Flask app"""
-
-    # Initialize advanced security manager
     advanced_security_manager = AdvancedSecurityManager(app)
     app.advanced_security_manager = advanced_security_manager
 
-    # Apply security headers to all responses
     @app.after_request
     def apply_security_headers(response):
         return SecurityHeaders.apply_security_headers(response)
 
-    # Add security context to requests
     @app.before_request
     def security_context():
         g.request_id = CryptoUtils.generate_secure_token(8)

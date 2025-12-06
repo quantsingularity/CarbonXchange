@@ -6,10 +6,8 @@ Implements comprehensive audit logging for financial industry compliance
 import logging
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
-
 from flask import current_app, request
 from sqlalchemy import and_, desc, or_
-
 from ..models import db
 from ..models.user import UserAuditLog
 
@@ -21,7 +19,7 @@ class AuditService:
     Comprehensive audit service for regulatory compliance and security monitoring
     """
 
-    def __init__(self):
+    def __init__(self) -> Any:
         self.enabled = (
             current_app.config.get("AUDIT_LOG_ENABLED", True) if current_app else True
         )
@@ -61,18 +59,12 @@ class AuditService:
         """
         if not self.enabled:
             return True
-
         try:
-            # Get IP address from request if not provided
             if ip_address is None and request:
                 ip_address = request.environ.get(
                     "HTTP_X_FORWARDED_FOR", request.remote_addr
                 )
-
-            # Get user agent from request
             user_agent = request.headers.get("User-Agent", "") if request else ""
-
-            # Create audit log entry
             audit_log = UserAuditLog(
                 user_id=user_id,
                 event_type=event_type,
@@ -87,23 +79,16 @@ class AuditService:
                 success=success,
                 error_message=error_message,
             )
-
             db.session.add(audit_log)
             db.session.commit()
-
-            # Log to application logger for immediate visibility
             log_level = logging.INFO if success else logging.WARNING
             logger.log(
                 log_level,
-                f"AUDIT: {event_category}.{event_type} - {event_description} "
-                f"(User: {user_id}, IP: {ip_address}, Success: {success})",
+                f"AUDIT: {event_category}.{event_type} - {event_description} (User: {user_id}, IP: {ip_address}, Success: {success})",
             )
-
             return True
-
         except Exception as e:
             logger.error(f"Failed to create audit log: {str(e)}")
-            # Don't raise exception to avoid breaking the main operation
             return False
 
     def log_authentication_event(
@@ -132,11 +117,9 @@ class AuditService:
         description = f"Authentication event: {event_type}"
         if email:
             description += f" for {email}"
-
         event_metadata = metadata or {}
-        if email and not user_id:
+        if email and (not user_id):
             event_metadata["email"] = email
-
         return self.log_event(
             event_type=event_type,
             event_category="authentication",
@@ -168,13 +151,10 @@ class AuditService:
         Returns:
             True if audit log created successfully
         """
-        # Sanitize sensitive data
         sanitized_data = self._sanitize_trading_data(trade_data)
-
         description = f"Trading event: {event_type}"
         if "order_id" in sanitized_data:
             description += f" (Order: {sanitized_data['order_id']})"
-
         return self.log_event(
             event_type=event_type,
             event_category="trading",
@@ -207,7 +187,6 @@ class AuditService:
             True if audit log created successfully
         """
         description = f"Compliance event: {event_type}"
-
         return self.log_event(
             event_type=event_type,
             event_category="compliance",
@@ -239,13 +218,10 @@ class AuditService:
         Returns:
             True if audit log created successfully
         """
-        # Sanitize sensitive KYC data
         sanitized_data = self._sanitize_kyc_data(kyc_data)
-
         description = f"KYC event: {event_type}"
         if "verification_level" in sanitized_data:
             description += f" (Level: {sanitized_data['verification_level']})"
-
         return self.log_event(
             event_type=event_type,
             event_category="kyc",
@@ -284,13 +260,9 @@ class AuditService:
             True if audit log created successfully
         """
         description = f"Data change: {event_type} in {table_name} (ID: {record_id})"
-
-        # Sanitize sensitive data
         sanitized_old = self._sanitize_data_values(old_values)
         sanitized_new = self._sanitize_data_values(new_values)
-
         metadata = {"table_name": table_name, "record_id": record_id}
-
         return self.log_event(
             event_type=event_type,
             event_category="data_change",
@@ -328,7 +300,7 @@ class AuditService:
             event_type=event_type,
             event_category="system",
             event_description=event_description,
-            user_id=None,  # System events don't have a user
+            user_id=None,
             metadata=metadata,
             success=success,
             error_message=error_message,
@@ -363,34 +335,21 @@ class AuditService:
         """
         try:
             query = UserAuditLog.query
-
-            # Apply filters
             if user_id is not None:
                 query = query.filter(UserAuditLog.user_id == user_id)
-
             if event_category:
                 query = query.filter(UserAuditLog.event_category == event_category)
-
             if event_type:
                 query = query.filter(UserAuditLog.event_type == event_type)
-
             if start_date:
                 query = query.filter(UserAuditLog.created_at >= start_date)
-
             if end_date:
                 query = query.filter(UserAuditLog.created_at <= end_date)
-
             if success is not None:
                 query = query.filter(UserAuditLog.success == success)
-
-            # Order by most recent first
             query = query.order_by(desc(UserAuditLog.created_at))
-
-            # Apply pagination
             audit_logs = query.offset(offset).limit(limit).all()
-
             return [log.to_dict() for log in audit_logs]
-
         except Exception as e:
             logger.error(f"Failed to retrieve audit logs: {str(e)}")
             return []
@@ -408,16 +367,12 @@ class AuditService:
         """
         try:
             start_date = datetime.utcnow() - timedelta(days=days)
-
-            # Get total events
             total_events = UserAuditLog.query.filter(
                 and_(
                     UserAuditLog.user_id == user_id,
                     UserAuditLog.created_at >= start_date,
                 )
             ).count()
-
-            # Get events by category
             category_query = (
                 db.session.query(
                     UserAuditLog.event_category,
@@ -432,12 +387,9 @@ class AuditService:
                 .group_by(UserAuditLog.event_category)
                 .all()
             )
-
             events_by_category = {
                 row.event_category: row.count for row in category_query
             }
-
-            # Get failed events
             failed_events = UserAuditLog.query.filter(
                 and_(
                     UserAuditLog.user_id == user_id,
@@ -445,8 +397,6 @@ class AuditService:
                     UserAuditLog.success == False,
                 )
             ).count()
-
-            # Get recent events
             recent_events = (
                 UserAuditLog.query.filter(
                     and_(
@@ -458,7 +408,6 @@ class AuditService:
                 .limit(10)
                 .all()
             )
-
             return {
                 "user_id": user_id,
                 "period_days": days,
@@ -472,7 +421,6 @@ class AuditService:
                 "events_by_category": events_by_category,
                 "recent_events": [event.to_dict() for event in recent_events],
             }
-
         except Exception as e:
             logger.error(f"Failed to get user activity summary: {str(e)}")
             return {
@@ -500,7 +448,6 @@ class AuditService:
         """
         try:
             start_date = datetime.utcnow() - timedelta(hours=hours)
-
             security_categories = ["authentication", "security", "compliance"]
             security_event_types = [
                 "login_failed",
@@ -511,7 +458,6 @@ class AuditService:
                 "account_locked",
                 "unauthorized_access",
             ]
-
             query = UserAuditLog.query.filter(
                 and_(
                     UserAuditLog.created_at >= start_date,
@@ -522,16 +468,12 @@ class AuditService:
                     ),
                 )
             )
-
             if user_id is not None:
                 query = query.filter(UserAuditLog.user_id == user_id)
-
             security_events = (
                 query.order_by(desc(UserAuditLog.created_at)).limit(100).all()
             )
-
             return [event.to_dict() for event in security_events]
-
         except Exception as e:
             logger.error(f"Failed to get security events: {str(e)}")
             return []
@@ -548,23 +490,14 @@ class AuditService:
         """
         try:
             if retention_days is None:
-                retention_days = current_app.config.get(
-                    "DATA_RETENTION_DAYS", 2555
-                )  # 7 years default
-
+                retention_days = current_app.config.get("DATA_RETENTION_DAYS", 2555)
             cutoff_date = datetime.utcnow() - timedelta(days=retention_days)
-
-            # Delete old logs
             deleted_count = UserAuditLog.query.filter(
                 UserAuditLog.created_at < cutoff_date
             ).delete()
-
             db.session.commit()
-
             if deleted_count > 0:
                 logger.info(f"Cleaned up {deleted_count} old audit logs")
-
-                # Log the cleanup operation
                 self.log_system_event(
                     event_type="audit_cleanup",
                     event_description=f"Cleaned up {deleted_count} audit logs older than {retention_days} days",
@@ -573,9 +506,7 @@ class AuditService:
                         "retention_days": retention_days,
                     },
                 )
-
             return deleted_count
-
         except Exception as e:
             logger.error(f"Failed to cleanup old audit logs: {str(e)}")
             return 0
@@ -584,11 +515,9 @@ class AuditService:
         """Sanitize trading data to remove sensitive information"""
         sensitive_fields = ["api_key", "private_key", "password", "secret"]
         sanitized = data.copy()
-
         for field in sensitive_fields:
             if field in sanitized:
                 sanitized[field] = "[REDACTED]"
-
         return sanitized
 
     def _sanitize_kyc_data(self, data: Dict) -> Dict:
@@ -602,16 +531,13 @@ class AuditService:
             "bank_account_number",
         ]
         sanitized = data.copy()
-
         for field in sensitive_fields:
             if field in sanitized:
-                # Keep only last 4 characters for identification
                 value = str(sanitized[field])
                 if len(value) > 4:
                     sanitized[field] = "*" * (len(value) - 4) + value[-4:]
                 else:
                     sanitized[field] = "[REDACTED]"
-
         return sanitized
 
     def _sanitize_data_values(self, data: Dict) -> Dict:
@@ -629,9 +555,7 @@ class AuditService:
             "bank_account_number",
         ]
         sanitized = data.copy()
-
         for field in sensitive_fields:
             if field in sanitized:
                 sanitized[field] = "[REDACTED]"
-
         return sanitized

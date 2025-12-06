@@ -7,7 +7,6 @@ import json
 import uuid
 from datetime import datetime, timezone
 from enum import Enum
-
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Boolean, Column, DateTime
 from sqlalchemy import Enum as SQLEnum
@@ -32,18 +31,16 @@ class ComplianceStatus(Enum):
 class RegulatoryFramework(Enum):
     """Regulatory framework enumeration"""
 
-    EU_ETS = "eu_ets"  # EU Emissions Trading System
-    CORSIA = (
-        "corsia"  # Carbon Offsetting and Reduction Scheme for International Aviation
-    )
+    EU_ETS = "eu_ets"
+    CORSIA = "corsia"
     CALIFORNIA_CAP_TRADE = "california_cap_trade"
-    RGGI = "rggi"  # Regional Greenhouse Gas Initiative
+    RGGI = "rggi"
     MIFID_II = "mifid_ii"
-    SOX = "sox"  # Sarbanes-Oxley Act
+    SOX = "sox"
     PCI_DSS = "pci_dss"
     GDPR = "gdpr"
-    AML_CTF = "aml_ctf"  # Anti-Money Laundering / Counter-Terrorism Financing
-    KYC = "kyc"  # Know Your Customer
+    AML_CTF = "aml_ctf"
+    KYC = "kyc"
 
 
 class ReportType(Enum):
@@ -76,70 +73,43 @@ class ComplianceRecord(db.Model):
     """Compliance record model for tracking compliance status and violations"""
 
     __tablename__ = "compliance_records"
-
     id = Column(Integer, primary_key=True)
     uuid = Column(
         String(36), unique=True, nullable=False, default=lambda: str(uuid.uuid4())
     )
-
-    # Record identification
     record_id = Column(String(50), unique=True, nullable=False)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
-    entity_type = Column(String(50), nullable=False)  # user, transaction, order, trade
+    entity_type = Column(String(50), nullable=False)
     entity_id = Column(String(100), nullable=False)
-
-    # Compliance details
     framework = Column(SQLEnum(RegulatoryFramework), nullable=False)
     rule_reference = Column(String(100), nullable=False)
     rule_description = Column(Text, nullable=False)
-
-    # Status and assessment
     status = Column(SQLEnum(ComplianceStatus), nullable=False)
-    risk_level = Column(
-        String(20), nullable=False, default="low"
-    )  # low, medium, high, critical
-    severity = Column(
-        String(20), nullable=False, default="minor"
-    )  # minor, major, critical
-
-    # Violation details (if applicable)
+    risk_level = Column(String(20), nullable=False, default="low")
+    severity = Column(String(20), nullable=False, default="minor")
     violation_type = Column(String(100), nullable=True)
     violation_description = Column(Text, nullable=True)
     violation_date = Column(DateTime, nullable=True)
-
-    # Assessment details
     assessed_by = Column(Integer, ForeignKey("users.id"), nullable=True)
     assessment_date = Column(
         DateTime, nullable=False, default=lambda: datetime.now(timezone.utc)
     )
     assessment_notes = Column(Text, nullable=True)
-
-    # Remediation
     remediation_required = Column(Boolean, nullable=False, default=False)
     remediation_plan = Column(Text, nullable=True)
     remediation_deadline = Column(DateTime, nullable=True)
     remediation_completed_date = Column(DateTime, nullable=True)
     remediation_notes = Column(Text, nullable=True)
-
-    # Review and approval
     reviewed_by = Column(Integer, ForeignKey("users.id"), nullable=True)
     review_date = Column(DateTime, nullable=True)
     approved_by = Column(Integer, ForeignKey("users.id"), nullable=True)
     approval_date = Column(DateTime, nullable=True)
-
-    # External references
     external_case_id = Column(String(100), nullable=True)
     regulator_reference = Column(String(100), nullable=True)
-
-    # Supporting documentation
-    evidence_documents = Column(Text, nullable=True)  # JSON array of document paths
-    correspondence = Column(Text, nullable=True)  # JSON array of correspondence
-
-    # Financial impact
+    evidence_documents = Column(Text, nullable=True)
+    correspondence = Column(Text, nullable=True)
     financial_impact = Column(Numeric(15, 2), nullable=True)
     currency = Column(String(3), nullable=False, default="USD")
-
-    # Timestamps
     created_at = Column(
         DateTime, nullable=False, default=lambda: datetime.now(timezone.utc)
     )
@@ -151,47 +121,44 @@ class ComplianceRecord(db.Model):
     )
     due_date = Column(DateTime, nullable=True)
     closed_date = Column(DateTime, nullable=True)
-
-    # Relationships
     user = relationship("User", foreign_keys=[user_id])
     assessor = relationship("User", foreign_keys=[assessed_by])
     reviewer = relationship("User", foreign_keys=[reviewed_by])
     approver = relationship("User", foreign_keys=[approved_by])
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> Any:
         super().__init__(**kwargs)
         if not self.record_id:
             self.record_id = f"COMP-{datetime.now().strftime('%Y%m%d')}-{str(uuid.uuid4())[:8].upper()}"
 
     @hybrid_property
-    def is_compliant(self):
+    def is_compliant(self) -> Any:
         """Check if record shows compliance"""
         return self.status == ComplianceStatus.COMPLIANT
 
     @hybrid_property
-    def is_violation(self):
+    def is_violation(self) -> Any:
         """Check if record represents a violation"""
         return self.status == ComplianceStatus.NON_COMPLIANT
 
     @hybrid_property
-    def is_overdue(self):
+    def is_overdue(self) -> Any:
         """Check if remediation is overdue"""
         if not self.remediation_deadline:
             return False
-        return (
-            datetime.now(timezone.utc) > self.remediation_deadline
-            and not self.remediation_completed_date
+        return datetime.now(timezone.utc) > self.remediation_deadline and (
+            not self.remediation_completed_date
         )
 
     @hybrid_property
-    def days_until_due(self):
+    def days_until_due(self) -> Any:
         """Get days until due date"""
         if not self.due_date:
             return None
         delta = self.due_date - datetime.now(timezone.utc)
         return delta.days if delta.days > 0 else 0
 
-    def add_evidence_document(self, document_path, description=None):
+    def add_evidence_document(self, document_path: Any, description: Any = None) -> Any:
         """Add evidence document"""
         documents = (
             json.loads(self.evidence_documents) if self.evidence_documents else []
@@ -204,20 +171,26 @@ class ComplianceRecord(db.Model):
         documents.append(document)
         self.evidence_documents = json.dumps(documents)
 
-    def add_correspondence(self, correspondent, subject, content, direction="outbound"):
+    def add_correspondence(
+        self,
+        correspondent: Any,
+        subject: Any,
+        content: Any,
+        direction: Any = "outbound",
+    ) -> Any:
         """Add correspondence record"""
         correspondence = json.loads(self.correspondence) if self.correspondence else []
         record = {
             "correspondent": correspondent,
             "subject": subject,
             "content": content,
-            "direction": direction,  # inbound, outbound
+            "direction": direction,
             "timestamp": datetime.now(timezone.utc).isoformat(),
         }
         correspondence.append(record)
         self.correspondence = json.dumps(correspondence)
 
-    def complete_remediation(self, notes=None):
+    def complete_remediation(self, notes: Any = None) -> Any:
         """Mark remediation as completed"""
         self.remediation_completed_date = datetime.now(timezone.utc)
         if notes:
@@ -225,7 +198,7 @@ class ComplianceRecord(db.Model):
         if self.status == ComplianceStatus.NON_COMPLIANT:
             self.status = ComplianceStatus.REMEDIATED
 
-    def close_record(self, notes=None):
+    def close_record(self, notes: Any = None) -> Any:
         """Close compliance record"""
         self.closed_date = datetime.now(timezone.utc)
         if notes:
@@ -233,7 +206,7 @@ class ComplianceRecord(db.Model):
                 f"{self.assessment_notes or ''}\nClosed: {notes}".strip()
             )
 
-    def to_dict(self, include_sensitive=False):
+    def to_dict(self, include_sensitive: Any = False) -> Any:
         """Convert compliance record to dictionary"""
         data = {
             "id": self.id,
@@ -257,7 +230,6 @@ class ComplianceRecord(db.Model):
             "due_date": self.due_date.isoformat() if self.due_date else None,
             "closed_date": self.closed_date.isoformat() if self.closed_date else None,
         }
-
         if include_sensitive:
             data.update(
                 {
@@ -280,10 +252,9 @@ class ComplianceRecord(db.Model):
                     ),
                 }
             )
-
         return data
 
-    def __repr__(self):
+    def __repr__(self) -> Any:
         return f"<ComplianceRecord {self.record_id} - {self.framework.value} {self.status.value}>"
 
 
@@ -291,63 +262,40 @@ class RegulatoryReport(db.Model):
     """Regulatory report model for compliance reporting and filings"""
 
     __tablename__ = "regulatory_reports"
-
     id = Column(Integer, primary_key=True)
     uuid = Column(
         String(36), unique=True, nullable=False, default=lambda: str(uuid.uuid4())
     )
-
-    # Report identification
     report_id = Column(String(50), unique=True, nullable=False)
     report_type = Column(SQLEnum(ReportType), nullable=False)
     framework = Column(SQLEnum(RegulatoryFramework), nullable=False)
-
-    # Report details
     title = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
     reporting_period_start = Column(DateTime, nullable=False)
     reporting_period_end = Column(DateTime, nullable=False)
-
-    # Status and workflow
     status = Column(SQLEnum(ReportStatus), nullable=False, default=ReportStatus.DRAFT)
     version = Column(Integer, nullable=False, default=1)
-
-    # Content and data
-    report_data = Column(Text, nullable=True)  # JSON report data
-    summary_statistics = Column(Text, nullable=True)  # JSON summary
-
-    # File attachments
+    report_data = Column(Text, nullable=True)
+    summary_statistics = Column(Text, nullable=True)
     report_file_path = Column(String(500), nullable=True)
-    supporting_documents = Column(Text, nullable=True)  # JSON array
-
-    # Submission details
+    supporting_documents = Column(Text, nullable=True)
     regulator = Column(String(255), nullable=True)
-    submission_method = Column(String(100), nullable=True)  # email, portal, api
+    submission_method = Column(String(100), nullable=True)
     submission_reference = Column(String(100), nullable=True)
-
-    # Workflow tracking
     prepared_by = Column(Integer, ForeignKey("users.id"), nullable=False)
     reviewed_by = Column(Integer, ForeignKey("users.id"), nullable=True)
     approved_by = Column(Integer, ForeignKey("users.id"), nullable=True)
     submitted_by = Column(Integer, ForeignKey("users.id"), nullable=True)
-
-    # Important dates
     due_date = Column(DateTime, nullable=False)
     review_date = Column(DateTime, nullable=True)
     approval_date = Column(DateTime, nullable=True)
     submission_date = Column(DateTime, nullable=True)
     acknowledgment_date = Column(DateTime, nullable=True)
-
-    # Quality and validation
-    validation_errors = Column(Text, nullable=True)  # JSON array of errors
-    validation_warnings = Column(Text, nullable=True)  # JSON array of warnings
-    data_quality_score = Column(Numeric(5, 2), nullable=True)  # 0-100
-
-    # External references
+    validation_errors = Column(Text, nullable=True)
+    validation_warnings = Column(Text, nullable=True)
+    data_quality_score = Column(Numeric(5, 2), nullable=True)
     external_report_id = Column(String(100), nullable=True)
     regulator_case_id = Column(String(100), nullable=True)
-
-    # Timestamps
     created_at = Column(
         DateTime, nullable=False, default=lambda: datetime.now(timezone.utc)
     )
@@ -357,20 +305,18 @@ class RegulatoryReport(db.Model):
         default=lambda: datetime.now(timezone.utc),
         onupdate=lambda: datetime.now(timezone.utc),
     )
-
-    # Relationships
     preparer = relationship("User", foreign_keys=[prepared_by])
     reviewer = relationship("User", foreign_keys=[reviewed_by])
     approver = relationship("User", foreign_keys=[approved_by])
     submitter = relationship("User", foreign_keys=[submitted_by])
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> Any:
         super().__init__(**kwargs)
         if not self.report_id:
             self.report_id = f"RPT-{datetime.now().strftime('%Y%m%d')}-{str(uuid.uuid4())[:8].upper()}"
 
     @hybrid_property
-    def is_overdue(self):
+    def is_overdue(self) -> Any:
         """Check if report is overdue"""
         return datetime.now(timezone.utc) > self.due_date and self.status not in [
             ReportStatus.SUBMITTED,
@@ -378,25 +324,27 @@ class RegulatoryReport(db.Model):
         ]
 
     @hybrid_property
-    def days_until_due(self):
+    def days_until_due(self) -> Any:
         """Get days until due date"""
         delta = self.due_date - datetime.now(timezone.utc)
         return delta.days if delta.days > 0 else 0
 
     @hybrid_property
-    def is_submitted(self):
+    def is_submitted(self) -> Any:
         """Check if report is submitted"""
         return self.status in [ReportStatus.SUBMITTED, ReportStatus.ACKNOWLEDGED]
 
     @hybrid_property
-    def has_validation_errors(self):
+    def has_validation_errors(self) -> Any:
         """Check if report has validation errors"""
         if not self.validation_errors:
             return False
         errors = json.loads(self.validation_errors)
         return len(errors) > 0
 
-    def add_validation_error(self, field, message, severity="error"):
+    def add_validation_error(
+        self, field: Any, message: Any, severity: Any = "error"
+    ) -> Any:
         """Add validation error"""
         errors = json.loads(self.validation_errors) if self.validation_errors else []
         error = {
@@ -408,7 +356,9 @@ class RegulatoryReport(db.Model):
         errors.append(error)
         self.validation_errors = json.dumps(errors)
 
-    def add_supporting_document(self, document_path, document_type, description=None):
+    def add_supporting_document(
+        self, document_path: Any, document_type: Any, description: Any = None
+    ) -> Any:
         """Add supporting document"""
         documents = (
             json.loads(self.supporting_documents) if self.supporting_documents else []
@@ -422,7 +372,7 @@ class RegulatoryReport(db.Model):
         documents.append(document)
         self.supporting_documents = json.dumps(documents)
 
-    def submit(self, submitted_by_id, submission_reference=None):
+    def submit(self, submitted_by_id: Any, submission_reference: Any = None) -> Any:
         """Submit report to regulator"""
         self.status = ReportStatus.SUBMITTED
         self.submitted_by = submitted_by_id
@@ -430,20 +380,20 @@ class RegulatoryReport(db.Model):
         if submission_reference:
             self.submission_reference = submission_reference
 
-    def acknowledge(self, acknowledgment_reference=None):
+    def acknowledge(self, acknowledgment_reference: Any = None) -> Any:
         """Mark report as acknowledged by regulator"""
         self.status = ReportStatus.ACKNOWLEDGED
         self.acknowledgment_date = datetime.now(timezone.utc)
         if acknowledgment_reference:
             self.regulator_case_id = acknowledgment_reference
 
-    def reject(self, reason=None):
+    def reject(self, reason: Any = None) -> Any:
         """Mark report as rejected"""
         self.status = ReportStatus.REJECTED
         if reason:
             self.add_validation_error("general", f"Report rejected: {reason}", "error")
 
-    def to_dict(self, include_sensitive=False):
+    def to_dict(self, include_sensitive: Any = False) -> Any:
         """Convert report to dictionary"""
         data = {
             "id": self.id,
@@ -476,7 +426,6 @@ class RegulatoryReport(db.Model):
                 else None
             ),
         }
-
         if include_sensitive:
             data.update(
                 {
@@ -512,8 +461,7 @@ class RegulatoryReport(db.Model):
                     "regulator_case_id": self.regulator_case_id,
                 }
             )
-
         return data
 
-    def __repr__(self):
+    def __repr__(self) -> Any:
         return f"<RegulatoryReport {self.report_id} - {self.report_type.value} {self.status.value}>"

@@ -8,12 +8,10 @@ import logging
 import secrets
 from datetime import datetime, timedelta
 from typing import Any, Dict, Optional
-
 import pyotp
 import redis
 from flask import current_app, request
 from flask_jwt_extended import create_access_token, create_refresh_token, decode_token
-
 from ..models import db
 from ..models.user import User, UserSession, UserStatus
 from .audit_service import AuditService
@@ -34,12 +32,12 @@ class AuthService:
     Comprehensive authentication service implementing financial industry security standards
     """
 
-    def __init__(self):
+    def __init__(self) -> Any:
         self.redis_client = None
         self.audit_service = AuditService()
         self._init_redis()
 
-    def _init_redis(self):
+    def _init_redis(self) -> Any:
         """Initialize Redis connection for session management"""
         try:
             redis_url = current_app.config.get("REDIS_URL")
@@ -76,7 +74,6 @@ class AuthService:
             AuthenticationError: If registration fails
         """
         try:
-            # Validate email uniqueness
             existing_user = User.query.filter_by(email=email.lower().strip()).first()
             if existing_user:
                 self.audit_service.log_event(
@@ -88,8 +85,6 @@ class AuthService:
                     error_message="Email already registered",
                 )
                 raise AuthenticationError("Email address is already registered")
-
-            # Create new user
             user = User(
                 email=email,
                 password=password,
@@ -98,25 +93,16 @@ class AuthService:
                 phone_number=phone_number,
                 **kwargs,
             )
-
-            # Set initial status based on configuration
             if current_app.config.get("KYC_VERIFICATION_REQUIRED", True):
                 user.status = UserStatus.PENDING
             else:
                 user.status = UserStatus.ACTIVE
                 user.is_verified = True
-
             db.session.add(user)
             db.session.commit()
-
-            # Generate tokens
             access_token = self._create_access_token(user)
             refresh_token = self._create_refresh_token(user)
-
-            # Create session record
             session = self._create_session(user, access_token, refresh_token)
-
-            # Log successful registration
             self.audit_service.log_event(
                 user_id=user.id,
                 event_type="user_registered",
@@ -126,9 +112,7 @@ class AuthService:
                 session_id=session.session_token,
                 success=True,
             )
-
             logger.info(f"New user registered: {user.email}")
-
             return {
                 "user": user.to_dict(),
                 "access_token": access_token,
@@ -138,7 +122,6 @@ class AuthService:
                     "JWT_ACCESS_TOKEN_EXPIRES"
                 ].total_seconds(),
             }
-
         except AuthenticationError:
             raise
         except Exception as e:
@@ -164,7 +147,6 @@ class AuthService:
             AuthenticationError: If authentication fails
         """
         try:
-            # Find user by email
             user = User.query.filter_by(email=email.lower().strip()).first()
             if not user:
                 self.audit_service.log_event(
@@ -176,8 +158,6 @@ class AuthService:
                     error_message="Invalid credentials",
                 )
                 raise AuthenticationError("Invalid email or password")
-
-            # Check account status
             if user.status in [UserStatus.SUSPENDED, UserStatus.CLOSED]:
                 self.audit_service.log_event(
                     user_id=user.id,
@@ -189,8 +169,6 @@ class AuthService:
                     error_message=f"Account is {user.status.value}",
                 )
                 raise AuthenticationError(f"Account is {user.status.value}")
-
-            # Check if account is locked
             if user.is_locked:
                 self.audit_service.log_event(
                     user_id=user.id,
@@ -204,8 +182,6 @@ class AuthService:
                 raise AuthenticationError(
                     "Account is temporarily locked due to multiple failed login attempts"
                 )
-
-            # Verify password
             if not user.check_password(password):
                 self.audit_service.log_event(
                     user_id=user.id,
@@ -216,14 +192,11 @@ class AuthService:
                     success=False,
                     error_message="Invalid credentials",
                 )
-                db.session.commit()  # Save failed attempt count
+                db.session.commit()
                 raise AuthenticationError("Invalid email or password")
-
-            # Check MFA if enabled
             if user.mfa_enabled:
                 if not mfa_code:
                     raise AuthenticationError("MFA code required")
-
                 if not self._verify_mfa_code(user, mfa_code):
                     self.audit_service.log_event(
                         user_id=user.id,
@@ -235,23 +208,14 @@ class AuthService:
                         error_message="Invalid MFA code",
                     )
                     raise AuthenticationError("Invalid MFA code")
-
-            # Update user login information
             user.last_login_at = datetime.utcnow()
             user.last_login_ip = self._get_client_ip()
             user.last_activity_at = datetime.utcnow()
             user.failed_login_attempts = 0
-
-            # Generate tokens
             access_token = self._create_access_token(user)
             refresh_token = self._create_refresh_token(user)
-
-            # Create session record
             session = self._create_session(user, access_token, refresh_token)
-
             db.session.commit()
-
-            # Log successful login
             self.audit_service.log_event(
                 user_id=user.id,
                 event_type="login_success",
@@ -261,9 +225,7 @@ class AuthService:
                 session_id=session.session_token,
                 success=True,
             )
-
             logger.info(f"User logged in: {user.email}")
-
             return {
                 "user": user.to_dict(),
                 "access_token": access_token,
@@ -274,7 +236,6 @@ class AuthService:
                 ].total_seconds(),
                 "mfa_enabled": user.mfa_enabled,
             }
-
         except AuthenticationError:
             raise
         except Exception as e:
@@ -295,41 +256,26 @@ class AuthService:
             AuthenticationError: If refresh fails
         """
         try:
-            # Decode refresh token
             decoded_token = decode_token(refresh_token)
             user_id = decoded_token["sub"]
-
-            # Find user
             user = User.query.get(user_id)
             if not user or not user.is_active:
                 raise AuthenticationError("Invalid refresh token")
-
-            # Find session
             session = UserSession.query.filter_by(
                 user_id=user.id, refresh_token=refresh_token, is_active=True
             ).first()
-
             if not session or session.is_expired():
                 raise AuthenticationError("Invalid or expired refresh token")
-
-            # Generate new tokens
             new_access_token = self._create_access_token(user)
             new_refresh_token = self._create_refresh_token(user)
-
-            # Update session
             session.session_token = self._generate_session_token()
             session.refresh_token = new_refresh_token
             session.last_activity_at = datetime.utcnow()
             session.expires_at = (
                 datetime.utcnow() + current_app.config["JWT_REFRESH_TOKEN_EXPIRES"]
             )
-
-            # Update user activity
             user.last_activity_at = datetime.utcnow()
-
             db.session.commit()
-
-            # Log token refresh
             self.audit_service.log_event(
                 user_id=user.id,
                 event_type="token_refreshed",
@@ -339,7 +285,6 @@ class AuthService:
                 session_id=session.session_token,
                 success=True,
             )
-
             return {
                 "access_token": new_access_token,
                 "refresh_token": new_refresh_token,
@@ -348,7 +293,6 @@ class AuthService:
                     "JWT_ACCESS_TOKEN_EXPIRES"
                 ].total_seconds(),
             }
-
         except Exception as e:
             logger.error(f"Token refresh error: {str(e)}")
             raise AuthenticationError("Token refresh failed")
@@ -368,26 +312,19 @@ class AuthService:
             user = User.query.get(user_id)
             if not user:
                 return False
-
-            # Find and terminate sessions
             if session_token:
-                # Logout specific session
                 session = UserSession.query.filter_by(
                     user_id=user_id, session_token=session_token, is_active=True
                 ).first()
                 if session:
                     session.terminate()
             else:
-                # Logout all sessions
                 sessions = UserSession.query.filter_by(
                     user_id=user_id, is_active=True
                 ).all()
                 for session in sessions:
                     session.terminate()
-
             db.session.commit()
-
-            # Log logout
             self.audit_service.log_event(
                 user_id=user.id,
                 event_type="logout",
@@ -397,10 +334,8 @@ class AuthService:
                 session_id=session_token,
                 success=True,
             )
-
             logger.info(f"User logged out: {user.email}")
             return True
-
         except Exception as e:
             logger.error(f"Logout error: {str(e)}")
             return False
@@ -419,18 +354,11 @@ class AuthService:
             user = User.query.get(user_id)
             if not user:
                 raise AuthenticationError("User not found")
-
-            # Generate MFA secret
             secret = pyotp.random_base32()
             user.mfa_secret = secret
-
-            # Generate QR code URL
             totp = pyotp.TOTP(secret)
             qr_url = totp.provisioning_uri(name=user.email, issuer_name="CarbonXchange")
-
             db.session.commit()
-
-            # Log MFA setup
             self.audit_service.log_event(
                 user_id=user.id,
                 event_type="mfa_setup",
@@ -439,13 +367,11 @@ class AuthService:
                 ip_address=self._get_client_ip(),
                 success=True,
             )
-
             return {
                 "secret": secret,
                 "qr_url": qr_url,
                 "backup_codes": self._generate_backup_codes(user),
             }
-
         except Exception as e:
             logger.error(f"MFA setup error: {str(e)}")
             raise AuthenticationError("MFA setup failed")
@@ -465,16 +391,10 @@ class AuthService:
             user = User.query.get(user_id)
             if not user or not user.mfa_secret:
                 raise AuthenticationError("MFA not set up")
-
-            # Verify code
             if not self._verify_mfa_code(user, verification_code):
                 raise AuthenticationError("Invalid verification code")
-
-            # Enable MFA
             user.mfa_enabled = True
             db.session.commit()
-
-            # Log MFA enabled
             self.audit_service.log_event(
                 user_id=user.id,
                 event_type="mfa_enabled",
@@ -483,10 +403,8 @@ class AuthService:
                 ip_address=self._get_client_ip(),
                 success=True,
             )
-
             logger.info(f"MFA enabled for user: {user.email}")
             return True
-
         except Exception as e:
             logger.error(f"MFA enable error: {str(e)}")
             raise AuthenticationError("Failed to enable MFA")
@@ -507,21 +425,15 @@ class AuthService:
             user = User.query.get(user_id)
             if not user:
                 raise AuthenticationError("User not found")
-
-            # Verify password
             if not user.check_password(password):
                 raise AuthenticationError("Invalid password")
-
-            # Verify MFA code if MFA is enabled
-            if user.mfa_enabled and not self._verify_mfa_code(user, verification_code):
+            if user.mfa_enabled and (
+                not self._verify_mfa_code(user, verification_code)
+            ):
                 raise AuthenticationError("Invalid verification code")
-
-            # Disable MFA
             user.mfa_enabled = False
             user.mfa_secret = None
             db.session.commit()
-
-            # Log MFA disabled
             self.audit_service.log_event(
                 user_id=user.id,
                 event_type="mfa_disabled",
@@ -530,10 +442,8 @@ class AuthService:
                 ip_address=self._get_client_ip(),
                 success=True,
             )
-
             logger.info(f"MFA disabled for user: {user.email}")
             return True
-
         except Exception as e:
             logger.error(f"MFA disable error: {str(e)}")
             raise AuthenticationError("Failed to disable MFA")
@@ -556,8 +466,6 @@ class AuthService:
             user = User.query.get(user_id)
             if not user:
                 raise AuthenticationError("User not found")
-
-            # Verify current password
             if not user.check_password(current_password):
                 self.audit_service.log_event(
                     user_id=user.id,
@@ -569,11 +477,7 @@ class AuthService:
                     error_message="Invalid current password",
                 )
                 raise AuthenticationError("Invalid current password")
-
-            # Set new password
             user.set_password(new_password)
-
-            # Invalidate all existing sessions except current
             current_session_token = self._get_current_session_token()
             sessions = UserSession.query.filter_by(
                 user_id=user_id, is_active=True
@@ -581,10 +485,7 @@ class AuthService:
             for session in sessions:
                 if session.session_token != current_session_token:
                     session.terminate()
-
             db.session.commit()
-
-            # Log password change
             self.audit_service.log_event(
                 user_id=user.id,
                 event_type="password_changed",
@@ -593,10 +494,8 @@ class AuthService:
                 ip_address=self._get_client_ip(),
                 success=True,
             )
-
             logger.info(f"Password changed for user: {user.email}")
             return True
-
         except AuthenticationError:
             raise
         except Exception as e:
@@ -616,20 +515,11 @@ class AuthService:
         try:
             user = User.query.filter_by(email=email.lower().strip()).first()
             if not user:
-                # Don't reveal if email exists
                 return True
-
-            # Generate reset token
             reset_token = secrets.token_urlsafe(32)
             reset_expires = datetime.utcnow() + timedelta(hours=1)
-
-            # Store reset token in Redis
             if self.redis_client:
-                self.redis_client.setex(
-                    f"password_reset:{reset_token}", 3600, user.id  # 1 hour
-                )
-
-            # Log password reset request
+                self.redis_client.setex(f"password_reset:{reset_token}", 3600, user.id)
             self.audit_service.log_event(
                 user_id=user.id,
                 event_type="password_reset_requested",
@@ -641,11 +531,8 @@ class AuthService:
                     "reset_token_hash": hashlib.sha256(reset_token.encode()).hexdigest()
                 },
             )
-
-            # TODO: Send reset email
             logger.info(f"Password reset requested for user: {user.email}")
             return True
-
         except Exception as e:
             logger.error(f"Password reset request error: {str(e)}")
             return False
@@ -662,34 +549,22 @@ class AuthService:
             True if password reset successfully
         """
         try:
-            # Verify reset token
             if not self.redis_client:
                 raise AuthenticationError("Password reset not available")
-
             user_id = self.redis_client.get(f"password_reset:{reset_token}")
             if not user_id:
                 raise AuthenticationError("Invalid or expired reset token")
-
             user = User.query.get(int(user_id))
             if not user:
                 raise AuthenticationError("Invalid reset token")
-
-            # Set new password
             user.set_password(new_password)
-
-            # Invalidate all sessions
             sessions = UserSession.query.filter_by(
                 user_id=user.id, is_active=True
             ).all()
             for session in sessions:
                 session.terminate()
-
-            # Delete reset token
             self.redis_client.delete(f"password_reset:{reset_token}")
-
             db.session.commit()
-
-            # Log password reset
             self.audit_service.log_event(
                 user_id=user.id,
                 event_type="password_reset_completed",
@@ -698,10 +573,8 @@ class AuthService:
                 ip_address=self._get_client_ip(),
                 success=True,
             )
-
             logger.info(f"Password reset completed for user: {user.email}")
             return True
-
         except AuthenticationError:
             raise
         except Exception as e:
@@ -724,9 +597,7 @@ class AuthService:
                 .order_by(UserSession.last_activity_at.desc())
                 .all()
             )
-
             return [session.to_dict() for session in sessions]
-
         except Exception as e:
             logger.error(f"Get sessions error: {str(e)}")
             return []
@@ -746,12 +617,9 @@ class AuthService:
             session = UserSession.query.filter_by(
                 id=session_id, user_id=user_id, is_active=True
             ).first()
-
             if session:
                 session.terminate()
                 db.session.commit()
-
-                # Log session termination
                 self.audit_service.log_event(
                     user_id=user_id,
                     event_type="session_terminated",
@@ -760,11 +628,8 @@ class AuthService:
                     ip_address=self._get_client_ip(),
                     success=True,
                 )
-
                 return True
-
             return False
-
         except Exception as e:
             logger.error(f"Terminate session error: {str(e)}")
             return False
@@ -778,7 +643,6 @@ class AuthService:
             "status": user.status.value,
             "is_verified": user.is_verified,
         }
-
         return create_access_token(
             identity=user.id, additional_claims=additional_claims
         )
@@ -801,7 +665,6 @@ class AuthService:
             expires_at=datetime.utcnow()
             + current_app.config["JWT_REFRESH_TOKEN_EXPIRES"],
         )
-
         db.session.add(session)
         return session
 
@@ -813,7 +676,6 @@ class AuthService:
         """Verify MFA code"""
         if not user.mfa_secret:
             return False
-
         totp = pyotp.TOTP(user.mfa_secret)
         return totp.verify(code, valid_window=1)
 
@@ -822,8 +684,6 @@ class AuthService:
         codes = []
         for _ in range(10):
             codes.append(secrets.token_hex(4).upper())
-
-        # TODO: Store encrypted backup codes
         return codes
 
     def _get_client_ip(self) -> str:
@@ -838,14 +698,10 @@ class AuthService:
             user_agent = request.headers.get("User-Agent", "")
             accept_language = request.headers.get("Accept-Language", "")
             accept_encoding = request.headers.get("Accept-Encoding", "")
-
             fingerprint_data = f"{user_agent}:{accept_language}:{accept_encoding}"
             return hashlib.sha256(fingerprint_data.encode()).hexdigest()[:32]
-
         return "unknown"
 
     def _get_current_session_token(self) -> Optional[str]:
         """Get current session token from request"""
-        # This would be implemented based on how session tokens are passed
-        # For now, return None
         return None

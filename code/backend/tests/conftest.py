@@ -8,7 +8,6 @@ import tempfile
 from datetime import datetime, timedelta
 from decimal import Decimal
 from unittest.mock import Mock, patch
-
 import pytest
 from src import create_app
 from src.models import db
@@ -33,11 +32,9 @@ from src.models.user import KYCStatus, RiskLevel, User, UserKYC, UserProfile, Us
 
 
 @pytest.fixture(scope="session")
-def app():
+def app() -> Any:
     """Create application for testing"""
-    # Create temporary database
     db_fd, db_path = tempfile.mkstemp()
-
     app = create_app(
         {
             "TESTING": True,
@@ -46,52 +43,43 @@ def app():
             "SECRET_KEY": "test-secret-key",
             "WTF_CSRF_ENABLED": False,
             "AUDIT_LOG_ENABLED": True,
-            "REDIS_URL": "redis://localhost:6379/1",  # Test Redis DB
+            "REDIS_URL": "redis://localhost:6379/1",
         }
     )
-
     with app.app_context():
         db.create_all()
         yield app
-
-    # Cleanup
     os.close(db_fd)
     os.unlink(db_path)
 
 
 @pytest.fixture
-def client(app):
+def client(app: Any) -> Any:
     """Create test client"""
     return app.test_client()
 
 
 @pytest.fixture
-def runner(app):
+def runner(app: Any) -> Any:
     """Create test CLI runner"""
     return app.test_cli_runner()
 
 
 @pytest.fixture
-def db_session(app):
+def db_session(app: Any) -> Any:
     """Create database session for testing"""
     with app.app_context():
-        # Start transaction
         connection = db.engine.connect()
         transaction = connection.begin()
-
-        # Configure session to use transaction
         db.session.configure(bind=connection)
-
         yield db.session
-
-        # Rollback transaction
         transaction.rollback()
         connection.close()
         db.session.remove()
 
 
 @pytest.fixture
-def sample_user(db_session):
+def sample_user(db_session: Any) -> Any:
     """Create sample user for testing"""
     user = User(
         email="test@example.com",
@@ -100,15 +88,13 @@ def sample_user(db_session):
         risk_level=RiskLevel.MEDIUM,
     )
     user.email_verified_at = datetime.utcnow()
-
     db_session.add(user)
     db_session.commit()
-
     return user
 
 
 @pytest.fixture
-def sample_user_profile(db_session, sample_user):
+def sample_user_profile(db_session: Any, sample_user: Any) -> Any:
     """Create sample user profile"""
     profile = UserProfile(
         user_id=sample_user.id,
@@ -119,15 +105,13 @@ def sample_user_profile(db_session, sample_user):
         timezone="UTC",
         currency="USD",
     )
-
     db_session.add(profile)
     db_session.commit()
-
     return profile
 
 
 @pytest.fixture
-def sample_kyc(db_session, sample_user):
+def sample_kyc(db_session: Any, sample_user: Any) -> Any:
     """Create sample KYC record"""
     kyc = UserKYC(
         user_id=sample_user.id,
@@ -139,15 +123,13 @@ def sample_kyc(db_session, sample_user):
         approved_at=datetime.utcnow(),
         expires_at=datetime.utcnow() + timedelta(days=365),
     )
-
     db_session.add(kyc)
     db_session.commit()
-
     return kyc
 
 
 @pytest.fixture
-def sample_project(db_session):
+def sample_project(db_session: Any) -> Any:
     """Create sample carbon project"""
     project = CarbonProject(
         name="Test Forestry Project",
@@ -163,15 +145,13 @@ def sample_project(db_session):
         verification_standard="VCS",
         registry_id="VCS-12345",
     )
-
     db_session.add(project)
     db_session.commit()
-
     return project
 
 
 @pytest.fixture
-def sample_carbon_credit(db_session, sample_project):
+def sample_carbon_credit(db_session: Any, sample_project: Any) -> Any:
     """Create sample carbon credit"""
     credit = CarbonCredit(
         project_id=sample_project.id,
@@ -183,15 +163,13 @@ def sample_carbon_credit(db_session, sample_project):
         price=Decimal("45.00"),
         currency="USD",
     )
-
     db_session.add(credit)
     db_session.commit()
-
     return credit
 
 
 @pytest.fixture
-def sample_portfolio(db_session, sample_user):
+def sample_portfolio(db_session: Any, sample_user: Any) -> Any:
     """Create sample portfolio"""
     portfolio = Portfolio(
         user_id=sample_user.id,
@@ -202,15 +180,13 @@ def sample_portfolio(db_session, sample_user):
         total_cost=Decimal("9500"),
         is_active=True,
     )
-
     db_session.add(portfolio)
     db_session.commit()
-
     return portfolio
 
 
 @pytest.fixture
-def sample_holding(db_session, sample_portfolio, sample_project):
+def sample_holding(db_session: Any, sample_portfolio: Any, sample_project: Any) -> Any:
     """Create sample portfolio holding"""
     holding = PortfolioHolding(
         portfolio_id=sample_portfolio.id,
@@ -224,15 +200,13 @@ def sample_holding(db_session, sample_portfolio, sample_project):
         current_value=Decimal("4700"),
         currency="USD",
     )
-
     db_session.add(holding)
     db_session.commit()
-
     return holding
 
 
 @pytest.fixture
-def sample_order(db_session, sample_user, sample_project):
+def sample_order(db_session: Any, sample_user: Any, sample_project: Any) -> Any:
     """Create sample order"""
     order = Order(
         user_id=sample_user.id,
@@ -245,17 +219,14 @@ def sample_order(db_session, sample_user, sample_project):
         vintage_year=2023,
         currency="USD",
     )
-
     db_session.add(order)
     db_session.commit()
-
     return order
 
 
 @pytest.fixture
-def sample_trade(db_session, sample_user, sample_project):
+def sample_trade(db_session: Any, sample_user: Any, sample_project: Any) -> Any:
     """Create sample trade"""
-    # Create buy and sell orders
     buy_order = Order(
         user_id=sample_user.id,
         project_id=sample_project.id,
@@ -267,7 +238,6 @@ def sample_trade(db_session, sample_user, sample_project):
         vintage_year=2023,
         currency="USD",
     )
-
     sell_order = Order(
         user_id=sample_user.id,
         project_id=sample_project.id,
@@ -279,10 +249,8 @@ def sample_trade(db_session, sample_user, sample_project):
         vintage_year=2023,
         currency="USD",
     )
-
     db_session.add_all([buy_order, sell_order])
     db_session.commit()
-
     trade = Trade(
         buy_order_id=buy_order.id,
         sell_order_id=sell_order.id,
@@ -296,15 +264,13 @@ def sample_trade(db_session, sample_user, sample_project):
         status=TradeStatus.SETTLED,
         executed_at=datetime.utcnow(),
     )
-
     db_session.add(trade)
     db_session.commit()
-
     return trade
 
 
 @pytest.fixture
-def sample_transaction(db_session, sample_user):
+def sample_transaction(db_session: Any, sample_user: Any) -> Any:
     """Create sample transaction"""
     transaction = Transaction(
         user_id=sample_user.id,
@@ -314,17 +280,14 @@ def sample_transaction(db_session, sample_user):
         status=TransactionStatus.COMPLETED,
         description="Test deposit",
     )
-
     db_session.add(transaction)
     db_session.commit()
-
     return transaction
 
 
 @pytest.fixture
-def authenticated_headers(sample_user):
+def authenticated_headers(sample_user: Any) -> Any:
     """Create authentication headers for API testing"""
-    # In a real implementation, this would create a JWT token
     return {
         "Authorization": f"Bearer test-token-{sample_user.id}",
         "Content-Type": "application/json",
@@ -332,7 +295,7 @@ def authenticated_headers(sample_user):
 
 
 @pytest.fixture
-def mock_pricing_service():
+def mock_pricing_service() -> Any:
     """Mock pricing service for testing"""
     with patch("src.services.pricing_service.PricingService") as mock:
         mock_instance = Mock()
@@ -350,7 +313,7 @@ def mock_pricing_service():
 
 
 @pytest.fixture
-def mock_risk_service():
+def mock_risk_service() -> Any:
     """Mock risk service for testing"""
     with patch("src.services.risk_service.RiskService") as mock:
         mock_instance = Mock()
@@ -369,7 +332,7 @@ def mock_risk_service():
 
 
 @pytest.fixture
-def mock_compliance_service():
+def mock_compliance_service() -> Any:
     """Mock compliance service for testing"""
     with patch("src.services.compliance_service.ComplianceService") as mock:
         mock_instance = Mock()
@@ -387,7 +350,7 @@ def mock_compliance_service():
 
 
 @pytest.fixture
-def mock_portfolio_service():
+def mock_portfolio_service() -> Any:
     """Mock portfolio service for testing"""
     with patch("src.services.portfolio_service.PortfolioService") as mock:
         mock_instance = Mock()
@@ -407,7 +370,7 @@ def mock_portfolio_service():
 
 
 @pytest.fixture
-def mock_trading_service():
+def mock_trading_service() -> Any:
     """Mock trading service for testing"""
     with patch("src.services.trading_service.TradingService") as mock:
         mock_instance = Mock()
@@ -419,14 +382,14 @@ def mock_trading_service():
         mock_instance.execute_trade.return_value = {
             "trade_id": 1,
             "status": "executed",
-            "execution_price": 45.00,
+            "execution_price": 45.0,
         }
         mock.return_value = mock_instance
         yield mock_instance
 
 
 @pytest.fixture
-def mock_audit_service():
+def mock_audit_service() -> Any:
     """Mock audit service for testing"""
     with patch("src.services.audit_service.AuditService") as mock:
         mock_instance = Mock()
@@ -436,12 +399,11 @@ def mock_audit_service():
         yield mock_instance
 
 
-# Test data factories
 class UserFactory:
     """Factory for creating test users"""
 
     @staticmethod
-    def create_user(db_session, **kwargs):
+    def create_user(db_session: Any, **kwargs) -> Any:
         """Create a test user with default values"""
         defaults = {
             "email": "test@example.com",
@@ -450,13 +412,10 @@ class UserFactory:
             "risk_level": RiskLevel.MEDIUM,
         }
         defaults.update(kwargs)
-
         user = User(**defaults)
         user.email_verified_at = datetime.utcnow()
-
         db_session.add(user)
         db_session.commit()
-
         return user
 
 
@@ -464,7 +423,7 @@ class ProjectFactory:
     """Factory for creating test projects"""
 
     @staticmethod
-    def create_project(db_session, **kwargs):
+    def create_project(db_session: Any, **kwargs) -> Any:
         """Create a test project with default values"""
         defaults = {
             "name": "Test Project",
@@ -479,12 +438,9 @@ class ProjectFactory:
             "verification_standard": "VCS",
         }
         defaults.update(kwargs)
-
         project = CarbonProject(**defaults)
-
         db_session.add(project)
         db_session.commit()
-
         return project
 
 
@@ -492,7 +448,7 @@ class OrderFactory:
     """Factory for creating test orders"""
 
     @staticmethod
-    def create_order(db_session, user_id, project_id, **kwargs):
+    def create_order(db_session: Any, user_id: Any, project_id: Any, **kwargs) -> Any:
         """Create a test order with default values"""
         defaults = {
             "user_id": user_id,
@@ -506,24 +462,20 @@ class OrderFactory:
             "currency": "USD",
         }
         defaults.update(kwargs)
-
         order = Order(**defaults)
-
         db_session.add(order)
         db_session.commit()
-
         return order
 
 
-# Test utilities
-def assert_decimal_equal(actual, expected, places=2):
+def assert_decimal_equal(actual: Any, expected: Any, places: Any = 2) -> Any:
     """Assert that two decimal values are equal within specified decimal places"""
-    assert (
-        abs(actual - expected) < Decimal(10) ** -places
+    assert abs(actual - expected) < Decimal(10) ** (
+        -places
     ), f"Expected {expected}, got {actual}"
 
 
-def assert_datetime_close(actual, expected, delta_seconds=60):
+def assert_datetime_close(actual: Any, expected: Any, delta_seconds: Any = 60) -> Any:
     """Assert that two datetime values are close within specified seconds"""
     delta = abs((actual - expected).total_seconds())
     assert (
@@ -531,9 +483,8 @@ def assert_datetime_close(actual, expected, delta_seconds=60):
     ), f"Datetime difference {delta}s exceeds {delta_seconds}s"
 
 
-def create_test_data_set(db_session):
+def create_test_data_set(db_session: Any) -> Any:
     """Create a comprehensive test data set"""
-    # Create users
     users = []
     for i in range(3):
         user = UserFactory.create_user(
@@ -542,8 +493,6 @@ def create_test_data_set(db_session):
             risk_level=RiskLevel.MEDIUM if i % 2 == 0 else RiskLevel.HIGH,
         )
         users.append(user)
-
-    # Create projects
     projects = []
     project_types = [
         ProjectType.FORESTRY,
@@ -553,13 +502,11 @@ def create_test_data_set(db_session):
     for i, project_type in enumerate(project_types):
         project = ProjectFactory.create_project(
             db_session,
-            name=f"Test Project {i+1}",
+            name=f"Test Project {i + 1}",
             project_type=project_type,
             vintage_year=2022 + i,
         )
         projects.append(project)
-
-    # Create portfolios
     portfolios = []
     for user in users:
         portfolio = Portfolio(
@@ -570,19 +517,17 @@ def create_test_data_set(db_session):
         )
         db_session.add(portfolio)
         portfolios.append(portfolio)
-
     db_session.commit()
-
     return {"users": users, "projects": projects, "portfolios": portfolios}
 
 
-# Performance testing utilities
 @pytest.fixture
-def performance_timer():
+def performance_timer() -> Any:
     """Timer for performance testing"""
     import time
 
     class Timer:
+
         def __init__(self):
             self.start_time = None
             self.end_time = None
@@ -607,13 +552,13 @@ def performance_timer():
     return Timer()
 
 
-# Database testing utilities
 @pytest.fixture
-def db_query_counter():
+def db_query_counter() -> Any:
     """Count database queries for performance testing"""
     from sqlalchemy import event
 
     class QueryCounter:
+
         def __init__(self):
             self.count = 0
             self.queries = []
@@ -627,11 +572,6 @@ def db_query_counter():
             self.queries.append({"statement": statement, "parameters": parameters})
 
     counter = QueryCounter()
-
-    # Register event listener
     event.listen(db.engine, "before_cursor_execute", counter.increment)
-
     yield counter
-
-    # Remove event listener
     event.remove(db.engine, "before_cursor_execute", counter.increment)

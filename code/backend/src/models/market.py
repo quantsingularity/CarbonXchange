@@ -6,7 +6,6 @@ Implements comprehensive market data tracking and price analytics
 import uuid
 from datetime import datetime, timezone
 from enum import Enum
-
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Column, DateTime
 from sqlalchemy import Enum as SQLEnum
@@ -47,49 +46,32 @@ class MarketData(db.Model):
     """Market data model for real-time and historical market information"""
 
     __tablename__ = "market_data"
-
     id = Column(Integer, primary_key=True)
     uuid = Column(
         String(36), unique=True, nullable=False, default=lambda: str(uuid.uuid4())
     )
-
-    # Market identification
-    symbol = Column(String(50), nullable=False, index=True)  # e.g., VCS-2023, CDM-2022
+    symbol = Column(String(50), nullable=False, index=True)
     project_id = Column(Integer, ForeignKey("carbon_projects.id"), nullable=True)
     vintage_year = Column(Integer, nullable=True, index=True)
     credit_standard = Column(String(50), nullable=True)
-
-    # Market data details
     data_type = Column(SQLEnum(MarketDataType), nullable=False)
     value = Column(Numeric(15, 8), nullable=False)
     currency = Column(String(3), nullable=False, default="USD")
-
-    # Volume and liquidity
-    volume = Column(Numeric(15, 4), nullable=True)  # tCO2e
+    volume = Column(Numeric(15, 4), nullable=True)
     volume_usd = Column(Numeric(15, 2), nullable=True)
     bid_size = Column(Numeric(15, 4), nullable=True)
     ask_size = Column(Numeric(15, 4), nullable=True)
-
-    # Price levels
     bid_price = Column(Numeric(10, 4), nullable=True)
     ask_price = Column(Numeric(10, 4), nullable=True)
     spread = Column(Numeric(10, 4), nullable=True)
     spread_percentage = Column(Numeric(8, 4), nullable=True)
-
-    # Market statistics
     high_24h = Column(Numeric(10, 4), nullable=True)
     low_24h = Column(Numeric(10, 4), nullable=True)
     change_24h = Column(Numeric(10, 4), nullable=True)
     change_percentage_24h = Column(Numeric(8, 4), nullable=True)
-
-    # Data source and quality
     data_source = Column(String(100), nullable=False)
-    data_quality = Column(
-        String(20), nullable=False, default="good"
-    )  # excellent, good, fair, poor
-    confidence_score = Column(Numeric(5, 2), nullable=True)  # 0-100
-
-    # Timestamps
+    data_quality = Column(String(20), nullable=False, default="good")
+    confidence_score = Column(Numeric(5, 2), nullable=True)
     timestamp = Column(DateTime, nullable=False, index=True)
     created_at = Column(
         DateTime, nullable=False, default=lambda: datetime.now(timezone.utc)
@@ -100,11 +82,7 @@ class MarketData(db.Model):
         default=lambda: datetime.now(timezone.utc),
         onupdate=lambda: datetime.now(timezone.utc),
     )
-
-    # Relationships
     project = relationship("CarbonProject")
-
-    # Indexes for performance
     __table_args__ = (
         Index("idx_market_data_symbol_timestamp", "symbol", "timestamp"),
         Index("idx_market_data_project_vintage", "project_id", "vintage_year"),
@@ -112,18 +90,18 @@ class MarketData(db.Model):
     )
 
     @hybrid_property
-    def is_recent(self):
+    def is_recent(self) -> Any:
         """Check if data is recent (within last hour)"""
         one_hour_ago = datetime.now(timezone.utc) - timedelta(hours=1)
         return self.timestamp > one_hour_ago
 
     @hybrid_property
-    def age_minutes(self):
+    def age_minutes(self) -> Any:
         """Get age of data in minutes"""
         delta = datetime.now(timezone.utc) - self.timestamp
         return delta.total_seconds() / 60
 
-    def to_dict(self):
+    def to_dict(self) -> Any:
         """Convert market data to dictionary"""
         return {
             "id": self.id,
@@ -162,7 +140,7 @@ class MarketData(db.Model):
             "updated_at": self.updated_at.isoformat(),
         }
 
-    def __repr__(self):
+    def __repr__(self) -> Any:
         return f"<MarketData {self.symbol} - {self.data_type.value}: {self.value}>"
 
 
@@ -170,51 +148,34 @@ class PriceHistory(db.Model):
     """Price history model for OHLCV data and technical analysis"""
 
     __tablename__ = "price_history"
-
     id = Column(Integer, primary_key=True)
     uuid = Column(
         String(36), unique=True, nullable=False, default=lambda: str(uuid.uuid4())
     )
-
-    # Price identification
     symbol = Column(String(50), nullable=False, index=True)
     project_id = Column(Integer, ForeignKey("carbon_projects.id"), nullable=True)
     vintage_year = Column(Integer, nullable=True)
-
-    # Time frame
     timeframe = Column(SQLEnum(TimeFrame), nullable=False)
     period_start = Column(DateTime, nullable=False, index=True)
     period_end = Column(DateTime, nullable=False)
-
-    # OHLCV data
     open_price = Column(Numeric(10, 4), nullable=False)
     high_price = Column(Numeric(10, 4), nullable=False)
     low_price = Column(Numeric(10, 4), nullable=False)
     close_price = Column(Numeric(10, 4), nullable=False)
-    volume = Column(Numeric(15, 4), nullable=False, default=0)  # tCO2e
+    volume = Column(Numeric(15, 4), nullable=False, default=0)
     volume_usd = Column(Numeric(15, 2), nullable=False, default=0)
-
-    # Additional metrics
-    vwap = Column(Numeric(10, 4), nullable=True)  # Volume Weighted Average Price
+    vwap = Column(Numeric(10, 4), nullable=True)
     number_of_trades = Column(Integer, nullable=False, default=0)
-
-    # Technical indicators (can be calculated and stored)
-    sma_20 = Column(Numeric(10, 4), nullable=True)  # Simple Moving Average 20
-    sma_50 = Column(Numeric(10, 4), nullable=True)  # Simple Moving Average 50
-    ema_12 = Column(Numeric(10, 4), nullable=True)  # Exponential Moving Average 12
-    ema_26 = Column(Numeric(10, 4), nullable=True)  # Exponential Moving Average 26
-    rsi = Column(Numeric(5, 2), nullable=True)  # Relative Strength Index
+    sma_20 = Column(Numeric(10, 4), nullable=True)
+    sma_50 = Column(Numeric(10, 4), nullable=True)
+    ema_12 = Column(Numeric(10, 4), nullable=True)
+    ema_26 = Column(Numeric(10, 4), nullable=True)
+    rsi = Column(Numeric(5, 2), nullable=True)
     bollinger_upper = Column(Numeric(10, 4), nullable=True)
     bollinger_lower = Column(Numeric(10, 4), nullable=True)
-
-    # Data quality
-    data_completeness = Column(Numeric(5, 2), nullable=False, default=100)  # Percentage
+    data_completeness = Column(Numeric(5, 2), nullable=False, default=100)
     data_source = Column(String(100), nullable=False)
-
-    # Currency
     currency = Column(String(3), nullable=False, default="USD")
-
-    # Timestamps
     created_at = Column(
         DateTime, nullable=False, default=lambda: datetime.now(timezone.utc)
     )
@@ -224,11 +185,7 @@ class PriceHistory(db.Model):
         default=lambda: datetime.now(timezone.utc),
         onupdate=lambda: datetime.now(timezone.utc),
     )
-
-    # Relationships
     project = relationship("CarbonProject")
-
-    # Indexes for performance
     __table_args__ = (
         Index(
             "idx_price_history_symbol_timeframe_period",
@@ -240,33 +197,33 @@ class PriceHistory(db.Model):
     )
 
     @hybrid_property
-    def price_change(self):
+    def price_change(self) -> Any:
         """Get price change (close - open)"""
         return self.close_price - self.open_price
 
     @hybrid_property
-    def price_change_percentage(self):
+    def price_change_percentage(self) -> Any:
         """Get price change percentage"""
         if self.open_price == 0:
             return 0
         return float((self.close_price - self.open_price) / self.open_price * 100)
 
     @hybrid_property
-    def price_range(self):
+    def price_range(self) -> Any:
         """Get price range (high - low)"""
         return self.high_price - self.low_price
 
     @hybrid_property
-    def is_bullish(self):
+    def is_bullish(self) -> Any:
         """Check if period was bullish (close > open)"""
         return self.close_price > self.open_price
 
     @hybrid_property
-    def is_bearish(self):
+    def is_bearish(self) -> Any:
         """Check if period was bearish (close < open)"""
         return self.close_price < self.open_price
 
-    def to_dict(self):
+    def to_dict(self) -> Any:
         """Convert price history to dictionary"""
         return {
             "id": self.id,
@@ -297,7 +254,7 @@ class PriceHistory(db.Model):
             "updated_at": self.updated_at.isoformat(),
         }
 
-    def to_ohlcv_dict(self):
+    def to_ohlcv_dict(self) -> Any:
         """Convert to OHLCV format for charting"""
         return {
             "timestamp": self.period_start.isoformat(),
@@ -308,5 +265,5 @@ class PriceHistory(db.Model):
             "volume": float(self.volume),
         }
 
-    def __repr__(self):
+    def __repr__(self) -> Any:
         return f"<PriceHistory {self.symbol} {self.timeframe.value} - O:{self.open_price} H:{self.high_price} L:{self.low_price} C:{self.close_price}>"

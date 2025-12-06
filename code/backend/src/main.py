@@ -8,24 +8,16 @@ import os
 import sys
 from datetime import datetime, timezone
 
-# DON'T CHANGE THIS !!!
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
-
 import redis
 from flask import Flask, g, jsonify, request, send_from_directory
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
-
-# Import configuration
 from src.config import get_config
-
-# Import database and models
 from src.models import db, migrate
 from src.routes.admin import admin_bp
-
-# Import routes
 from src.routes.auth import auth_bp
 from src.routes.carbon_credits import carbon_credits_bp
 from src.routes.compliance import compliance_bp
@@ -33,7 +25,6 @@ from src.routes.market import market_bp
 from src.routes.trading import trading_bp
 from src.routes.user import user_bp
 
-# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -42,22 +33,16 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def create_app(config_name=None):
+def create_app(config_name: Any = None) -> Any:
     """Application factory pattern"""
     app = Flask(
         __name__, static_folder=os.path.join(os.path.dirname(__file__), "static")
     )
-
-    # Load configuration
     config_class = get_config(config_name)
     app.config.from_object(config_class)
     config_class.init_app(app)
-
-    # Initialize extensions
     db.init_app(app)
     migrate.init_app(app, db)
-
-    # Initialize CORS
     CORS(
         app,
         origins=app.config["CORS_ORIGINS"],
@@ -65,11 +50,7 @@ def create_app(config_name=None):
         allow_headers=app.config["CORS_ALLOW_HEADERS"],
         supports_credentials=True,
     )
-
-    # Initialize JWT
     JWTManager(app)
-
-    # Initialize rate limiting
     try:
         redis_client = redis.from_url(app.config["RATELIMIT_STORAGE_URL"])
         limiter = Limiter(
@@ -85,8 +66,6 @@ def create_app(config_name=None):
             key_func=get_remote_address,
             default_limits=[app.config["RATELIMIT_DEFAULT"]],
         )
-
-    # Register blueprints
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
     app.register_blueprint(user_bp, url_prefix="/api/users")
     app.register_blueprint(carbon_credits_bp, url_prefix="/api/carbon-credits")
@@ -95,7 +74,6 @@ def create_app(config_name=None):
     app.register_blueprint(compliance_bp, url_prefix="/api/compliance")
     app.register_blueprint(admin_bp, url_prefix="/api/admin")
 
-    # Request logging middleware
     @app.before_request
     def log_request():
         g.start_time = datetime.now(timezone.utc)
@@ -112,7 +90,6 @@ def create_app(config_name=None):
             logger.info(f"Response: {response.status_code} in {duration:.2f}ms")
         return response
 
-    # Error handlers
     @app.errorhandler(400)
     def bad_request(error):
         return (
@@ -192,26 +169,21 @@ def create_app(config_name=None):
             500,
         )
 
-    # Health check endpoint
     @app.route("/api/health")
     def health_check():
         """Comprehensive health check endpoint"""
         try:
-            # Check database connection
             db.session.execute("SELECT 1")
             db_status = "healthy"
         except Exception as e:
             logger.error(f"Database health check failed: {e}")
             db_status = "unhealthy"
-
-        # Check Redis connection
         try:
             redis_client.ping()
             redis_status = "healthy"
         except Exception as e:
             logger.warning(f"Redis health check failed: {e}")
             redis_status = "unhealthy"
-
         health_data = {
             "status": "healthy" if db_status == "healthy" else "degraded",
             "timestamp": datetime.now(timezone.utc).isoformat(),
@@ -222,13 +194,11 @@ def create_app(config_name=None):
                 "redis": redis_status,
                 "api": "healthy",
             },
-            "uptime": "N/A",  # Would be calculated from app start time
+            "uptime": "N/A",
         }
-
         status_code = 200 if health_data["status"] == "healthy" else 503
-        return jsonify(health_data), status_code
+        return (jsonify(health_data), status_code)
 
-    # API info endpoint
     @app.route("/api/info")
     def api_info():
         """API information endpoint"""
@@ -258,15 +228,13 @@ def create_app(config_name=None):
             }
         )
 
-    # Frontend serving
     @app.route("/", defaults={"path": ""})
     @app.route("/<path:path>")
     def serve(path):
         """Serve frontend application"""
         static_folder_path = app.static_folder
         if static_folder_path is None:
-            return jsonify({"error": "Static folder not configured"}), 404
-
+            return (jsonify({"error": "Static folder not configured"}), 404)
         if path != "" and os.path.exists(os.path.join(static_folder_path, path)):
             return send_from_directory(static_folder_path, path)
         else:
@@ -283,26 +251,20 @@ def create_app(config_name=None):
                     }
                 )
 
-    # Create database tables
     with app.app_context():
         try:
             db.create_all()
             logger.info("Database tables created successfully")
         except Exception as e:
             logger.error(f"Failed to create database tables: {e}")
-
     return app
 
 
-# Create application instance
 app = create_app()
-
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     debug = os.environ.get("FLASK_ENV") == "development"
-
     logger.info(f"Starting CarbonXchange Backend on port {port}")
     logger.info(f"Environment: {app.config.get('ENV', 'unknown')}")
     logger.info(f"Debug mode: {debug}")
-
     app.run(host="0.0.0.0", port=port, debug=debug)

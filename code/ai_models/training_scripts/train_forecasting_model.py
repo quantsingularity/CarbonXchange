@@ -1,16 +1,13 @@
 import os
-
 import pandas as pd
 from joblib import dump
 from sklearn.ensemble import RandomForestRegressor
-
 from core.logging import get_logger
 
 logger = get_logger(__name__)
 
 
-def train_model():
-    # Use absolute path or relative path from execution directory
+def train_model() -> Any:
     data_path = os.path.join(
         os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
         "resources",
@@ -20,11 +17,8 @@ def train_model():
     data = pd.read_csv(data_path)
     X = data[["historical_price", "trading_volume", "season"]]
     y = data["demand"]
-
     model = RandomForestRegressor(n_estimators=100)
     model.fit(X, y)
-
-    # Save model to the correct location
     model_path = os.path.join(
         os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
         "demand_forecasting_model.pkl",

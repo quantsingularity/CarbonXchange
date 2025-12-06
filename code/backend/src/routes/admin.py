@@ -10,7 +10,7 @@ admin_bp = Blueprint("admin", __name__)
 
 @admin_bp.route("/users", methods=["GET"])
 @jwt_required()
-def get_users():
+def get_users() -> Any:
     """Get all users (admin only)"""
     return (
         jsonify({"message": "Admin users endpoint - implementation in progress"}),
@@ -20,7 +20,7 @@ def get_users():
 
 @admin_bp.route("/system", methods=["GET"])
 @jwt_required()
-def get_system_info():
+def get_system_info() -> Any:
     """Get system information"""
     return (
         jsonify({"message": "System info endpoint - implementation in progress"}),
