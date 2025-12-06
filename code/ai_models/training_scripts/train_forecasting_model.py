@@ -4,6 +4,10 @@ import pandas as pd
 from joblib import dump
 from sklearn.ensemble import RandomForestRegressor
 
+from core.logging import get_logger
+
+logger = get_logger(__name__)
+
 
 def train_model():
     # Use absolute path or relative path from execution directory
@@ -26,7 +30,7 @@ def train_model():
         "demand_forecasting_model.pkl",
     )
     dump(model, model_path)
-    print(f"Model saved to {model_path}")
+    logger.info(f"Model saved to {model_path}")
 
 
 if __name__ == "__main__":
