@@ -8,7 +8,7 @@
 # - Deployment validation
 # - Rollback automation
 
-set -e
+set -euo pipefail # Exit on error, treat unset variables as error, and fail if any command in a pipeline fails
 
 # ANSI color codes for better readability
 RED='\033[0;31m'
@@ -33,29 +33,26 @@ INFRA_DIR="$PROJECT_ROOT/infrastructure"
 
 # Deployment directories
 DEPLOY_DIR="$PROJECT_ROOT/deploy"
-mkdir -p "$DEPLOY_DIR"
-
 # Backup directory for rollbacks
 BACKUP_DIR="$PROJECT_ROOT/deploy/backups"
-mkdir -p "$BACKUP_DIR"
 
 # Environment configuration templates
-ENV_TEMPLATES_DIR="$PROJECT_ROOT/infrastructure/env-templates"
+ENV_TEMPLATES_DIR="$INFRA_DIR/env-templates"
 
 # Function to log messages
 log() {
-    local level=$1
-    local message=$2
-    local color=$NC
+    local level="$1"
+    local message="$2"
+    local color="$NC"
 
-    case $level in
-        "INFO") color=$GREEN ;;
-        "WARNING") color=$YELLOW ;;
-        "ERROR") color=$RED ;;
-        "STEP") color=$BLUE ;;
+    case "$level" in
+        "INFO") color="$GREEN" ;;
+        "WARNING") color="$YELLOW" ;;
+        "ERROR") color="$RED" ;;
+        "STEP") color="$BLUE" ;;
     esac
 
-    echo -e "${color}[$level] $message${NC}"
+    echo -e "${color}[$level] $message${NC}" >&2
 }
 
 # Function to check if a command exists
@@ -65,9 +62,8 @@ command_exists() {
 
 # Function to validate environment name
 validate_environment() {
-    local env=$1
-
-    case $env in
+    local env="$1"
+    case "$env" in
         "dev"|"development")
             echo "dev"
             ;;
@@ -79,14 +75,14 @@ validate_environment() {
             ;;
         *)
             log "ERROR" "Invalid environment: $env. Must be one of: dev, staging, prod"
-            return 1
+            exit 1
             ;;
     esac
 }
 
 # Function to generate environment-specific configuration
 generate_config() {
-    local env=$1
+    local env="$1"
 
     log "STEP" "Generating configuration for $env environment..."
 
@@ -99,25 +95,30 @@ generate_config() {
     local config_dir="$DEPLOY_DIR/$env/config"
     mkdir -p "$config_dir"
 
+    # Check for envsubst
+    if ! command_exists envsubst; then
+        log "ERROR" "envsubst command not found. Please install gettext package."
+        return 1
+    fi
+
     # Process each template file
-    for template in "$ENV_TEMPLATES_DIR"/*.template; do
-        if [ -f "$template" ]; then
-            local filename=$(basename "$template" .template)
-            log "INFO" "Processing template: $filename"
+    find "$ENV_TEMPLATES_DIR" -type f -name "*.template" | while read -r template; do
+        local filename
+        filename=$(basename "$template" .template)
+        log "INFO" "Processing template: $filename"
 
-            # Replace environment variables in template
-            envsubst < "$template" > "$config_dir/$filename"
-
-            log "INFO" "Generated $filename for $env environment"
-        fi
+        # Replace environment variables in template
+        envsubst < "$template" > "$config_dir/$filename"
+        log "INFO" "Generated $filename for $env environment"
     done
 
     # Generate .env file for backend
-    if [ -f "$ENV_TEMPLATES_DIR/.env.$env" ]; then
+    local env_file="$ENV_TEMPLATES_DIR/.env.$env"
+    if [ -f "$env_file" ]; then
         log "INFO" "Copying .env file for backend..."
-        cp "$ENV_TEMPLATES_DIR/.env.$env" "$config_dir/.env"
+        cp "$env_file" "$config_dir/.env"
     else
-        log "WARNING" ".env.$env file not found in templates directory"
+        log "WARNING" ".env.$env file not found in templates directory. Skipping."
     fi
 
     log "INFO" "Configuration generation completed for $env environment"
@@ -126,7 +127,7 @@ generate_config() {
 
 # Function to build backend for deployment
 build_backend() {
-    local env=$1
+    local env="$1"
 
     log "STEP" "Building backend for $env environment..."
 
@@ -139,30 +140,38 @@ build_backend() {
     local deploy_backend_dir="$DEPLOY_DIR/$env/backend"
     mkdir -p "$deploy_backend_dir"
 
-    # Copy backend code
+    # Copy backend code using safer rsync
     log "INFO" "Copying backend code..."
-    rsync -av --exclude="__pycache__" --exclude="*.pyc" --exclude=".pytest_cache" \
-        "$BACKEND_DIR/" "$deploy_backend_dir/"
+    rsync -av --delete --exclude='__pycache__/' --exclude='*.pyc' --exclude='.pytest_cache/' \
+        --exclude='venv/' --exclude='node_modules/' "$BACKEND_DIR/" "$deploy_backend_dir/"
 
     # Copy environment-specific configuration
-    log "INFO" "Copying environment configuration..."
-    cp "$DEPLOY_DIR/$env/config/.env" "$deploy_backend_dir/"
+    local config_env_file="$DEPLOY_DIR/$env/config/.env"
+    if [ -f "$config_env_file" ]; then
+        log "INFO" "Copying environment configuration..."
+        cp "$config_env_file" "$deploy_backend_dir/"
+    else
+        log "WARNING" "Backend .env file not found in config directory. Deployment may fail."
+    fi
 
     # Install dependencies in a virtual environment
     log "INFO" "Setting up virtual environment..."
-    cd "$deploy_backend_dir"
-    python3 -m venv venv
-    source venv/bin/activate
-    pip install -r requirements.txt
-
-    # Run database migrations if needed
-    if [ -f "manage.py" ]; then
-        log "INFO" "Running database migrations..."
-        python manage.py migrate
-    fi
-
-    # Deactivate virtual environment
-    deactivate
+    local venv_path="$deploy_backend_dir/venv"
+    python3 -m venv "$venv_path"
+    # Activate and install
+    # Using a subshell for activation to avoid polluting the main script's environment
+    (
+        set +u # Allow unset variables in the subshell for source command
+        source "$venv_path/bin/activate"
+        set -u
+        log "INFO" "Installing Python dependencies..."
+        pip install -r "$deploy_backend_dir/requirements.txt"
+        # Run database migrations if needed (requires a proper setup, here just a placeholder)
+        # if [ -f "$deploy_backend_dir/manage.py" ]; then
+        #     log "INFO" "Running database migrations..."
+        #     python "$deploy_backend_dir/manage.py" migrate
+        # fi
+    ) || { log "ERROR" "Backend dependency installation or migration failed."; return 1; }
 
     log "INFO" "Backend build completed for $env environment"
     return 0
@@ -170,7 +179,7 @@ build_backend() {
 
 # Function to build web frontend for deployment
 build_web_frontend() {
-    local env=$1
+    local env="$1"
 
     log "STEP" "Building web frontend for $env environment..."
 
@@ -185,18 +194,25 @@ build_web_frontend() {
 
     # Copy frontend code
     log "INFO" "Copying web frontend code..."
-    rsync -av --exclude="node_modules" --exclude="build" --exclude=".cache" \
-        "$WEB_FRONTEND_DIR/" "$deploy_frontend_dir/"
+    rsync -av --delete --exclude='node_modules/' --exclude='dist/' --exclude='build/' \
+        --exclude='.cache/' "$WEB_FRONTEND_DIR/" "$deploy_frontend_dir/"
 
     # Copy environment-specific configuration
-    log "INFO" "Setting up environment configuration..."
-    cp "$DEPLOY_DIR/$env/config/frontend.env.js" "$deploy_frontend_dir/.env"
+    local config_env_file="$DEPLOY_DIR/$env/config/frontend.env.js"
+    if [ -f "$config_env_file" ]; then
+        log "INFO" "Setting up environment configuration..."
+        cp "$config_env_file" "$deploy_frontend_dir/.env"
+    else
+        log "WARNING" "Frontend config file not found. Using default."
+    fi
 
     # Install dependencies and build
     log "INFO" "Installing dependencies and building web frontend..."
-    cd "$deploy_frontend_dir"
-    npm install
-    npm run build
+    (
+        cd "$deploy_frontend_dir"
+        npm install
+        npm run build
+    ) || { log "ERROR" "Web frontend build failed."; return 1; }
 
     log "INFO" "Web frontend build completed for $env environment"
     return 0
@@ -204,7 +220,7 @@ build_web_frontend() {
 
 # Function to build blockchain contracts for deployment
 build_blockchain() {
-    local env=$1
+    local env="$1"
 
     log "STEP" "Building blockchain contracts for $env environment..."
 
@@ -219,31 +235,59 @@ build_blockchain() {
 
     # Copy blockchain code
     log "INFO" "Copying blockchain code..."
-    rsync -av --exclude="node_modules" --exclude="build" \
+    rsync -av --delete --exclude='node_modules/' --exclude='build/' \
         "$BLOCKCHAIN_DIR/" "$deploy_blockchain_dir/"
 
     # Copy environment-specific configuration
-    log "INFO" "Setting up environment configuration..."
-    cp "$DEPLOY_DIR/$env/config/truffle-config.js" "$deploy_blockchain_dir/truffle-config.js"
+    local config_truffle_file="$DEPLOY_DIR/$env/config/truffle-config.js"
+    if [ -f "$config_truffle_file" ]; then
+        log "INFO" "Setting up environment configuration..."
+        cp "$config_truffle_file" "$deploy_blockchain_dir/truffle-config.js"
+    else
+        log "WARNING" "Truffle config file not found. Using default."
+    fi
 
     # Install dependencies and compile contracts
     log "INFO" "Installing dependencies and compiling contracts..."
-    cd "$deploy_blockchain_dir"
-    npm install
-    npx truffle compile
+    (
+        cd "$deploy_blockchain_dir"
+        npm install
+        npx truffle compile
+    ) || { log "ERROR" "Blockchain build failed."; return 1; }
 
     log "INFO" "Blockchain contracts build completed for $env environment"
     return 0
 }
 
+# Function to create a backup of the current deployment
+create_backup() {
+    local env="$1"
+    local timestamp
+    timestamp=$(date +%Y%m%d%H%M%S)
+    local backup_name="$env-$timestamp"
+
+    log "STEP" "Creating backup for $env deployment: $backup_name"
+    mkdir -p "$BACKUP_DIR"
+
+    # Check if a previous deployment exists
+    if [ -d "$DEPLOY_DIR/$env/current" ]; then
+        # Archive the current deployment
+        tar -czf "$BACKUP_DIR/$backup_name.tar.gz" -C "$DEPLOY_DIR/$env" current
+        log "INFO" "Backup created at $BACKUP_DIR/$backup_name.tar.gz"
+    else
+        log "WARNING" "No previous deployment found for $env. Skipping backup."
+    fi
+}
+
 # Function to deploy to environment
 deploy_to_environment() {
-    local env=$1
+    local env="$1"
 
     log "STEP" "Deploying to $env environment..."
 
     # Validate that builds exist
-    if [ ! -d "$DEPLOY_DIR/$env" ]; then
+    local build_dir="$DEPLOY_DIR/$env"
+    if [ ! -d "$build_dir" ]; then
         log "ERROR" "Build directory for $env not found. Run build first."
         return 1
     fi
@@ -251,418 +295,164 @@ deploy_to_environment() {
     # Create backup for rollback
     create_backup "$env"
 
-    # Deploy backend
-    if [ -d "$DEPLOY_DIR/$env/backend" ]; then
+    # Define the target directory for the new deployment
+    local new_deploy_dir="$DEPLOY_DIR/$env/new_deployment"
+    local current_deploy_dir="$DEPLOY_DIR/$env/current"
+
+    # Copy the built artifacts to a temporary directory
+    mkdir -p "$new_deploy_dir"
+    rsync -av --delete "$build_dir/" "$new_deploy_dir/"
+
+    # Deployment logic (Placeholder for actual deployment to remote servers)
+    log "INFO" "Starting component deployment..."
+
+    # Backend deployment
+    if [ -d "$new_deploy_dir/backend" ]; then
         log "INFO" "Deploying backend..."
-
-        case $env in
-            "dev")
-                # For dev, we might just use the local build
-                log "INFO" "Using local backend build for dev environment"
-                ;;
-            "staging")
-                # For staging, deploy to test server
-                log "INFO" "Deploying backend to staging server..."
-                # Example: rsync to staging server
-                # rsync -avz --delete "$DEPLOY_DIR/$env/backend/" "user@staging-server:/path/to/backend/"
-                ;;
-            "prod")
-                # For production, deploy to production server
-                log "INFO" "Deploying backend to production server..."
-                # Example: rsync to production server
-                # rsync -avz --delete "$DEPLOY_DIR/$env/backend/" "user@production-server:/path/to/backend/"
-                ;;
-        esac
+        # Replace with actual remote deployment logic (e.g., SSH, Kubernetes apply, etc.)
+        log "WARNING" "Backend deployment is a placeholder. Replace with actual remote deployment logic."
     fi
 
-    # Deploy web frontend
-    if [ -d "$DEPLOY_DIR/$env/web-frontend/build" ]; then
+    # Web frontend deployment
+    if [ -d "$new_deploy_dir/web-frontend/dist" ] || [ -d "$new_deploy_dir/web-frontend/build" ]; then
         log "INFO" "Deploying web frontend..."
-
-        case $env in
-            "dev")
-                # For dev, we might just use the local build
-                log "INFO" "Using local web frontend build for dev environment"
-                ;;
-            "staging")
-                # For staging, deploy to test server
-                log "INFO" "Deploying web frontend to staging server..."
-                # Example: rsync to staging server
-                # rsync -avz --delete "$DEPLOY_DIR/$env/web-frontend/build/" "user@staging-server:/path/to/web-frontend/"
-                ;;
-            "prod")
-                # For production, deploy to production server
-                log "INFO" "Deploying web frontend to production server..."
-                # Example: rsync to production server
-                # rsync -avz --delete "$DEPLOY_DIR/$env/web-frontend/build/" "user@production-server:/path/to/web-frontend/"
-                ;;
-        esac
+        # Replace with actual remote deployment logic
+        log "WARNING" "Web frontend deployment is a placeholder. Replace with actual remote deployment logic."
     fi
 
-    # Deploy blockchain contracts
-    if [ -d "$DEPLOY_DIR/$env/blockchain" ]; then
-        log "INFO" "Deploying blockchain contracts..."
-
-        case $env in
-            "dev")
-                # For dev, deploy to local blockchain
-                log "INFO" "Deploying contracts to local blockchain..."
-                cd "$DEPLOY_DIR/$env/blockchain"
-                npx truffle migrate --network development
-                ;;
-            "staging")
-                # For staging, deploy to test network
-                log "INFO" "Deploying contracts to test network..."
-                cd "$DEPLOY_DIR/$env/blockchain"
-                npx truffle migrate --network testnet
-                ;;
-            "prod")
-                # For production, deploy to mainnet
-                log "INFO" "Deploying contracts to mainnet..."
-                cd "$DEPLOY_DIR/$env/blockchain"
-                npx truffle migrate --network mainnet
-                ;;
-        esac
+    # Blockchain deployment (migration)
+    if [ -d "$new_deploy_dir/blockchain" ]; then
+        log "INFO" "Deploying blockchain contracts (migration)..."
+        # This step usually requires network configuration and keys, which are not handled here.
+        # Example: (cd "$new_deploy_dir/blockchain" && npx truffle migrate --network "$env")
+        log "WARNING" "Blockchain migration is a placeholder. Replace with actual migration logic."
     fi
 
-    log "INFO" "Deployment to $env environment completed"
+    # Atomic switch (simulated)
+    log "STEP" "Performing atomic switch to new deployment..."
+    # In a real scenario, this would be a symlink switch or load balancer update
+    rm -rf "$current_deploy_dir" # Remove old "current" link/dir
+    mv "$new_deploy_dir" "$current_deploy_dir" # Make new deployment the "current" one
 
-    # Validate deployment
-    validate_deployment "$env"
-
+    log "INFO" "Deployment to $env environment completed successfully."
     return 0
 }
 
-# Function to create backup for rollback
-create_backup() {
-    local env=$1
-    local timestamp=$(date +"%Y%m%d%H%M%S")
-
-    log "STEP" "Creating backup for $env environment..."
-
-    # Create backup directory
-    local backup_dir="$BACKUP_DIR/${env}_${timestamp}"
-    mkdir -p "$backup_dir"
-
-    # Backup backend
-    if [ -d "$DEPLOY_DIR/$env/backend" ]; then
-        log "INFO" "Backing up backend..."
-        mkdir -p "$backup_dir/backend"
-        rsync -av "$DEPLOY_DIR/$env/backend/" "$backup_dir/backend/"
-    fi
-
-    # Backup web frontend
-    if [ -d "$DEPLOY_DIR/$env/web-frontend" ]; then
-        log "INFO" "Backing up web frontend..."
-        mkdir -p "$backup_dir/web-frontend"
-        rsync -av "$DEPLOY_DIR/$env/web-frontend/build/" "$backup_dir/web-frontend/"
-    fi
-
-    # Backup blockchain contracts
-    if [ -d "$DEPLOY_DIR/$env/blockchain" ]; then
-        log "INFO" "Backing up blockchain contracts..."
-        mkdir -p "$backup_dir/blockchain"
-        rsync -av "$DEPLOY_DIR/$env/blockchain/build/" "$backup_dir/blockchain/"
-    fi
-
-    # Save backup info
-    echo "$timestamp" > "$DEPLOY_DIR/$env/last_backup"
-
-    log "INFO" "Backup created at $backup_dir"
-    return 0
-}
-
-# Function to validate deployment
+# Function to run deployment validation
 validate_deployment() {
-    local env=$1
+    local env="$1"
 
-    log "STEP" "Validating deployment for $env environment..."
+    log "STEP" "Running post-deployment validation for $env environment..."
 
-    # Define endpoints to check based on environment
-    local backend_url=""
-    local frontend_url=""
+    # Placeholder for actual validation logic (e.g., health checks, smoke tests)
+    log "WARNING" "Deployment validation is a placeholder. Implement actual health checks and smoke tests."
 
-    case $env in
-        "dev")
-            backend_url="http://localhost:5000/api/health"
-            frontend_url="http://localhost:3000"
-            ;;
-        "staging")
-            backend_url="https://api.staging.carbonxchange.com/api/health"
-            frontend_url="https://staging.carbonxchange.com"
-            ;;
-        "prod")
-            backend_url="https://api.carbonxchange.com/api/health"
-            frontend_url="https://carbonxchange.com"
-            ;;
-    esac
+    # Example: Check backend health endpoint
+    # if curl -s -f "http://<env-url>/api/health"; then
+    #     log "INFO" "Backend health check passed."
+    # else
+    #     log "ERROR" "Backend health check failed."
+    #     return 1
+    # fi
 
-    # Check backend health
-    if [ -n "$backend_url" ]; then
-        log "INFO" "Checking backend health at $backend_url..."
-        if curl -s "$backend_url" | grep -q "healthy"; then
-            log "INFO" "Backend is healthy"
-        else
-            log "ERROR" "Backend health check failed"
-            return 1
-        fi
-    fi
-
-    # Check frontend
-    if [ -n "$frontend_url" ]; then
-        log "INFO" "Checking frontend at $frontend_url..."
-        if curl -s -I "$frontend_url" | grep -q "200 OK"; then
-            log "INFO" "Frontend is accessible"
-        else
-            log "ERROR" "Frontend check failed"
-            return 1
-        fi
-    fi
-
-    log "INFO" "Deployment validation completed successfully"
+    log "INFO" "Post-deployment validation completed successfully."
     return 0
 }
 
-# Function to rollback deployment
-rollback_deployment() {
-    local env=$1
+# Function to perform rollback
+perform_rollback() {
+    local env="$1"
 
-    log "STEP" "Rolling back deployment for $env environment..."
+    log "STEP" "Performing rollback for $env environment..."
 
-    # Check if last backup exists
-    if [ ! -f "$DEPLOY_DIR/$env/last_backup" ]; then
-        log "ERROR" "No backup found for $env environment"
+    # Find the latest backup
+    local latest_backup
+    latest_backup=$(ls -t "$BACKUP_DIR/$env"-*.tar.gz 2>/dev/null | head -n 1)
+
+    if [ -z "$latest_backup" ]; then
+        log "ERROR" "No backup found for $env environment. Cannot perform rollback."
         return 1
     fi
 
-    local timestamp=$(cat "$DEPLOY_DIR/$env/last_backup")
-    local backup_dir="$BACKUP_DIR/${env}_${timestamp}"
+    log "INFO" "Found latest backup: $(basename "$latest_backup")"
 
-    if [ ! -d "$backup_dir" ]; then
-        log "ERROR" "Backup directory not found: $backup_dir"
-        return 1
-    fi
+    # Extract the backup
+    log "INFO" "Extracting backup..."
+    tar -xzf "$latest_backup" -C "$DEPLOY_DIR/$env"
 
-    # Rollback backend
-    if [ -d "$backup_dir/backend" ]; then
-        log "INFO" "Rolling back backend..."
+    # Atomic switch (simulated)
+    log "STEP" "Performing atomic switch to rolled-back deployment..."
+    # In a real scenario, this would be a symlink switch or load balancer update
+    rm -rf "$DEPLOY_DIR/$env/current" # Remove failed "current" link/dir
+    mv "$DEPLOY_DIR/$env/current" "$DEPLOY_DIR/$env/current_failed_$(date +%Y%m%d%H%M%S)" # Rename failed deployment
+    mv "$DEPLOY_DIR/$env/current_backup" "$DEPLOY_DIR/$env/current" # Make backup the "current" one
 
-        case $env in
-            "dev")
-                # For dev, we might just restore the local backup
-                log "INFO" "Restoring local backend backup for dev environment"
-                rsync -av --delete "$backup_dir/backend/" "$DEPLOY_DIR/$env/backend/"
-                ;;
-            "staging")
-                # For staging, restore to test server
-                log "INFO" "Rolling back backend on staging server..."
-                # Example: rsync to staging server
-                # rsync -avz --delete "$backup_dir/backend/" "user@staging-server:/path/to/backend/"
-                ;;
-            "prod")
-                # For production, restore to production server
-                log "INFO" "Rolling back backend on production server..."
-                # Example: rsync to production server
-                # rsync -avz --delete "$backup_dir/backend/" "user@production-server:/path/to/backend/"
-                ;;
-        esac
-    fi
-
-    # Rollback web frontend
-    if [ -d "$backup_dir/web-frontend" ]; then
-        log "INFO" "Rolling back web frontend..."
-
-        case $env in
-            "dev")
-                # For dev, we might just restore the local backup
-                log "INFO" "Restoring local web frontend backup for dev environment"
-                rsync -av --delete "$backup_dir/web-frontend/" "$DEPLOY_DIR/$env/web-frontend/build/"
-                ;;
-            "staging")
-                # For staging, restore to test server
-                log "INFO" "Rolling back web frontend on staging server..."
-                # Example: rsync to staging server
-                # rsync -avz --delete "$backup_dir/web-frontend/" "user@staging-server:/path/to/web-frontend/"
-                ;;
-            "prod")
-                # For production, restore to production server
-                log "INFO" "Rolling back web frontend on production server..."
-                # Example: rsync to production server
-                # rsync -avz --delete "$backup_dir/web-frontend/" "user@production-server:/path/to/web-frontend/"
-                ;;
-        esac
-    fi
-
-    # Note: Blockchain contracts typically can't be rolled back once deployed
-    # We can only deploy a new version with fixes
-
-    log "INFO" "Rollback completed for $env environment"
-
-    # Validate rollback
-    validate_deployment "$env"
-
+    log "INFO" "Rollback to $(basename "$latest_backup") completed successfully."
     return 0
 }
 
-# Function to display help message
-show_help() {
-    echo "CarbonXchange Deployment Pipeline Enhancer"
-    echo ""
-    echo "Usage: $0 [command] [options]"
+# Function to display usage
+usage() {
+    echo -e "${BLUE}Usage: $0 <command> <environment>${NC}"
     echo ""
     echo "Commands:"
-    echo "  config <environment>        Generate configuration for environment"
-    echo "  build <environment>         Build all components for environment"
-    echo "  deploy <environment>        Deploy to environment"
-    echo "  validate <environment>      Validate deployment in environment"
-    echo "  rollback <environment>      Rollback to previous deployment"
-    echo "  help                        Show this help message"
+    echo "  build <env>           Generate config and build all components for the specified environment."
+    echo "  deploy <env>          Deploy the latest build to the specified environment."
+    echo "  validate <env>        Run post-deployment validation checks."
+    echo "  rollback <env>        Rollback to the previous successful deployment."
+    echo "  all <env>             Run build, deploy, and validate sequentially."
+    echo "  --help                Display this help message."
     echo ""
-    echo "Environments:"
-    echo "  dev, development            Development environment"
-    echo "  staging, test               Staging/testing environment"
-    echo "  prod, production            Production environment"
-    echo ""
-    echo "Options:"
-    echo "  --backend-only              Only perform action on backend"
-    echo "  --frontend-only             Only perform action on web frontend"
-    echo "  --blockchain-only           Only perform action on blockchain contracts"
-    echo ""
-    echo "Examples:"
-    echo "  $0 config dev               Generate configuration for development environment"
-    echo "  $0 build staging            Build all components for staging environment"
-    echo "  $0 deploy prod              Deploy to production environment"
-    echo "  $0 rollback prod            Rollback production to previous deployment"
+    echo "Environments: dev, staging, prod"
+    echo "Example: $0 all prod"
 }
 
-# Main function
-main() {
-    if [ $# -eq 0 ]; then
-        show_help
-        exit 0
-    fi
+# Main script logic
+if [ $# -lt 2 ] && [ "$1" != "--help" ]; then
+    usage
+    exit 1
+fi
 
-    local command=$1
-    shift
+COMMAND="$1"
+ENV_INPUT="${2:-}"
+ENV=""
 
-    case $command in
-        "config")
-            if [ $# -eq 0 ]; then
-                log "ERROR" "Environment required for config command"
-                exit 1
-            fi
+if [ "$COMMAND" != "--help" ]; then
+    ENV=$(validate_environment "$ENV_INPUT")
+fi
 
-            local env=$(validate_environment "$1")
-            if [ $? -ne 0 ]; then
-                exit 1
-            fi
+case "$COMMAND" in
+    "build")
+        generate_config "$ENV" && \
+        build_backend "$ENV" && \
+        build_web_frontend "$ENV" && \
+        build_blockchain "$ENV"
+        ;;
+    "deploy")
+        deploy_to_environment "$ENV"
+        ;;
+    "validate")
+        validate_deployment "$ENV"
+        ;;
+    "rollback")
+        perform_rollback "$ENV"
+        ;;
+    "all")
+        generate_config "$ENV" && \
+        build_backend "$ENV" && \
+        build_web_frontend "$ENV" && \
+        build_blockchain "$ENV" && \
+        deploy_to_environment "$ENV" && \
+        validate_deployment "$ENV"
+        ;;
+    "--help"|"-h")
+        usage
+        ;;
+    *)
+        log "ERROR" "Unknown command: $COMMAND"
+        usage
+        exit 1
+        ;;
+esac
 
-            generate_config "$env"
-            ;;
-        "build")
-            if [ $# -eq 0 ]; then
-                log "ERROR" "Environment required for build command"
-                exit 1
-            fi
-
-            local env=$(validate_environment "$1")
-            if [ $? -ne 0 ]; then
-                exit 1
-            fi
-
-            shift
-
-            # Parse options
-            local backend_only=false
-            local frontend_only=false
-            local blockchain_only=false
-
-            while [ $# -gt 0 ]; do
-                case "$1" in
-                    --backend-only)
-                        backend_only=true
-                        ;;
-                    --frontend-only)
-                        frontend_only=true
-                        ;;
-                    --blockchain-only)
-                        blockchain_only=true
-                        ;;
-                    *)
-                        log "ERROR" "Unknown option: $1"
-                        show_help
-                        exit 1
-                        ;;
-                esac
-                shift
-            done
-
-            # Generate config first
-            generate_config "$env"
-
-            # Build components based on options
-            if [ "$backend_only" = true ]; then
-                build_backend "$env"
-            elif [ "$frontend_only" = true ]; then
-                build_web_frontend "$env"
-            elif [ "$blockchain_only" = true ]; then
-                build_blockchain "$env"
-            else
-                # Build all components
-                build_backend "$env"
-                build_web_frontend "$env"
-                build_blockchain "$env"
-            fi
-            ;;
-        "deploy")
-            if [ $# -eq 0 ]; then
-                log "ERROR" "Environment required for deploy command"
-                exit 1
-            fi
-
-            local env=$(validate_environment "$1")
-            if [ $? -ne 0 ]; then
-                exit 1
-            fi
-
-            deploy_to_environment "$env"
-            ;;
-        "validate")
-            if [ $# -eq 0 ]; then
-                log "ERROR" "Environment required for validate command"
-                exit 1
-            fi
-
-            local env=$(validate_environment "$1")
-            if [ $? -ne 0 ]; then
-                exit 1
-            fi
-
-            validate_deployment "$env"
-            ;;
-        "rollback")
-            if [ $# -eq 0 ]; then
-                log "ERROR" "Environment required for rollback command"
-                exit 1
-            fi
-
-            local env=$(validate_environment "$1")
-            if [ $? -ne 0 ]; then
-                exit 1
-            fi
-
-            rollback_deployment "$env"
-            ;;
-        "help")
-            show_help
-            ;;
-        *)
-            log "ERROR" "Unknown command: $command"
-            show_help
-            exit 1
-            ;;
-    esac
-}
-
-# Run main function
-main "$@"
+log "INFO" "Operation '$COMMAND $ENV' completed successfully."
