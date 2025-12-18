@@ -1,0 +1,111 @@
+---
+# Development Environment Values Example
+# Copy to values.yaml and replace placeholder values
+# DO NOT commit values.yaml with real secrets
+
+appName: carbonxchange
+environment: dev
+
+# Backend configuration
+backend:
+    replicas: 2
+    image:
+        repository: registry.example.com/carbonxchange/backend
+        tag: "1.0.0" # Use specific tags, not 'latest'
+        pullPolicy: IfNotPresent
+    containerPort: 3000
+    servicePort: 80
+    resources:
+        limits:
+            cpu: 500m
+            memory: 512Mi
+        requests:
+            cpu: 200m
+            memory: 256Mi
+    apiUrl: http://carbonxchange-backend
+    # SECURITY: Provide via sealed-secrets or external secrets operator
+    jwtSecret: "REPLACE_WITH_SECRET" # min 32 chars
+    apiKey: "REPLACE_WITH_API_KEY"
+
+# Frontend configuration
+frontend:
+    replicas: 2
+    image:
+        repository: registry.example.com/carbonxchange/frontend
+        tag: "1.0.0"
+        pullPolicy: IfNotPresent
+    containerPort: 80
+    servicePort: 80
+    apiUrl: /api
+    service:
+        type: ClusterIP
+    resources:
+        limits:
+            cpu: 300m
+            memory: 256Mi
+        requests:
+            cpu: 100m
+            memory: 128Mi
+
+# Database configuration
+database:
+    replicas: 1
+    image:
+        repository: mysql
+        tag: "8.0.36" # Specific version
+        pullPolicy: IfNotPresent
+    containerPort: 3306
+    servicePort: 3306
+    name: carbonxchangedb
+    user: appuser
+    # SECURITY: Use Kubernetes secrets or sealed-secrets
+    password: "REPLACE_WITH_DB_PASSWORD"
+    rootPassword: "REPLACE_WITH_ROOT_PASSWORD"
+    url: "mysql://appuser:PASSWORD@carbonxchange-database:3306/carbonxchangedb"
+    storageClass: standard
+    storage: 10Gi
+    resources:
+        limits:
+            cpu: 1000m
+            memory: 1Gi
+        requests:
+            cpu: 500m
+            memory: 512Mi
+
+# Redis configuration
+redis:
+    replicas: 1
+    image:
+        repository: redis
+        tag: "7.2.4" # Specific version
+        pullPolicy: IfNotPresent
+    containerPort: 6379
+    servicePort: 6379
+    storageClass: standard
+    storage: 5Gi
+    resources:
+        limits:
+            cpu: 300m
+            memory: 512Mi
+        requests:
+            cpu: 100m
+            memory: 256Mi
+
+# Ingress configuration
+ingress:
+    host: dev.carbonxchange.example.com
+    class: nginx
+    sslRedirect: "true"
+    certManager:
+        issuer: letsencrypt-staging
+
+# General configuration
+logLevel: debug
+imagePullSecrets: regcred
+
+# Security Notes:
+# 1. For production: Use sealed-secrets, external-secrets, or Vault
+# 2. Never commit real passwords to git
+# 3. Rotate secrets regularly
+# 4. Use RBAC to limit secret access
+# 5. Enable audit logging for secret access

@@ -118,10 +118,10 @@ resource "aws_cloudwatch_dashboard" "main" {
         height = 6
 
         properties = {
-          query   = "SOURCE '${aws_cloudwatch_log_group.security.name}' | fields @timestamp, @message | filter @message like /ERROR/ | sort @timestamp desc | limit 100"
-          region  = data.aws_region.current.name
-          title   = "Recent Security Errors"
-          view    = "table"
+          query  = "SOURCE '${aws_cloudwatch_log_group.security.name}' | fields @timestamp, @message | filter @message like /ERROR/ | sort @timestamp desc | limit 100"
+          region = data.aws_region.current.name
+          title  = "Recent Security Errors"
+          view   = "table"
         }
       }
     ]
@@ -160,10 +160,10 @@ resource "aws_cloudwatch_dashboard" "security" {
         height = 6
 
         properties = {
-          query   = "SOURCE '${aws_cloudwatch_log_group.security.name}' | fields @timestamp, sourceIP, action | filter action = \"BLOCK\" | stats count() by sourceIP | sort count desc | limit 10"
-          region  = data.aws_region.current.name
-          title   = "Top Blocked IPs"
-          view    = "table"
+          query  = "SOURCE '${aws_cloudwatch_log_group.security.name}' | fields @timestamp, sourceIP, action | filter action = \"BLOCK\" | stats count() by sourceIP | sort count desc | limit 10"
+          region = data.aws_region.current.name
+          title  = "Top Blocked IPs"
+          view   = "table"
         }
       }
     ]
@@ -543,9 +543,9 @@ resource "aws_synthetics_canary" "api_health_check" {
   }
 
   run_config {
-    timeout_in_seconds    = 60
-    memory_in_mb         = 960
-    active_tracing       = true
+    timeout_in_seconds = 60
+    memory_in_mb       = 960
+    active_tracing     = true
     environment_variables = {
       API_ENDPOINT = var.api_endpoint_url
     }
@@ -603,18 +603,18 @@ resource "aws_iam_role_policy_attachment" "synthetics" {
 
 # X-Ray Tracing for Distributed Tracing
 resource "aws_xray_sampling_rule" "main" {
-  count           = var.enable_xray_tracing ? 1 : 0
-  rule_name       = "${var.app_name}-${var.environment}-sampling-rule"
-  priority        = 9000
-  version         = 1
-  reservoir_size  = 1
-  fixed_rate      = 0.1
-  url_path        = "*"
-  host            = "*"
-  http_method     = "*"
-  service_type    = "*"
-  service_name    = "*"
-  resource_arn    = "*"
+  count          = var.enable_xray_tracing ? 1 : 0
+  rule_name      = "${var.app_name}-${var.environment}-sampling-rule"
+  priority       = 9000
+  version        = 1
+  reservoir_size = 1
+  fixed_rate     = 0.1
+  url_path       = "*"
+  host           = "*"
+  http_method    = "*"
+  service_type   = "*"
+  service_name   = "*"
+  resource_arn   = "*"
 
   tags = merge(var.common_tags, {
     Name = "${var.app_name}-${var.environment}-xray-sampling-rule"

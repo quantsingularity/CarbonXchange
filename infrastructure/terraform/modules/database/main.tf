@@ -193,9 +193,9 @@ resource "aws_db_instance" "main" {
   max_allocated_storage = var.max_allocated_storage
   storage_type          = var.storage_type
   storage_encrypted     = true
-  kms_key_id           = var.kms_key_id != "" ? var.kms_key_id : aws_kms_key.database[0].arn
-  iops                 = var.storage_type == "io1" || var.storage_type == "io2" ? var.iops : null
-  storage_throughput   = var.storage_type == "gp3" ? var.storage_throughput : null
+  kms_key_id            = var.kms_key_id != "" ? var.kms_key_id : aws_kms_key.database[0].arn
+  iops                  = var.storage_type == "io1" || var.storage_type == "io2" ? var.iops : null
+  storage_throughput    = var.storage_type == "gp3" ? var.storage_throughput : null
 
   # Database Configuration
   db_name  = var.db_name
@@ -203,7 +203,7 @@ resource "aws_db_instance" "main" {
   password = var.manage_master_user_password ? null : (var.db_password != "" ? var.db_password : random_password.master_password[0].result)
 
   # Master User Password Management (AWS managed)
-  manage_master_user_password = var.manage_master_user_password
+  manage_master_user_password   = var.manage_master_user_password
   master_user_secret_kms_key_id = var.manage_master_user_password ? (var.kms_key_id != "" ? var.kms_key_id : aws_kms_key.database[0].arn) : null
 
   # Network Configuration
@@ -218,28 +218,28 @@ resource "aws_db_instance" "main" {
 
   # Backup Configuration
   backup_retention_period   = var.backup_retention_period
-  backup_window            = var.backup_window
-  copy_tags_to_snapshot    = true
-  delete_automated_backups = false
-  deletion_protection      = var.deletion_protection
-  skip_final_snapshot      = var.skip_final_snapshot
+  backup_window             = var.backup_window
+  copy_tags_to_snapshot     = true
+  delete_automated_backups  = false
+  deletion_protection       = var.deletion_protection
+  skip_final_snapshot       = var.skip_final_snapshot
   final_snapshot_identifier = var.skip_final_snapshot ? null : "${var.db_name}-${var.environment}-final-snapshot-${formatdate("YYYY-MM-DD-hhmm", timestamp())}"
 
   # Maintenance Configuration
-  maintenance_window         = var.maintenance_window
-  auto_minor_version_upgrade = var.auto_minor_version_upgrade
+  maintenance_window          = var.maintenance_window
+  auto_minor_version_upgrade  = var.auto_minor_version_upgrade
   allow_major_version_upgrade = var.allow_major_version_upgrade
 
   # High Availability
-  multi_az               = var.multi_az
-  availability_zone      = var.multi_az ? null : var.availability_zone
+  multi_az          = var.multi_az
+  availability_zone = var.multi_az ? null : var.availability_zone
 
   # Monitoring and Logging
   monitoring_interval = var.enhanced_monitoring_interval
   monitoring_role_arn = var.enhanced_monitoring_interval > 0 ? aws_iam_role.enhanced_monitoring[0].arn : null
 
   performance_insights_enabled          = var.performance_insights_enabled
-  performance_insights_kms_key_id      = var.performance_insights_enabled ? (var.kms_key_id != "" ? var.kms_key_id : aws_kms_key.database[0].arn) : null
+  performance_insights_kms_key_id       = var.performance_insights_enabled ? (var.kms_key_id != "" ? var.kms_key_id : aws_kms_key.database[0].arn) : null
   performance_insights_retention_period = var.performance_insights_enabled ? var.performance_insights_retention_period : null
 
   enabled_cloudwatch_logs_exports = var.enabled_cloudwatch_logs_exports
@@ -257,11 +257,11 @@ resource "aws_db_instance" "main" {
   }
 
   tags = merge(var.common_tags, {
-    Name = "${var.db_name}-${var.environment}"
-    Type = "database-primary"
-    Compliance = join(",", var.compliance_standards)
+    Name               = "${var.db_name}-${var.environment}"
+    Type               = "database-primary"
+    Compliance         = join(",", var.compliance_standards)
     DataClassification = var.data_classification
-    BackupRetention = var.backup_retention_period
+    BackupRetention    = var.backup_retention_period
   })
 
   depends_on = [
@@ -285,7 +285,7 @@ resource "aws_db_instance" "read_replica" {
   max_allocated_storage = var.read_replica_max_allocated_storage
   storage_type          = var.read_replica_storage_type
   storage_encrypted     = true
-  iops                 = var.read_replica_storage_type == "io1" || var.read_replica_storage_type == "io2" ? var.read_replica_iops : null
+  iops                  = var.read_replica_storage_type == "io1" || var.read_replica_storage_type == "io2" ? var.read_replica_iops : null
 
   # Network Configuration
   publicly_accessible = false
@@ -296,22 +296,22 @@ resource "aws_db_instance" "read_replica" {
   monitoring_role_arn = var.read_replica_monitoring_interval > 0 ? aws_iam_role.enhanced_monitoring[0].arn : null
 
   performance_insights_enabled          = var.read_replica_performance_insights_enabled
-  performance_insights_kms_key_id      = var.read_replica_performance_insights_enabled ? (var.kms_key_id != "" ? var.kms_key_id : aws_kms_key.database[0].arn) : null
+  performance_insights_kms_key_id       = var.read_replica_performance_insights_enabled ? (var.kms_key_id != "" ? var.kms_key_id : aws_kms_key.database[0].arn) : null
   performance_insights_retention_period = var.read_replica_performance_insights_enabled ? var.performance_insights_retention_period : null
 
   # Backup (read replicas don't support automated backups)
   backup_retention_period = 0
-  copy_tags_to_snapshot  = true
-  deletion_protection    = var.read_replica_deletion_protection
-  skip_final_snapshot    = var.read_replica_skip_final_snapshot
+  copy_tags_to_snapshot   = true
+  deletion_protection     = var.read_replica_deletion_protection
+  skip_final_snapshot     = var.read_replica_skip_final_snapshot
 
   # Maintenance
   maintenance_window         = var.read_replica_maintenance_window
   auto_minor_version_upgrade = var.read_replica_auto_minor_version_upgrade
 
   tags = merge(var.common_tags, {
-    Name = "${var.db_name}-${var.environment}-replica-${count.index + 1}"
-    Type = "database-replica"
+    Name         = "${var.db_name}-${var.environment}-replica-${count.index + 1}"
+    Type         = "database-replica"
     ReplicaIndex = count.index + 1
   })
 
@@ -350,19 +350,19 @@ resource "aws_iam_role_policy_attachment" "enhanced_monitoring" {
 
 # Database Proxy for connection pooling and security
 resource "aws_db_proxy" "main" {
-  count                  = var.create_db_proxy ? 1 : 0
-  name                   = "${var.db_name}-${var.environment}-proxy"
-  engine_family         = var.proxy_engine_family
+  count         = var.create_db_proxy ? 1 : 0
+  name          = "${var.db_name}-${var.environment}-proxy"
+  engine_family = var.proxy_engine_family
   auth {
     auth_scheme = "SECRETS"
     secret_arn  = aws_secretsmanager_secret.db_credentials.arn
   }
 
-  role_arn               = aws_iam_role.db_proxy[0].arn
-  vpc_subnet_ids         = var.private_subnet_ids
-  require_tls           = true
-  idle_client_timeout   = var.proxy_idle_client_timeout
-  max_connections_percent = var.proxy_max_connections_percent
+  role_arn                     = aws_iam_role.db_proxy[0].arn
+  vpc_subnet_ids               = var.private_subnet_ids
+  require_tls                  = true
+  idle_client_timeout          = var.proxy_idle_client_timeout
+  max_connections_percent      = var.proxy_max_connections_percent
   max_idle_connections_percent = var.proxy_max_idle_connections_percent
 
   tags = merge(var.common_tags, {
@@ -377,18 +377,18 @@ resource "aws_db_proxy_default_target_group" "main" {
 
   connection_pool_config {
     connection_borrow_timeout    = var.proxy_connection_borrow_timeout
-    init_query                  = var.proxy_init_query
-    max_connections_percent     = var.proxy_max_connections_percent
+    init_query                   = var.proxy_init_query
+    max_connections_percent      = var.proxy_max_connections_percent
     max_idle_connections_percent = var.proxy_max_idle_connections_percent
-    session_pinning_filters     = var.proxy_session_pinning_filters
+    session_pinning_filters      = var.proxy_session_pinning_filters
   }
 }
 
 resource "aws_db_proxy_target" "main" {
-  count                = var.create_db_proxy ? 1 : 0
+  count                  = var.create_db_proxy ? 1 : 0
   db_instance_identifier = aws_db_instance.main.identifier
-  db_proxy_name         = aws_db_proxy.main[0].name
-  target_group_name     = aws_db_proxy_default_target_group.main[0].name
+  db_proxy_name          = aws_db_proxy.main[0].name
+  target_group_name      = aws_db_proxy_default_target_group.main[0].name
 }
 
 # IAM Role for DB Proxy
@@ -451,7 +451,7 @@ resource "aws_iam_role_policy" "db_proxy" {
 resource "aws_secretsmanager_secret" "db_credentials" {
   name                    = "${var.db_name}-${var.environment}-db-credentials"
   description             = "Database credentials for ${var.db_name} ${var.environment}"
-  kms_key_id             = var.kms_key_id != "" ? var.kms_key_id : aws_kms_key.database[0].arn
+  kms_key_id              = var.kms_key_id != "" ? var.kms_key_id : aws_kms_key.database[0].arn
   recovery_window_in_days = var.secret_recovery_window
 
   tags = merge(var.common_tags, {
@@ -552,7 +552,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "database_backups" {
     }
 
     expiration {
-      days = var.backup_retention_period * 365  # Convert years to days
+      days = var.backup_retention_period * 365 # Convert years to days
     }
 
     noncurrent_version_expiration {

@@ -163,22 +163,22 @@ output "security_configuration" {
   value = {
     encryption_at_rest_enabled    = var.encryption_at_rest_required
     encryption_in_transit_enabled = var.encryption_in_transit_required
-    minimum_tls_version          = var.minimum_tls_version
-    mfa_required                 = var.require_mfa
-    cloudtrail_enabled           = var.enable_cloudtrail
-    guardduty_enabled            = var.enable_guardduty
-    config_enabled               = var.enable_config
-    security_hub_enabled         = var.enable_security_hub
-    vpc_flow_logs_enabled        = var.enable_vpc_flow_logs
-    waf_enabled                  = true
-    geo_blocking_enabled         = var.enable_geo_blocking
-    ddos_protection_enabled      = var.enable_ddos_protection
-    data_classification          = var.data_classification
-    compliance_standards         = var.compliance_standards
-    log_retention_days           = var.log_retention_days
-    backup_retention_days        = var.backup_retention_days
-    rto_minutes                  = var.rto_minutes
-    rpo_minutes                  = var.rpo_minutes
+    minimum_tls_version           = var.minimum_tls_version
+    mfa_required                  = var.require_mfa
+    cloudtrail_enabled            = var.enable_cloudtrail
+    guardduty_enabled             = var.enable_guardduty
+    config_enabled                = var.enable_config
+    security_hub_enabled          = var.enable_security_hub
+    vpc_flow_logs_enabled         = var.enable_vpc_flow_logs
+    waf_enabled                   = true
+    geo_blocking_enabled          = var.enable_geo_blocking
+    ddos_protection_enabled       = var.enable_ddos_protection
+    data_classification           = var.data_classification
+    compliance_standards          = var.compliance_standards
+    log_retention_days            = var.log_retention_days
+    backup_retention_days         = var.backup_retention_days
+    rto_minutes                   = var.rto_minutes
+    rpo_minutes                   = var.rpo_minutes
   }
 }
 
@@ -189,28 +189,28 @@ output "compliance_report" {
     standards_covered = var.compliance_standards
     audit_logging = {
       cloudtrail_enabled = var.enable_cloudtrail
-      vpc_flow_logs     = var.enable_vpc_flow_logs
-      config_enabled    = var.enable_config
-      log_retention     = var.log_retention_days
+      vpc_flow_logs      = var.enable_vpc_flow_logs
+      config_enabled     = var.enable_config
+      log_retention      = var.log_retention_days
     }
     data_protection = {
       encryption_at_rest    = var.encryption_at_rest_required
       encryption_in_transit = var.encryption_in_transit_required
-      kms_key_rotation     = true
-      secrets_management   = true
-      data_classification  = var.data_classification
+      kms_key_rotation      = true
+      secrets_management    = true
+      data_classification   = var.data_classification
     }
     access_control = {
-      mfa_required           = var.require_mfa
-      least_privilege        = true
-      network_segmentation   = true
-      security_groups        = true
-      network_acls          = true
+      mfa_required         = var.require_mfa
+      least_privilege      = true
+      network_segmentation = true
+      security_groups      = true
+      network_acls         = true
     }
     monitoring_detection = {
-      guardduty_enabled     = var.enable_guardduty
-      security_hub_enabled  = var.enable_security_hub
-      waf_protection       = true
+      guardduty_enabled      = var.enable_guardduty
+      security_hub_enabled   = var.enable_security_hub
+      waf_protection         = true
       vulnerability_scanning = true
     }
     incident_response = {
@@ -219,8 +219,8 @@ output "compliance_report" {
       forensic_capabilities = true
     }
     business_continuity = {
-      backup_strategy      = true
-      disaster_recovery    = true
+      backup_strategy     = true
+      disaster_recovery   = true
       rto_minutes         = var.rto_minutes
       rpo_minutes         = var.rpo_minutes
       multi_az_deployment = true
@@ -237,11 +237,11 @@ output "resource_tags" {
 output "cost_allocation_tags" {
   description = "Tags for cost allocation and tracking"
   value = {
-    Application   = var.app_name
-    Environment   = var.environment
-    CostCenter    = var.cost_center
-    DataClass     = var.data_classification
-    Compliance    = join(",", var.compliance_standards)
+    Application = var.app_name
+    Environment = var.environment
+    CostCenter  = var.cost_center
+    DataClass   = var.data_classification
+    Compliance  = join(",", var.compliance_standards)
   }
 }
 
@@ -249,17 +249,17 @@ output "cost_allocation_tags" {
 output "security_metrics" {
   description = "Security metrics and KPIs for monitoring"
   value = {
-    security_groups_count    = 5  # alb, app, db, redis, monitoring
-    network_acls_count      = 1
-    kms_keys_count          = 1
-    secrets_count           = 1
-    waf_rules_count         = 4
-    cloudwatch_log_groups   = var.enable_vpc_flow_logs ? 1 : 0
+    security_groups_count = 5 # alb, app, db, redis, monitoring
+    network_acls_count    = 1
+    kms_keys_count        = 1
+    secrets_count         = 1
+    waf_rules_count       = 4
+    cloudwatch_log_groups = var.enable_vpc_flow_logs ? 1 : 0
     compliance_services = {
-      cloudtrail    = var.enable_cloudtrail
-      guardduty     = var.enable_guardduty
-      config        = var.enable_config
-      security_hub  = var.enable_security_hub
+      cloudtrail   = var.enable_cloudtrail
+      guardduty    = var.enable_guardduty
+      config       = var.enable_config
+      security_hub = var.enable_security_hub
     }
   }
 }

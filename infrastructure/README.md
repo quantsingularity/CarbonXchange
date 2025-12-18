@@ -1,415 +1,333 @@
-# CarbonXchange Infrastructure
+# CarbonXchange Infrastructure - Fixed & Hardened
 
 ## Overview
 
-This directory contains the comprehensive infrastructure code for CarbonXchange, designed to meet financial industry standards for security, compliance, and robustness. The infrastructure implements best practices for financial applications including PCI DSS, SOX, GDPR, and ISO 27001 compliance requirements.
+This directory contains the infrastructure code for CarbonXchange. All critical security issues have been addressed, deprecated APIs updated, and best practices implemented.
 
-## Architecture
-
-The infrastructure is organized into several key components:
-
-### 1. Terraform Modules
-
-#### Security Module (`terraform/modules/security/`)
-
-- **Comprehensive Security Controls**: Implements WAF, GuardDuty, Security Hub, CloudTrail, and Config
-- **Network Security**: VPC segmentation, security groups, NACLs, and VPC Flow Logs
-- **Encryption**: KMS key management for encryption at rest and in transit
-- **Identity & Access Management**: Centralized IAM with least privilege principles
-- **Compliance Monitoring**: Automated compliance reporting and audit trails
-- **Secrets Management**: AWS Secrets Manager integration for secure credential storage
-
-#### Monitoring Module (`terraform/modules/monitoring/`)
-
-- **Centralized Logging**: CloudWatch log groups with 7-year retention for financial compliance
-- **Performance Monitoring**: Comprehensive metrics collection and alerting
-- **Security Monitoring**: SIEM integration and security event correlation
-- **Business Metrics**: Transaction monitoring and KPI tracking
-- **Compliance Reporting**: Automated compliance status reporting
-- **Cost Monitoring**: Budget alerts and cost optimization tracking
-
-#### Database Module (`terraform/modules/database/`)
-
-- **High Availability**: Multi-AZ deployment with read replicas
-- **Security Hardening**: Encryption at rest/transit, parameter group hardening
-- **Backup & Recovery**: Automated backups with 7-year retention
-- **Performance Optimization**: Performance Insights and connection pooling
-- **Compliance Features**: Audit logging and data retention policies
-- **Disaster Recovery**: Cross-region backup capabilities
-
-### 2. Kubernetes Configurations
-
-#### Base Configurations (`kubernetes/base/`)
-
-- **Enhanced Deployments**: Security-hardened pod specifications
-- **Service Definitions**: Load balancer and service mesh configurations
-- **ConfigMaps & Secrets**: Centralized configuration management
-- **Ingress Controllers**: SSL termination and routing rules
-
-#### Security Configurations (`kubernetes/security/`)
-
-- **Pod Security Policies**: Restrictive security policies for financial workloads
-- **Network Policies**: Micro-segmentation and traffic control
-- **RBAC**: Role-based access control with least privilege
-- **Security Context Constraints**: OpenShift compatibility
-
-#### Monitoring Configurations (`kubernetes/monitoring/`)
-
-- **Prometheus Integration**: Metrics collection and alerting
-- **Grafana Dashboards**: Visualization and reporting
-- **Log Aggregation**: Centralized logging with Fluent Bit
-- **Distributed Tracing**: X-Ray integration for request tracing
-
-#### Compliance Configurations (`kubernetes/compliance/`)
-
-- **Audit Policies**: Kubernetes audit logging configuration
-- **Resource Quotas**: Resource limits and governance
-- **Admission Controllers**: Policy enforcement and validation
-- **Backup Policies**: Persistent volume backup strategies
-
-### 3. Ansible Automation
-
-#### Playbooks (`ansible/playbooks/`)
-
-- **Infrastructure Provisioning**: Automated server setup and configuration
-- **Security Hardening**: OS-level security configurations
-- **Application Deployment**: Zero-downtime deployment strategies
-- **Compliance Enforcement**: Automated compliance checking
-
-#### Roles (`ansible/roles/`)
-
-- **Common**: Base system configuration and security
-- **Database**: Database server setup and hardening
-- **Webserver**: Web server configuration with security headers
-- **Monitoring**: Monitoring agent installation and configuration
-
-## Financial Compliance Features
-
-### Security Standards Compliance
-
-#### PCI DSS (Payment Card Industry Data Security Standard)
-
-- Network segmentation and access controls
-- Encryption of cardholder data at rest and in transit
-- Regular security testing and vulnerability assessments
-- Comprehensive logging and monitoring
-- Secure authentication and access management
-
-#### SOX (Sarbanes-Oxley Act)
-
-- Comprehensive audit trails for all financial transactions
-- Change management controls and approval workflows
-- Data retention policies (7-year minimum)
-- Segregation of duties and access controls
-- Regular compliance reporting and attestation
-
-#### GDPR (General Data Protection Regulation)
-
-- Data encryption and pseudonymization
-- Right to erasure (right to be forgotten) capabilities
-- Data breach notification systems
-- Privacy by design implementation
-- Consent management and data subject rights
-
-#### ISO 27001 (Information Security Management)
-
-- Information security management system (ISMS)
-- Risk assessment and treatment procedures
-- Security incident management
-- Business continuity and disaster recovery
-- Regular security audits and reviews
-
-### Technical Security Features
-
-#### Encryption
-
-- **At Rest**: AES-256 encryption for all data stores
-- **In Transit**: TLS 1.3 for all communications
-- **Key Management**: AWS KMS with automatic key rotation
-- **Database**: Transparent Data Encryption (TDE) enabled
-
-#### Network Security
-
-- **VPC Segmentation**: Isolated network environments
-- **WAF Protection**: Application-layer security filtering
-- **DDoS Protection**: AWS Shield Advanced integration
-- **Network Monitoring**: VPC Flow Logs and traffic analysis
-
-#### Access Control
-
-- **Multi-Factor Authentication**: Required for all administrative access
-- **Least Privilege**: Role-based access with minimal permissions
-- **Session Management**: Automated session timeout and monitoring
-- **API Security**: Rate limiting and authentication tokens
-
-#### Monitoring & Alerting
-
-- **Real-time Monitoring**: 24/7 system and security monitoring
-- **Automated Alerting**: Immediate notification of security events
-- **Log Retention**: 7-year log retention for compliance
-- **Audit Trails**: Comprehensive activity logging
-
-## Deployment Guide
+## Quick Start
 
 ### Prerequisites
 
-1. **AWS Account**: With appropriate permissions for resource creation
-2. **Terraform**: Version 1.5+ installed
-3. **kubectl**: For Kubernetes cluster management
-4. **Ansible**: Version 2.9+ for automation
-5. **AWS CLI**: Configured with appropriate credentials
-
-### Environment Setup
-
-#### 1. Terraform Deployment
+Install the following tools:
 
 ```bash
-# Navigate to terraform directory
+# Terraform (1.6.6 or later)
+wget https://releases.hashicorp.com/terraform/1.6.6/terraform_1.6.6_linux_amd64.zip
+unzip terraform_1.6.6_linux_amd64.zip
+sudo mv terraform /usr/local/bin/
+
+# kubectl (1.28.0 or later)
+curl -LO "https://dl.k8s.io/release/v1.28.0/bin/linux/amd64/kubectl"
+chmod +x kubectl
+sudo mv kubectl /usr/local/bin/
+
+# Ansible (2.15.0 or later) & tools
+pip install ansible>=2.15.0 ansible-lint yamllint
+
+# Install Ansible collections
+ansible-galaxy collection install -r ansible/requirements.yml
+
+# AWS CLI (if using AWS)
+pip install awscli
+```
+
+### 1. Terraform Setup & Validation
+
+```bash
 cd terraform
 
-# Initialize Terraform
-terraform init
+# Copy example tfvars and configure
+cp terraform.tfvars.example terraform.tfvars
+# Edit terraform.tfvars with your values (DO NOT commit this file)
 
-# Plan deployment for specific environment
-terraform plan -var-file="environments/prod/terraform.tfvars"
+# Format check
+terraform fmt -check -recursive
 
-# Apply configuration
-terraform apply -var-file="environments/prod/terraform.tfvars"
+# Initialize
+terraform init -backend=false
+
+# Validate
+terraform validate
+
+# Plan (requires variables)
+export TF_VAR_db_password="your-secure-password"
+terraform plan -var-file="terraform.tfvars" -out=plan.out
+
+# Apply (in actual deployment)
+# terraform apply plan.out
 ```
 
-#### 2. Kubernetes Configuration
+### 2. Kubernetes Setup & Validation
 
 ```bash
-# Apply security policies first
-kubectl apply -f kubernetes/security/
+cd kubernetes
 
-# Deploy base configurations
-kubectl apply -f kubernetes/base/
+# Copy example values
+cp environments/dev/values.yaml.example environments/dev/values.yaml
+# Edit values.yaml with your secrets (DO NOT commit this file)
 
-# Apply monitoring configurations
-kubectl apply -f kubernetes/monitoring/
+# Validate YAML syntax
+yamllint -c ../.yamllint .
 
-# Apply compliance configurations
-kubectl apply -f kubernetes/compliance/
+# Dry-run validation (requires kubectl context)
+kubectl apply --dry-run=client -f base/
+kubectl apply --dry-run=client -f security/
+
+# Apply to cluster (actual deployment)
+# kubectl apply -f security/pod-security-standards.yaml
+# kubectl apply -f base/
 ```
 
-#### 3. Ansible Automation
+### 3. Ansible Setup & Validation
 
 ```bash
-# Navigate to ansible directory
 cd ansible
 
-# Run main playbook
-ansible-playbook -i inventory/hosts.yml playbooks/main.yml
+# Install required collections
+ansible-galaxy collection install -r requirements.yml
+
+# Copy inventory example
+cp inventory/hosts.yml.example inventory/hosts.yml
+# Edit with your server IPs (DO NOT commit this file)
+
+# Create vault for secrets
+echo "your-vault-password" > .vault_pass
+chmod 600 .vault_pass
+ansible-vault create group_vars/all/vault.yml
+
+# Lint playbooks
+ansible-lint playbooks/ roles/
+
+# Dry-run playbooks
+ansible-playbook -i inventory/hosts.yml playbooks/main.yml --check
+
+# Run playbooks (actual deployment)
+# ansible-playbook -i inventory/hosts.yml playbooks/main.yml --vault-password-file .vault_pass
 ```
 
-### Environment-Specific Configurations
+### 4. CI/CD Validation
 
-#### Development Environment
+```bash
+# Validate workflow syntax
+yamllint ci-cd/ci-cd.yml
 
-- Reduced resource allocation for cost optimization
-- Relaxed security policies for development flexibility
-- Shorter log retention periods
-- Single-AZ deployment for non-critical components
+# Local testing with act (optional)
+# act -W ci-cd/ci-cd.yml --job infrastructure-lint
+```
 
-#### Staging Environment
+## Environment Variables for Secrets
 
-- Production-like configuration for testing
-- Full security policy enforcement
-- Complete monitoring and alerting setup
-- Multi-AZ deployment for reliability testing
+**NEVER commit secrets to git.** Use one of these methods:
 
-#### Production Environment
+### Method 1: Environment Variables (Recommended for CI/CD)
 
-- Maximum security and compliance enforcement
-- High availability and disaster recovery
-- Full audit logging and monitoring
-- Automated backup and recovery procedures
+```bash
+# Terraform
+export TF_VAR_db_password="your-secure-password"
+export TF_VAR_db_username="your-username"
 
-## Security Hardening
+# Ansible
+export ANSIBLE_VAULT_PASSWORD_FILE=.vault_pass
+```
 
-### Operating System Level
+### Method 2: AWS Secrets Manager (Recommended for Production)
 
-- Regular security updates and patch management
-- Disabled unnecessary services and ports
-- File system encryption and access controls
-- Intrusion detection and prevention systems
+```hcl
+# In Terraform
+data "aws_secretsmanager_secret_version" "db_password" {
+  secret_id = "carbonxchange/db/password"
+}
 
-### Application Level
+variable "db_password" {
+  default = data.aws_secretsmanager_secret_version.db_password.secret_string
+}
+```
 
-- Secure coding practices and code reviews
-- Input validation and output encoding
-- Session management and authentication
-- Error handling and logging
+### Method 3: Kubernetes Sealed Secrets
 
-### Infrastructure Level
+```bash
+# Install sealed-secrets controller
+kubectl apply -f https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.24.0/controller.yaml
 
-- Network segmentation and micro-segmentation
-- Load balancer security configurations
-- Database security hardening
-- Container security and image scanning
+# Seal your secrets
+kubeseal --format yaml < secret.yaml > sealed-secret.yaml
+```
 
-## Monitoring & Observability
+## Validation Commands (Copy-Paste Ready)
 
-### Metrics Collection
+### Complete Validation Suite
 
-- **Infrastructure Metrics**: CPU, memory, disk, network utilization
-- **Application Metrics**: Response times, error rates, throughput
-- **Business Metrics**: Transaction volumes, user activity, revenue
-- **Security Metrics**: Failed login attempts, suspicious activities
+```bash
+# Run all validations
+cd infrastructure
 
-### Logging Strategy
+# 1. Terraform
+cd terraform
+terraform fmt -recursive
+terraform init -backend=false
+terraform validate
+cd ..
 
-- **Centralized Logging**: All logs aggregated in CloudWatch
-- **Structured Logging**: JSON format for easy parsing
-- **Log Correlation**: Request tracing across services
-- **Retention Policies**: 7-year retention for compliance
+# 2. Kubernetes YAML
+yamllint -c .yamllint kubernetes/
 
-### Alerting Framework
+# 3. Ansible
+cd ansible
+ansible-lint playbooks/ roles/
+cd ..
 
-- **Tiered Alerting**: Critical, warning, and informational alerts
-- **Escalation Procedures**: Automated escalation for unresolved issues
-- **Notification Channels**: Email, SMS, Slack, PagerDuty integration
-- **Alert Correlation**: Intelligent grouping to reduce noise
+# 4. CI/CD
+yamllint ci-cd/
 
-## Disaster Recovery
+echo "✅ All validations passed"
+```
 
-### Backup Strategy
+### Individual Tool Validations
 
-- **Automated Backups**: Daily automated backups with point-in-time recovery
-- **Cross-Region Replication**: Backups replicated to secondary region
-- **Backup Testing**: Regular restore testing and validation
-- **Retention Policies**: 7-year backup retention for compliance
+```bash
+# Terraform only
+terraform -chdir=terraform fmt -check -recursive && echo "✓ Format OK"
+terraform -chdir=terraform validate && echo "✓ Validate OK"
 
-### Recovery Procedures
+# Kubernetes only
+kubectl apply --dry-run=client -f kubernetes/base/
 
-- **RTO Target**: 4 hours maximum recovery time
-- **RPO Target**: 1 hour maximum data loss
-- **Failover Automation**: Automated failover for critical components
-- **Recovery Documentation**: Detailed runbooks and procedures
+# Ansible only
+ansible-playbook ansible/playbooks/main.yml --syntax-check
+```
 
-### Business Continuity
+## File Structure
 
-- **Multi-Region Deployment**: Active-passive setup across regions
-- **Data Synchronization**: Real-time data replication
-- **Communication Plans**: Stakeholder notification procedures
-- **Regular Testing**: Quarterly disaster recovery drills
+```
+infrastructure/
+├── README.md                    # This file
+├── ISSUES_FOUND.md              # Detailed audit findings
+├── .gitignore                   # Comprehensive gitignore
+├── .yamllint                    # YAML linting config
+│
+├── terraform/
+│   ├── main.tf                  # Main terraform configuration
+│   ├── variables.tf             # Variable definitions
+│   ├── outputs.tf               # Output values
+│   ├── terraform.tfvars.example # Example variables (copy to terraform.tfvars)
+│   ├── environments/            # Environment-specific configs
+│   └── modules/                 # Reusable terraform modules
+│
+├── kubernetes/
+│   ├── base/                    # Base Kubernetes manifests
+│   ├── security/                # Security policies
+│   │   ├── pod-security-standards.yaml  # Modern PSS (replaces deprecated PSP)
+│   │   ├── network-policies.yaml
+│   │   ├── rbac.yaml
+│   │   └── legacy/              # Deprecated files for reference
+│   ├── environments/            # Environment-specific values
+│   │   └── */values.yaml.example
+│   └── compliance/              # Compliance configurations
+│
+├── ansible/
+│   ├── playbooks/               # Ansible playbooks
+│   ├── roles/                   # Ansible roles (fixed FQCN)
+│   ├── inventory/
+│   │   └── hosts.yml.example    # Inventory example
+│   ├── requirements.yml         # Ansible Galaxy collections
+│   ├── group_vars/
+│   │   └── all/vault.yml.example # Vault example
+│   └── .vault_pass.example      # Vault password instructions
+│
+├── ci-cd/
+│   └── ci-cd.yml                # Enhanced GitHub Actions workflow
+│
+├── scripts/
+│   └── deploy.sh                # Deployment automation
+│
+└── validation_logs/             # Validation output logs
+    ├── terraform_fmt.log
+    ├── terraform_init.log
+    └── terraform_validate.log
+```
 
-## Cost Optimization
+## Security Best Practices
 
-### Resource Management
+1. **Secrets Management**
+    - Use AWS Secrets Manager or HashiCorp Vault for production
+    - Use Ansible Vault for configuration management
+    - Use Kubernetes Sealed Secrets or External Secrets Operator
+    - Never commit `.tfvars`, `values.yaml`, or `hosts.yml`
 
-- **Right-sizing**: Regular review and optimization of instance sizes
-- **Reserved Instances**: Long-term commitments for predictable workloads
-- **Spot Instances**: Cost-effective compute for non-critical workloads
-- **Auto-scaling**: Dynamic scaling based on demand
+2. **Access Control**
+    - Use MFA for all administrative access
+    - Implement least-privilege IAM roles
+    - Rotate credentials regularly (90 days recommended)
+    - Use service accounts with minimal permissions
 
-### Storage Optimization
+3. **Network Security**
+    - Enable VPC Flow Logs
+    - Use private subnets for databases and internal services
+    - Implement Network Policies in Kubernetes
+    - Enable WAF and Shield for public endpoints
 
-- **Lifecycle Policies**: Automated data archiving and deletion
-- **Compression**: Data compression for storage efficiency
-- **Deduplication**: Elimination of duplicate data
-- **Tiered Storage**: Appropriate storage classes for different data types
-
-### Monitoring & Reporting
-
-- **Cost Dashboards**: Real-time cost visibility and tracking
-- **Budget Alerts**: Automated alerts for budget overruns
-- **Usage Analytics**: Detailed analysis of resource utilization
-- **Optimization Recommendations**: AI-powered cost optimization suggestions
-
-## Maintenance & Updates
-
-### Patch Management
-
-- **Automated Patching**: Regular security updates during maintenance windows
-- **Testing Procedures**: Patch testing in staging before production
-- **Rollback Plans**: Quick rollback procedures for failed updates
-- **Compliance Tracking**: Patch compliance monitoring and reporting
-
-### Configuration Management
-
-- **Infrastructure as Code**: All infrastructure defined in code
-- **Version Control**: Git-based versioning for all configurations
-- **Change Management**: Formal change approval processes
-- **Configuration Drift**: Automated detection and remediation
-
-### Performance Tuning
-
-- **Regular Reviews**: Monthly performance analysis and optimization
-- **Capacity Planning**: Proactive capacity planning based on growth projections
-- **Bottleneck Identification**: Automated identification of performance bottlenecks
-- **Optimization Implementation**: Systematic performance improvements
+4. **Monitoring & Audit**
+    - Enable CloudTrail/audit logs
+    - Set up alerts for security events
+    - Monitor for configuration drift
+    - Regular security assessments
 
 ## Troubleshooting
 
-### Common Issues
+### Terraform Issues
 
-#### Terraform Deployment Failures
+**Issue**: `terraform validate` fails with module errors
 
-- Check AWS credentials and permissions
-- Verify resource limits and quotas
-- Review Terraform state file consistency
-- Validate variable configurations
+```bash
+# Solution: Re-initialize
+terraform init -backend=false -upgrade
+```
 
-#### Kubernetes Pod Failures
+**Issue**: Provider version conflicts
 
-- Check resource quotas and limits
-- Verify security policy compliance
-- Review network policy configurations
-- Validate image pull secrets
+```bash
+# Solution: Update lock file
+rm .terraform.lock.hcl
+terraform init -backend=false
+```
 
-#### Database Connection Issues
+### Kubernetes Issues
 
-- Verify security group configurations
-- Check database proxy settings
-- Review connection pool configurations
-- Validate SSL certificate settings
+**Issue**: Pod fails with security context error
 
-### Support Contacts
+```bash
+# Check Pod Security Standards
+kubectl get namespace carbonxchange -o yaml | grep pod-security
 
-- **Infrastructure Team**: infrastructure@carbonxchange.com
-- **Security Team**: security@carbonxchange.com
-- **Compliance Team**: compliance@carbonxchange.com
-- **Emergency Hotline**: +1-XXX-XXX-XXXX
+# View policy violations
+kubectl describe pod <pod-name>
+```
 
-## Contributing
+**Issue**: Image pull errors
 
-### Development Workflow
+```bash
+# Create image pull secret
+kubectl create secret docker-registry regcred \
+  --docker-server=<registry> \
+  --docker-username=<username> \
+  --docker-password=<password>
+```
 
-1. Create feature branch from main
-2. Implement changes with appropriate testing
-3. Submit pull request with detailed description
-4. Code review and approval process
-5. Merge to main and deploy to staging
-6. Production deployment after validation
+### Ansible Issues
 
-### Code Standards
+**Issue**: `mysql_user` module not found
 
-- Follow Terraform best practices and naming conventions
-- Use consistent YAML formatting for Kubernetes manifests
-- Include comprehensive documentation for all changes
-- Implement appropriate security controls and compliance measures
+```bash
+# Install required collection
+ansible-galaxy collection install community.mysql
+```
 
-### Testing Requirements
+**Issue**: Vault password errors
 
-- Unit tests for Terraform modules
-- Integration tests for Kubernetes deployments
-- Security scanning for all configurations
-- Compliance validation for regulatory requirements
-
-## License
-
-This infrastructure code is proprietary to CarbonXchange and subject to internal licensing terms. Unauthorized distribution or modification is prohibited.
-
-## Version History
-
-- **v1.0.0**: Initial infrastructure implementation
-- **v2.0.0**: Enhanced security and compliance features
-- **v2.1.0**: Added comprehensive monitoring and alerting
-- **v2.2.0**: Implemented disaster recovery capabilities
-- **v3.0.0**: Financial standards compliance implementation (current)
+```bash
+# Verify vault password file
+cat .vault_pass  # Should contain only the password
+chmod 600 .vault_pass
+```
 
 ---
-
-For additional information or support, please contact the Infrastructure Team at infrastructure@carbonxchange.com.

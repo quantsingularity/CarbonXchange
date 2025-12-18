@@ -409,16 +409,16 @@ resource "aws_security_group" "monitoring" {
 resource "aws_cloudtrail" "main" {
   count                         = var.enable_cloudtrail ? 1 : 0
   name                          = "${var.app_name}-${var.environment}-cloudtrail"
-  s3_bucket_name               = aws_s3_bucket.cloudtrail[0].bucket
-  s3_key_prefix                = "cloudtrail-logs/"
+  s3_bucket_name                = aws_s3_bucket.cloudtrail[0].bucket
+  s3_key_prefix                 = "cloudtrail-logs/"
   include_global_service_events = true
-  is_multi_region_trail        = true
-  enable_logging               = true
-  kms_key_id                   = aws_kms_key.main.arn
+  is_multi_region_trail         = true
+  enable_logging                = true
+  kms_key_id                    = aws_kms_key.main.arn
 
   event_selector {
-    read_write_type                 = "All"
-    include_management_events       = true
+    read_write_type                  = "All"
+    include_management_events        = true
     exclude_management_event_sources = []
 
     data_resource {
@@ -810,7 +810,7 @@ resource "aws_iam_role_policy" "flow_log" {
 resource "aws_secretsmanager_secret" "db_credentials" {
   name                    = "${var.app_name}-${var.environment}-db-credentials"
   description             = "Database credentials for ${var.app_name} ${var.environment}"
-  kms_key_id             = aws_kms_key.main.arn
+  kms_key_id              = aws_kms_key.main.arn
   recovery_window_in_days = var.secret_recovery_window
 
   tags = merge(var.common_tags, {

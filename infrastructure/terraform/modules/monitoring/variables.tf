@@ -26,7 +26,7 @@ variable "kms_key_arn" {
 variable "log_retention_days" {
   description = "Number of days to retain application logs"
   type        = number
-  default     = 2555  # 7 years for financial compliance
+  default     = 2555 # 7 years for financial compliance
   validation {
     condition     = contains([1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 2555, 3653], var.log_retention_days)
     error_message = "Log retention days must be a valid CloudWatch Logs retention period."
@@ -36,7 +36,7 @@ variable "log_retention_days" {
 variable "security_log_retention_days" {
   description = "Number of days to retain security logs"
   type        = number
-  default     = 2555  # 7 years for financial compliance
+  default     = 2555 # 7 years for financial compliance
   validation {
     condition     = contains([1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 2555, 3653], var.security_log_retention_days)
     error_message = "Security log retention days must be a valid CloudWatch Logs retention period."
@@ -46,7 +46,7 @@ variable "security_log_retention_days" {
 variable "audit_log_retention_days" {
   description = "Number of days to retain audit logs"
   type        = number
-  default     = 2555  # 7 years for financial compliance
+  default     = 2555 # 7 years for financial compliance
   validation {
     condition     = contains([1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 2555, 3653], var.audit_log_retention_days)
     error_message = "Audit log retention days must be a valid CloudWatch Logs retention period."
@@ -233,15 +233,15 @@ variable "data_retention_policy" {
   description = "Data retention policy configuration"
   type = object({
     application_logs = number
-    security_logs   = number
-    audit_logs      = number
-    metrics_data    = number
+    security_logs    = number
+    audit_logs       = number
+    metrics_data     = number
   })
   default = {
-    application_logs = 2555  # 7 years
-    security_logs   = 2555  # 7 years
-    audit_logs      = 2555  # 7 years
-    metrics_data    = 2555  # 7 years
+    application_logs = 2555 # 7 years
+    security_logs    = 2555 # 7 years
+    audit_logs       = 2555 # 7 years
+    metrics_data     = 2555 # 7 years
   }
 }
 
@@ -306,17 +306,17 @@ variable "log_analysis_queries" {
 variable "notification_channels" {
   description = "Notification channels configuration"
   type = object({
-    email_enabled    = bool
-    sms_enabled     = bool
-    slack_enabled   = bool
-    teams_enabled   = bool
+    email_enabled     = bool
+    sms_enabled       = bool
+    slack_enabled     = bool
+    teams_enabled     = bool
     pagerduty_enabled = bool
   })
   default = {
-    email_enabled    = true
-    sms_enabled     = false
-    slack_enabled   = false
-    teams_enabled   = false
+    email_enabled     = true
+    sms_enabled       = false
+    slack_enabled     = false
+    teams_enabled     = false
     pagerduty_enabled = false
   }
 }
@@ -346,16 +346,16 @@ variable "pagerduty_integration_key" {
 variable "dashboard_configuration" {
   description = "Dashboard configuration settings"
   type = object({
-    auto_refresh_interval = number
-    time_range_hours     = number
-    include_cost_metrics = bool
+    auto_refresh_interval    = number
+    time_range_hours         = number
+    include_cost_metrics     = bool
     include_security_metrics = bool
     include_business_metrics = bool
   })
   default = {
-    auto_refresh_interval = 300  # 5 minutes
-    time_range_hours     = 24   # 24 hours
-    include_cost_metrics = true
+    auto_refresh_interval    = 300 # 5 minutes
+    time_range_hours         = 24  # 24 hours
+    include_cost_metrics     = true
     include_security_metrics = true
     include_business_metrics = true
   }
@@ -366,28 +366,28 @@ variable "environment_config" {
   description = "Environment-specific monitoring configuration"
   type = map(object({
     detailed_monitoring = bool
-    enhanced_logging   = bool
-    real_time_alerts   = bool
-    cost_optimization  = bool
+    enhanced_logging    = bool
+    real_time_alerts    = bool
+    cost_optimization   = bool
   }))
   default = {
     dev = {
       detailed_monitoring = false
-      enhanced_logging   = false
-      real_time_alerts   = false
-      cost_optimization  = true
+      enhanced_logging    = false
+      real_time_alerts    = false
+      cost_optimization   = true
     }
     staging = {
       detailed_monitoring = true
-      enhanced_logging   = true
-      real_time_alerts   = true
-      cost_optimization  = true
+      enhanced_logging    = true
+      real_time_alerts    = true
+      cost_optimization   = true
     }
     prod = {
       detailed_monitoring = true
-      enhanced_logging   = true
-      real_time_alerts   = true
-      cost_optimization  = false
+      enhanced_logging    = true
+      real_time_alerts    = true
+      cost_optimization   = false
     }
   }
 }
@@ -396,17 +396,17 @@ variable "environment_config" {
 variable "regulatory_requirements" {
   description = "Regulatory compliance requirements"
   type = object({
-    sox_compliance     = bool
-    pci_dss_compliance = bool
-    gdpr_compliance    = bool
-    hipaa_compliance   = bool
+    sox_compliance      = bool
+    pci_dss_compliance  = bool
+    gdpr_compliance     = bool
+    hipaa_compliance    = bool
     iso27001_compliance = bool
   })
   default = {
-    sox_compliance     = true
-    pci_dss_compliance = true
-    gdpr_compliance    = true
-    hipaa_compliance   = false
+    sox_compliance      = true
+    pci_dss_compliance  = true
+    gdpr_compliance     = true
+    hipaa_compliance    = false
     iso27001_compliance = true
   }
 }
@@ -416,14 +416,14 @@ variable "monitoring_integrations" {
   description = "Third-party monitoring tool integrations"
   type = object({
     prometheus_enabled = bool
-    grafana_enabled   = bool
-    elk_stack_enabled = bool
-    splunk_enabled    = bool
+    grafana_enabled    = bool
+    elk_stack_enabled  = bool
+    splunk_enabled     = bool
   })
   default = {
     prometheus_enabled = true
-    grafana_enabled   = true
-    elk_stack_enabled = false
-    splunk_enabled    = false
+    grafana_enabled    = true
+    elk_stack_enabled  = false
+    splunk_enabled     = false
   }
 }

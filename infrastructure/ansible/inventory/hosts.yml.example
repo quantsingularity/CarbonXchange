@@ -1,0 +1,31 @@
+---
+# Ansible Inventory Example
+# Copy to hosts.yml and replace with actual values
+# DO NOT commit hosts.yml with real IPs/credentials
+
+all:
+    children:
+        webservers:
+            hosts:
+                web1:
+                    ansible_host: "192.168.1.10" # Replace with actual IP
+                web2:
+                    ansible_host: "192.168.1.11" # Replace with actual IP
+        databases:
+            hosts:
+                db1:
+                    ansible_host: "192.168.1.20" # Replace with actual IP
+    vars:
+        ansible_user: ec2-user
+        # SECURITY: Use ansible-vault to encrypt the SSH key path
+        ansible_ssh_private_key_file: "~/.ssh/id_rsa" # Path to your SSH key
+        ansible_ssh_common_args: "-o StrictHostKeyChecking=no"
+        ansible_python_interpreter: /usr/bin/python3
+
+# Usage:
+# 1. Copy this file: cp hosts.yml.example hosts.yml
+# 2. Edit hosts.yml with your actual server IPs
+# 3. Secure sensitive values with ansible-vault:
+#    ansible-vault encrypt_string 'secret_value' --name 'variable_name'
+# 4. Run playbooks:
+#    ansible-playbook -i inventory/hosts.yml playbooks/main.yml

@@ -1,13 +1,16 @@
 ---
 # roles/common/tasks/main.yml
 - name: Update all packages
-  yum:
+  ansible.builtin.dnf:
       name: '*'
       state: latest
-      update_only: yes
+      update_only: true
+  tags:
+      - packages
+      - security
 
 - name: Install common packages
-  yum:
+  ansible.builtin.dnf:
       name:
           - vim
           - git
@@ -18,25 +21,35 @@
           - python3
           - python3-pip
       state: present
+  tags:
+      - packages
 
 - name: Set timezone
-  timezone:
+  community.general.timezone:
       name: UTC
+  tags:
+      - system
 
 - name: Configure firewall
-  firewalld:
+  ansible.posix.firewalld:
       service: '{{ item }}'
-      permanent: yes
+      permanent: true
       state: enabled
   loop:
       - http
       - https
       - ssh
   when: ansible_os_family == "RedHat"
+  tags:
+      - firewall
+      - security
 
 - name: Start and enable firewalld
-  systemd:
+  ansible.builtin.systemd:
       name: firewalld
       state: started
-      enabled: yes
+      enabled: true
   when: ansible_os_family == "RedHat"
+  tags:
+      - firewall
+      - security

@@ -1,0 +1,72 @@
+---
+# Pod Security Standards (replacement for deprecated PodSecurityPolicy)
+# Kubernetes 1.25+ uses Pod Security Admission instead of PodSecurityPolicy
+# Reference: https://kubernetes.io/docs/concepts/security/pod-security-standards/
+
+# Namespace labels enforce Pod Security Standards
+# Apply this to enable pod security for carbonxchange namespace
+
+apiVersion: v1
+kind: Namespace
+metadata:
+    name: carbonxchange
+    labels:
+        app.kubernetes.io/name: carbonxchange
+        compliance.carbonxchange.io/pci-dss: 'true'
+        compliance.carbonxchange.io/sox: 'true'
+        compliance.carbonxchange.io/gdpr: 'true'
+        # Pod Security Standards enforcement
+        pod-security.kubernetes.io/enforce: restricted
+        pod-security.kubernetes.io/enforce-version: latest
+        pod-security.kubernetes.io/audit: restricted
+        pod-security.kubernetes.io/audit-version: latest
+        pod-security.kubernetes.io/warn: restricted
+        pod-security.kubernetes.io/warn-version: latest
+    annotations:
+        compliance.carbonxchange.io/description: >
+            Restricted Pod Security Standard for financial applications
+        compliance.carbonxchange.io/last-reviewed: '2024-01-01'
+        compliance.carbonxchange.io/next-review: '2024-07-01'
+
+---
+# System namespace with privileged access (for system components only)
+apiVersion: v1
+kind: Namespace
+metadata:
+    name: carbonxchange-system
+    labels:
+        app.kubernetes.io/name: carbonxchange
+        app.kubernetes.io/component: system
+        pod-security.kubernetes.io/enforce: privileged
+        pod-security.kubernetes.io/enforce-version: latest
+        pod-security.kubernetes.io/audit: baseline
+        pod-security.kubernetes.io/audit-version: latest
+        pod-security.kubernetes.io/warn: baseline
+        pod-security.kubernetes.io/warn-version: latest
+    annotations:
+        compliance.carbonxchange.io/usage: 'system-components-only'
+
+---
+# Example SecurityContext for restricted pods (apply to all deployments)
+# This should be added to each deployment spec.template.spec
+
+# spec:
+#   securityContext:
+#     runAsNonRoot: true
+#     runAsUser: 10001
+#     runAsGroup: 10001
+#     fsGroup: 10001
+#     seccompProfile:
+#       type: RuntimeDefault
+#   containers:
+#   - name: app
+#     securityContext:
+#       allowPrivilegeEscalation: false
+#       readOnlyRootFilesystem: true
+#       runAsNonRoot: true
+#       runAsUser: 10001
+#       capabilities:
+#         drop:
+#         - ALL
+#         add:
+#         - NET_BIND_SERVICE

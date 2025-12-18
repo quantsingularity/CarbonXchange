@@ -149,7 +149,7 @@ variable "kms_deletion_window" {
 variable "backup_retention_period" {
   description = "Number of days to retain automated backups"
   type        = number
-  default     = 2555  # 7 years for financial compliance
+  default     = 2555 # 7 years for financial compliance
   validation {
     condition     = var.backup_retention_period >= 0 && var.backup_retention_period <= 35
     error_message = "Backup retention period must be between 0 and 35 days."
@@ -190,7 +190,7 @@ variable "maintenance_window" {
 variable "auto_minor_version_upgrade" {
   description = "Enable automatic minor version upgrades"
   type        = bool
-  default     = false  # Disabled for financial environments for stability
+  default     = false # Disabled for financial environments for stability
 }
 
 variable "allow_major_version_upgrade" {
@@ -232,7 +232,7 @@ variable "performance_insights_enabled" {
 variable "performance_insights_retention_period" {
   description = "Performance Insights retention period in days"
   type        = number
-  default     = 731  # 2 years
+  default     = 731 # 2 years
   validation {
     condition     = contains([7, 731], var.performance_insights_retention_period)
     error_message = "Performance Insights retention period must be 7 or 731 days."
@@ -248,7 +248,7 @@ variable "enabled_cloudwatch_logs_exports" {
 variable "log_retention_days" {
   description = "Number of days to retain CloudWatch logs"
   type        = number
-  default     = 2555  # 7 years for financial compliance
+  default     = 2555 # 7 years for financial compliance
 }
 
 # Security Configuration
@@ -482,12 +482,6 @@ variable "create_backup_bucket" {
   default     = true
 }
 
-variable "backup_retention_period" {
-  description = "Backup retention period in years for S3 lifecycle"
-  type        = number
-  default     = 7
-}
-
 # Compliance Configuration
 variable "compliance_standards" {
   description = "List of compliance standards this database must meet"
@@ -509,7 +503,7 @@ variable "data_classification" {
 variable "environment_config" {
   description = "Environment-specific database configuration"
   type = map(object({
-    instance_class                = string
+    instance_class               = string
     allocated_storage            = number
     backup_retention_period      = number
     multi_az                     = bool
@@ -519,7 +513,7 @@ variable "environment_config" {
   }))
   default = {
     dev = {
-      instance_class                = "db.t3.micro"
+      instance_class               = "db.t3.micro"
       allocated_storage            = 20
       backup_retention_period      = 7
       multi_az                     = false
@@ -528,7 +522,7 @@ variable "environment_config" {
       enhanced_monitoring_interval = 0
     }
     staging = {
-      instance_class                = "db.t3.small"
+      instance_class               = "db.t3.small"
       allocated_storage            = 50
       backup_retention_period      = 30
       multi_az                     = true
@@ -537,7 +531,7 @@ variable "environment_config" {
       enhanced_monitoring_interval = 60
     }
     prod = {
-      instance_class                = "db.r5.large"
+      instance_class               = "db.r5.large"
       allocated_storage            = 100
       backup_retention_period      = 35
       multi_az                     = true
@@ -584,7 +578,7 @@ variable "audit_log_enabled" {
 variable "audit_log_retention_days" {
   description = "Number of days to retain audit logs"
   type        = number
-  default     = 2555  # 7 years
+  default     = 2555 # 7 years
 }
 
 # Performance Configuration

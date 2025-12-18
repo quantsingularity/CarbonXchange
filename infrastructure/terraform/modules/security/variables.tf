@@ -118,7 +118,7 @@ variable "enable_vpc_flow_logs" {
 variable "log_retention_days" {
   description = "Number of days to retain logs"
   type        = number
-  default     = 2555  # 7 years for financial compliance
+  default     = 2555 # 7 years for financial compliance
   validation {
     condition     = contains([1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 2555, 3653], var.log_retention_days)
     error_message = "Log retention days must be a valid CloudWatch Logs retention period."
@@ -182,7 +182,7 @@ variable "security_contact_email" {
 variable "backup_retention_days" {
   description = "Number of days to retain backups"
   type        = number
-  default     = 2555  # 7 years for financial compliance
+  default     = 2555 # 7 years for financial compliance
 }
 
 # Network Security
@@ -242,21 +242,21 @@ variable "require_mfa" {
 variable "password_policy" {
   description = "Password policy configuration"
   type = object({
-    minimum_length         = number
-    require_uppercase      = bool
-    require_lowercase      = bool
-    require_numbers        = bool
-    require_symbols        = bool
-    max_password_age_days  = number
+    minimum_length            = number
+    require_uppercase         = bool
+    require_lowercase         = bool
+    require_numbers           = bool
+    require_symbols           = bool
+    max_password_age_days     = number
     password_reuse_prevention = number
   })
   default = {
-    minimum_length         = 14
-    require_uppercase      = true
-    require_lowercase      = true
-    require_numbers        = true
-    require_symbols        = true
-    max_password_age_days  = 90
+    minimum_length            = 14
+    require_uppercase         = true
+    require_lowercase         = true
+    require_numbers           = true
+    require_symbols           = true
+    max_password_age_days     = 90
     password_reuse_prevention = 24
   }
 }
@@ -278,26 +278,26 @@ variable "security_incident_sns_topic" {
 variable "vulnerability_scan_schedule" {
   description = "Cron expression for vulnerability scanning schedule"
   type        = string
-  default     = "cron(0 2 * * ? *)"  # Daily at 2 AM
+  default     = "cron(0 2 * * ? *)" # Daily at 2 AM
 }
 
 variable "patch_maintenance_window" {
   description = "Maintenance window for patching (cron expression)"
   type        = string
-  default     = "cron(0 3 ? * SUN *)"  # Sundays at 3 AM
+  default     = "cron(0 3 ? * SUN *)" # Sundays at 3 AM
 }
 
 # Business Continuity
 variable "rto_minutes" {
   description = "Recovery Time Objective in minutes"
   type        = number
-  default     = 240  # 4 hours
+  default     = 240 # 4 hours
 }
 
 variable "rpo_minutes" {
   description = "Recovery Point Objective in minutes"
   type        = number
-  default     = 60   # 1 hour
+  default     = 60 # 1 hour
 }
 
 # Cost Management
@@ -318,28 +318,28 @@ variable "environment_config" {
   description = "Environment-specific configuration overrides"
   type = map(object({
     enable_detailed_monitoring = bool
-    backup_frequency          = string
-    log_level                = string
-    performance_insights     = bool
+    backup_frequency           = string
+    log_level                  = string
+    performance_insights       = bool
   }))
   default = {
     dev = {
       enable_detailed_monitoring = false
-      backup_frequency          = "daily"
-      log_level                = "DEBUG"
-      performance_insights     = false
+      backup_frequency           = "daily"
+      log_level                  = "DEBUG"
+      performance_insights       = false
     }
     staging = {
       enable_detailed_monitoring = true
-      backup_frequency          = "daily"
-      log_level                = "INFO"
-      performance_insights     = true
+      backup_frequency           = "daily"
+      log_level                  = "INFO"
+      performance_insights       = true
     }
     prod = {
       enable_detailed_monitoring = true
-      backup_frequency          = "hourly"
-      log_level                = "WARN"
-      performance_insights     = true
+      backup_frequency           = "hourly"
+      log_level                  = "WARN"
+      performance_insights       = true
     }
   }
 }
