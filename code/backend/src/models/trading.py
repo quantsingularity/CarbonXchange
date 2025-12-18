@@ -3,6 +3,7 @@ Trading models for CarbonXchange Backend
 Implements comprehensive trading, order management, and portfolio tracking
 """
 
+from typing import Any
 import uuid
 from datetime import datetime, timezone
 from decimal import Decimal

@@ -8,6 +8,7 @@ import os
 import secrets
 from datetime import timedelta
 from pathlib import Path
+from typing import Any, Type
 
 logger = logging.getLogger(__name__)
 
@@ -152,7 +153,7 @@ class BaseConfig:
     CACHE_KEY_PREFIX = "carbonxchange:"
 
     @classmethod
-    def init_app(cls: Any, app: Any) -> Any:
+    def init_app(cls: Type["BaseConfig"], app: Any) -> None:
         """Initialize application with configuration"""
         os.makedirs(cls.UPLOAD_FOLDER, exist_ok=True)
         from logging.handlers import RotatingFileHandler
@@ -170,8 +171,12 @@ class BaseConfig:
         cls.validate_config()
 
     @classmethod
-    def validate_config(cls: Any) -> Any:
+    def validate_config(cls: Type["BaseConfig"]) -> None:
         """Validate critical configuration settings"""
+        # Skip validation for base class
+        if cls.__name__ == "BaseConfig":
+            return
+
         errors = []
         if cls.FEATURE_BLOCKCHAIN_INTEGRATION and (not cls.WEB3_PROVIDER_URL):
             errors.append(
@@ -179,7 +184,10 @@ class BaseConfig:
             )
         if len(cls.JWT_SECRET_KEY) < 32:
             errors.append("JWT_SECRET_KEY must be at least 32 characters")
-        if not hasattr(cls, "SQLALCHEMY_DATABASE_URI"):
+        if (
+            not hasattr(cls, "SQLALCHEMY_DATABASE_URI")
+            or not cls.SQLALCHEMY_DATABASE_URI
+        ):
             errors.append("SQLALCHEMY_DATABASE_URI is required")
         if cls.PASSWORD_MIN_LENGTH < 8:
             errors.append("PASSWORD_MIN_LENGTH must be at least 8")
@@ -208,7 +216,7 @@ class DevelopmentConfig(BaseConfig):
     FEATURE_BLOCKCHAIN_INTEGRATION = False
 
     @classmethod
-    def init_app(cls: Any, app: Any) -> Any:
+    def init_app(cls: Type["BaseConfig"], app: Any) -> None:
         BaseConfig.init_app(app)
         db_path = Path(cls.SQLALCHEMY_DATABASE_URI.replace("sqlite:///", ""))
         db_path.parent.mkdir(parents=True, exist_ok=True)
@@ -233,7 +241,7 @@ class TestingConfig(BaseConfig):
     AML_SCREENING_ENABLED = False
 
     @classmethod
-    def init_app(cls: Any, app: Any) -> Any:
+    def init_app(cls: Type["BaseConfig"], app: Any) -> None:
         BaseConfig.init_app(app)
         logger.info("Application started in TESTING mode")
 
@@ -260,7 +268,7 @@ class ProductionConfig(BaseConfig):
     FEATURE_REAL_TIME_NOTIFICATIONS = True
 
     @classmethod
-    def init_app(cls: Any, app: Any) -> Any:
+    def init_app(cls: Type["BaseConfig"], app: Any) -> None:
         BaseConfig.init_app(app)
         if not cls.SQLALCHEMY_DATABASE_URI:
             raise ValueError(
@@ -298,7 +306,7 @@ class StagingConfig(ProductionConfig):
     BCRYPT_LOG_ROUNDS = 12
 
     @classmethod
-    def init_app(cls: Any, app: Any) -> Any:
+    def init_app(cls: Type["BaseConfig"], app: Any) -> None:
         BaseConfig.init_app(app)
         logger.info("Application started in STAGING mode")
 
@@ -312,7 +320,7 @@ config = {
 }
 
 
-def get_config(config_name: str = None) -> BaseConfig:
+def get_config(config_name: str = None) -> Type[BaseConfig]:
     """Get configuration class based on environment"""
     if config_name is None:
         config_name = os.getenv("FLASK_ENV", "default")

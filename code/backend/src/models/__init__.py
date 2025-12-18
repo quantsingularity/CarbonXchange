@@ -3,6 +3,7 @@ Database models package for CarbonXchange Backend
 Implements comprehensive data models for carbon credit trading with financial industry standards
 """
 
+from typing import Any, List
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 
@@ -75,29 +76,29 @@ def get_model(model_name: str) -> Any:
     return MODEL_REGISTRY.get(model_name)
 
 
-def get_all_models() -> Any:
+def get_all_models() -> List[Any]:
     """Get all registered models"""
-    return MODEL_REGISTRY.values()
+    return list(MODEL_REGISTRY.values())
 
 
-def setup_model_relationships() -> Any:
+def setup_model_relationships() -> None:
     """Setup additional model relationships and constraints"""
 
 
-def create_all_tables(app: Any) -> Any:
+def create_all_tables(app: Any) -> None:
     """Create all database tables"""
     with app.app_context():
         db.create_all()
         setup_model_relationships()
 
 
-def drop_all_tables(app: Any) -> Any:
+def drop_all_tables(app: Any) -> None:
     """Drop all database tables"""
     with app.app_context():
         db.drop_all()
 
 
-def init_db(app: Any) -> Any:
+def init_db(app: Any) -> None:
     """Initialize database with app"""
     db.init_app(app)
     migrate.init_app(app, db)

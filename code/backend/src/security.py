@@ -10,7 +10,7 @@ import logging
 import secrets
 import time
 from datetime import datetime
-from typing import Callable, Optional
+from typing import Any, Callable, Optional
 from flask import current_app, g, jsonify, request
 from flask_jwt_extended import get_jwt, get_jwt_identity, verify_jwt_in_request
 from src.models import db

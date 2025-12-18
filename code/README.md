@@ -216,15 +216,7 @@ npm run test:integration
 - **TypeScript**: Strict type checking enabled
 - **Security**: OWASP compliance with automated security scanning
 
-## 📚 API Documentation
-
-The enhanced API documentation is available at:
-
-- **Development**: http://localhost:8000/api/docs
-- **Swagger UI**: http://localhost:8000/api/swagger-ui
-- **ReDoc**: http://localhost:8000/api/redoc
-
-### Key Enhanced API Endpoints
+### Key API Endpoints
 
 - `POST /api/v1/auth/login` - Multi-factor authentication
 - `GET /api/v1/trading/orders` - Advanced order management
@@ -303,35 +295,5 @@ kubectl apply -f k8s/
 - **Distributed Tracing**: Request tracing across microservices
 - **Error Tracking**: Real-time error monitoring with Sentry
 - **Performance Profiling**: Application performance insights
-
-## 🤝 Development Guidelines
-
-### Code Standards
-
-- Follow established architecture patterns in each subdirectory
-- Maintain comprehensive test coverage (>90% for critical components)
-- Document all public APIs and significant code changes
-- Use provided scripts for building, testing, and deploying components
-- Coordinate changes across components when modifying integration points
-
-### Development Workflow
-
-1. Create feature branch from main
-2. Implement changes with tests
-3. Run full test suite locally
-4. Submit pull request with detailed description
-5. Code review and approval process
-6. Automated deployment to staging
-7. Manual verification and production deployment
-
-## 📄 Integration Points
-
-The enhanced code components work together through well-defined integration points:
-
-1. **Backend-Frontend**: RESTful APIs with WebSocket for real-time data
-2. **Backend-Blockchain**: Smart contract integration with event monitoring
-3. **Backend-AI**: ML model integration for predictive analytics
-4. **Frontend-Blockchain**: Direct wallet integration for trading
-5. **Cross-Component**: Shared data models and communication protocols
 
 ---

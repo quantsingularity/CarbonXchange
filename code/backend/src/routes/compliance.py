@@ -2,6 +2,7 @@
 Compliance routes for CarbonXchange Backend
 """
 
+from typing import Any
 from flask import Blueprint, jsonify
 from flask_jwt_extended import jwt_required
 

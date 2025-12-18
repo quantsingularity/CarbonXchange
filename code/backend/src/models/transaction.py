@@ -3,6 +3,7 @@ Transaction and Audit models for CarbonXchange Backend
 Implements comprehensive transaction tracking and audit logging for financial compliance
 """
 
+from typing import Any
 import json
 import uuid
 from datetime import datetime, timezone
@@ -118,7 +119,7 @@ class Transaction(db.Model):
     sanctions_checked = Column(Boolean, nullable=False, default=False)
     description = Column(Text, nullable=True)
     notes = Column(Text, nullable=True)
-    metadata = Column(Text, nullable=True)
+    transaction_metadata = Column(Text, nullable=True)
     created_at = Column(
         DateTime, nullable=False, default=lambda: datetime.now(timezone.utc)
     )
@@ -332,7 +333,7 @@ class AuditLog(db.Model):
     country = Column(String(3), nullable=True)
     region = Column(String(100), nullable=True)
     city = Column(String(100), nullable=True)
-    metadata = Column(Text, nullable=True)
+    transaction_metadata = Column(Text, nullable=True)
     tags = Column(Text, nullable=True)
     created_at = Column(
         DateTime, nullable=False, default=lambda: datetime.now(timezone.utc)

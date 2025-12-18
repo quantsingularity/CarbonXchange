@@ -3,6 +3,7 @@ Market Data models for CarbonXchange Backend
 Implements comprehensive market data tracking and price analytics
 """
 
+from typing import Any
 import uuid
 from datetime import datetime, timezone
 from enum import Enum

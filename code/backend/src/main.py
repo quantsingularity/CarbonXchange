@@ -7,6 +7,7 @@ import logging
 import os
 import sys
 from datetime import datetime, timezone
+from typing import Optional
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 import redis
@@ -33,7 +34,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def create_app(config_name: Any = None) -> Any:
+def create_app(config_name: Optional[str] = None) -> Flask:
     """Application factory pattern"""
     app = Flask(
         __name__, static_folder=os.path.join(os.path.dirname(__file__), "static")
@@ -51,21 +52,27 @@ def create_app(config_name: Any = None) -> Any:
         supports_credentials=True,
     )
     JWTManager(app)
+    redis_client = None
     try:
         redis_client = redis.from_url(app.config["RATELIMIT_STORAGE_URL"])
+        redis_client.ping()  # Test connection
         limiter = Limiter(
-            app,
-            key_func=get_remote_address,
+            get_remote_address,
+            app=app,
             storage_uri=app.config["RATELIMIT_STORAGE_URL"],
             default_limits=[app.config["RATELIMIT_DEFAULT"]],
         )
+        logger.info("Rate limiting enabled with Redis storage")
     except Exception as e:
         logger.warning(f"Redis not available for rate limiting: {e}")
+        # Disable rate limiting when Redis is not available
         limiter = Limiter(
-            app,
-            key_func=get_remote_address,
-            default_limits=[app.config["RATELIMIT_DEFAULT"]],
+            get_remote_address,
+            app=app,
+            default_limits=[],  # Empty list disables rate limiting
+            enabled=False,
         )
+        logger.info("Rate limiting disabled (Redis not available)")
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
     app.register_blueprint(user_bp, url_prefix="/api/users")
     app.register_blueprint(carbon_credits_bp, url_prefix="/api/carbon-credits")
@@ -173,17 +180,19 @@ def create_app(config_name: Any = None) -> Any:
     def health_check():
         """Comprehensive health check endpoint"""
         try:
-            db.session.execute("SELECT 1")
+            db.session.execute(db.text("SELECT 1"))
             db_status = "healthy"
         except Exception as e:
             logger.error(f"Database health check failed: {e}")
             db_status = "unhealthy"
-        try:
-            redis_client.ping()
-            redis_status = "healthy"
-        except Exception as e:
-            logger.warning(f"Redis health check failed: {e}")
-            redis_status = "unhealthy"
+        redis_status = "not_configured"
+        if redis_client:
+            try:
+                redis_client.ping()
+                redis_status = "healthy"
+            except Exception as e:
+                logger.warning(f"Redis health check failed: {e}")
+                redis_status = "unhealthy"
         health_data = {
             "status": "healthy" if db_status == "healthy" else "degraded",
             "timestamp": datetime.now(timezone.utc).isoformat(),

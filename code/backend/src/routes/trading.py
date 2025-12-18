@@ -3,6 +3,7 @@ Trading routes for CarbonXchange Backend
 Implements comprehensive trading functionality with financial industry standards
 """
 
+from typing import Any
 import logging
 from datetime import datetime
 from decimal import Decimal, InvalidOperation

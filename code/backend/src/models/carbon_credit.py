@@ -3,6 +3,7 @@ Carbon Credit models for CarbonXchange Backend
 Implements comprehensive carbon credit and project management with enhanced trading features
 """
 
+from typing import Any
 import uuid
 from datetime import datetime, timezone
 from enum import Enum
