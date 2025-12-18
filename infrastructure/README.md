@@ -1,4 +1,4 @@
-# CarbonXchange Infrastructure - Fixed & Hardened
+# CarbonXchange Infrastructure
 
 ## Overview
 
