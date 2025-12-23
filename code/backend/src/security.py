@@ -226,7 +226,8 @@ class InputValidator:
             sign, digits, exponent = decimal_value.as_tuple()
             if len(digits) > max_digits:
                 return False
-            if exponent < -decimal_places:
+            # exponent can be 'n', 'N', 'F' for special values or int for normal values
+            if isinstance(exponent, int) and exponent < -decimal_places:
                 return False
             return True
         except (InvalidOperation, ValueError):
@@ -347,7 +348,7 @@ class RiskAssessment:
 class AdvancedSecurityManager:
     """Advanced security manager for financial applications"""
 
-    def __init__(self, app: Any = None) -> Any:
+    def __init__(self, app: Any = None) -> None:
         self.app = app
         self.redis_client = None
         if app is not None:

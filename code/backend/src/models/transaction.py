@@ -85,7 +85,7 @@ class Transaction(db.Model):
     transaction_id = Column(String(50), unique=True, nullable=False)
     reference_id = Column(String(100), nullable=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    transaction_type = Column(SQLEnum(TransactionType), nullable=False)
+    transaction_type: "Column[Any]" = Column(SQLEnum(TransactionType), nullable=False)
     status = Column(
         SQLEnum(TransactionStatus), nullable=False, default=TransactionStatus.PENDING
     )
@@ -97,7 +97,7 @@ class Transaction(db.Model):
     credit_price = Column(Numeric(10, 4), nullable=True)
     project_id = Column(Integer, ForeignKey("carbon_projects.id"), nullable=True)
     vintage_year = Column(Integer, nullable=True)
-    payment_method = Column(SQLEnum(PaymentMethod), nullable=True)
+    payment_method: "Column[Any]" = Column(SQLEnum(PaymentMethod), nullable=True)
     payment_reference = Column(String(100), nullable=True)
     payment_processor = Column(String(100), nullable=True)
     counterparty_id = Column(Integer, ForeignKey("users.id"), nullable=True)
@@ -140,7 +140,7 @@ class Transaction(db.Model):
         "TransactionLog", back_populates="transaction", cascade="all, delete-orphan"
     )
 
-    def __init__(self, **kwargs) -> Any:
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
         if not self.transaction_id:
             self.transaction_id = f"TXN-{datetime.now().strftime('%Y%m%d')}-{str(uuid.uuid4())[:8].upper()}"
@@ -313,7 +313,7 @@ class AuditLog(db.Model):
     )
     user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     session_id = Column(String(100), nullable=True)
-    action = Column(SQLEnum(AuditAction), nullable=False)
+    action: "Column[Any]" = Column(SQLEnum(AuditAction), nullable=False)
     resource_type = Column(String(100), nullable=False)
     resource_id = Column(String(100), nullable=True)
     event_name = Column(String(255), nullable=False)

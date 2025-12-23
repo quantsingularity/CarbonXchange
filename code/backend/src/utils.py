@@ -9,7 +9,7 @@ import logging
 import time
 from datetime import datetime, timezone
 from decimal import Decimal
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional, Optional
 import redis
 from flask import current_app, request
 from sqlalchemy import text
@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 class CacheManager:
     """Redis-based caching manager"""
 
-    def __init__(self, redis_client: Any = None) -> Any:
+    def __init__(self, redis_client: Any = None) -> None:
         self.redis_client = redis_client or self._get_redis_client()
 
     def _get_redis_client(self) -> Any:
@@ -167,7 +167,9 @@ class DatabaseOptimizer:
         return total_inserted
 
     @staticmethod
-    def execute_raw_query_with_params(query: str, params: Dict = None) -> List[Dict]:
+    def execute_raw_query_with_params(
+        query: str, params: Optional[Dict] = None
+    ) -> List[Dict]:
         """Execute raw SQL query with parameters safely"""
         try:
             result = db.session.execute(text(query), params or {})
@@ -359,7 +361,7 @@ class HealthChecker:
 class RateLimiter:
     """Custom rate limiting utilities"""
 
-    def __init__(self, redis_client: Any = None) -> Any:
+    def __init__(self, redis_client: Any = None) -> None:
         self.redis_client = redis_client or cache_manager.redis_client
 
     def is_rate_limited(self, key: str, limit: int, window_seconds: int) -> bool:

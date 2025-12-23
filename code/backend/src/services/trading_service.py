@@ -31,7 +31,7 @@ class TradingService:
     Comprehensive trading service implementing financial industry standards
     """
 
-    def __init__(self) -> Any:
+    def __init__(self) -> None:
         self.audit_service = AuditService()
         self.matching_engine = MatchingEngine()
         self.settlement_engine = SettlementEngine()
@@ -541,7 +541,7 @@ class TradingService:
 class MatchingEngine:
     """Order matching engine for carbon credit trading"""
 
-    def __init__(self) -> Any:
+    def __init__(self) -> None:
         self.order_book = {"buy": [], "sell": []}
 
     def match_order(self, order: Order) -> List[Dict[str, Any]]:
@@ -669,7 +669,7 @@ class MatchingEngine:
 class SettlementEngine:
     """Settlement engine for trade settlement and clearing"""
 
-    def __init__(self) -> Any:
+    def __init__(self) -> None:
         self.audit_service = AuditService()
 
     def initiate_settlement(self, trade: Trade) -> Any:

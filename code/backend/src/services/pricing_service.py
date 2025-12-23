@@ -26,7 +26,7 @@ class PricingService:
     Comprehensive pricing service implementing financial industry-grade pricing models
     """
 
-    def __init__(self) -> Any:
+    def __init__(self) -> None:
         self.audit_service = AuditService()
         self.pricing_models = {
             "market_based": self._market_based_pricing,

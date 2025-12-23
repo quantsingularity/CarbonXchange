@@ -101,7 +101,9 @@ class CarbonProject(db.Model):
     )
     name = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
-    project_type = Column(SQLEnum(ProjectType), nullable=False, index=True)
+    project_type: "Column[Any]" = Column(
+        SQLEnum(ProjectType), nullable=False, index=True
+    )
     status = Column(
         SQLEnum(ProjectStatus),
         nullable=False,
@@ -110,7 +112,9 @@ class CarbonProject(db.Model):
     )
     project_id = Column(String(100), unique=True, nullable=False, index=True)
     registry_id = Column(String(100), nullable=True, index=True)
-    standard = Column(SQLEnum(CreditStandard), nullable=False, index=True)
+    standard: "Column[Any]" = Column(
+        SQLEnum(CreditStandard), nullable=False, index=True
+    )
     country = Column(String(3), nullable=False, index=True)
     region = Column(String(100), nullable=True)
     latitude = Column(Numeric(10, 8), nullable=True)

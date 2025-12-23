@@ -19,7 +19,7 @@ class AuditService:
     Comprehensive audit service for regulatory compliance and security monitoring
     """
 
-    def __init__(self) -> Any:
+    def __init__(self) -> None:
         self.enabled = (
             current_app.config.get("AUDIT_LOG_ENABLED", True) if current_app else True
         )

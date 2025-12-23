@@ -32,7 +32,7 @@ class AuthService:
     Comprehensive authentication service implementing financial industry security standards
     """
 
-    def __init__(self) -> Any:
+    def __init__(self) -> None:
         self.redis_client = None
         self.audit_service = AuditService()
         self._init_redis()

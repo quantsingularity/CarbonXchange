@@ -8,7 +8,7 @@ import os
 import secrets
 from datetime import timedelta
 from pathlib import Path
-from typing import Any, Type
+from typing import Any, Optional, Type
 
 logger = logging.getLogger(__name__)
 
@@ -320,7 +320,7 @@ config = {
 }
 
 
-def get_config(config_name: str = None) -> Type[BaseConfig]:
+def get_config(config_name: Optional[str] = None) -> Type[BaseConfig]:
     """Get configuration class based on environment"""
     if config_name is None:
         config_name = os.getenv("FLASK_ENV", "default")

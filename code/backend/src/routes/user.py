@@ -14,7 +14,21 @@ def get_users() -> Any:
 @user_bp.route("/users", methods=["POST"])
 def create_user() -> Any:
     data = request.json
-    user = User(username=data["username"], email=data["email"])
+    if not data:
+        return (jsonify({"error": "No data provided"}), 400)
+
+    # Extract required fields
+    email = data.get("email")
+    password = data.get("password")
+    first_name = data.get("first_name")
+    last_name = data.get("last_name")
+
+    if not all([email, password, first_name, last_name]):
+        return (jsonify({"error": "Missing required fields"}), 400)
+
+    user = User(
+        email=email, password=password, first_name=first_name, last_name=last_name
+    )
     db.session.add(user)
     db.session.commit()
     return (jsonify(user.to_dict()), 201)
@@ -30,8 +44,17 @@ def get_user(user_id: Any) -> Any:
 def update_user(user_id: Any) -> Any:
     user = User.query.get_or_404(user_id)
     data = request.json
-    user.username = data.get("username", user.username)
-    user.email = data.get("email", user.email)
+    if not data:
+        return (jsonify({"error": "No data provided"}), 400)
+
+    # Update allowed fields
+    if "first_name" in data:
+        user.first_name = data["first_name"]
+    if "last_name" in data:
+        user.last_name = data["last_name"]
+    if "phone_number" in data:
+        user.phone_number = data["phone_number"]
+
     db.session.commit()
     return jsonify(user.to_dict())
 

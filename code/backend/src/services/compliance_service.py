@@ -46,7 +46,7 @@ class ComplianceService:
     Comprehensive compliance service implementing financial industry regulatory standards
     """
 
-    def __init__(self) -> Any:
+    def __init__(self) -> None:
         self.audit_service = AuditService()
         self.compliance_rules = self._load_compliance_rules()
         self.sanctions_list = self._load_sanctions_list()

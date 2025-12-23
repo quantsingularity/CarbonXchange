@@ -42,7 +42,7 @@ class RiskService:
     Comprehensive risk management service implementing financial industry standards
     """
 
-    def __init__(self) -> Any:
+    def __init__(self) -> None:
         self.audit_service = AuditService()
         self.risk_limits = self._load_risk_limits()
         self.var_calculator = VaRCalculator()

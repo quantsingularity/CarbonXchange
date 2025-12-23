@@ -25,7 +25,7 @@ class PortfolioService:
     Comprehensive portfolio management service implementing financial industry standards
     """
 
-    def __init__(self) -> Any:
+    def __init__(self) -> None:
         self.pricing_service = PricingService()
         self.risk_service = RiskService()
         self.audit_service = AuditService()

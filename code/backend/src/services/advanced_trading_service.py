@@ -77,7 +77,7 @@ class RiskMetrics:
 class AdvancedTradingService:
     """Advanced trading service with sophisticated algorithms"""
 
-    def __init__(self) -> Any:
+    def __init__(self) -> None:
         self.risk_service = RiskService()
         self.pricing_service = PricingService()
         self.min_order_size = Decimal("0.01")

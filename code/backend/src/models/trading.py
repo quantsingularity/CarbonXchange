@@ -74,9 +74,11 @@ class Order(db.Model):
     )
     order_id = Column(String(50), unique=True, nullable=False)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    order_type = Column(SQLEnum(OrderType), nullable=False)
-    side = Column(SQLEnum(OrderSide), nullable=False)
-    status = Column(SQLEnum(OrderStatus), nullable=False, default=OrderStatus.PENDING)
+    order_type: "Column[Any]" = Column(SQLEnum(OrderType), nullable=False)
+    side: "Column[Any]" = Column(SQLEnum(OrderSide), nullable=False)
+    status: "Column[Any]" = Column(
+        SQLEnum(OrderStatus), nullable=False, default=OrderStatus.PENDING
+    )
     credit_type = Column(String(100), nullable=True)
     vintage_year = Column(Integer, nullable=True)
     project_id = Column(Integer, ForeignKey("carbon_projects.id"), nullable=True)
@@ -113,7 +115,7 @@ class Order(db.Model):
     project = relationship("CarbonProject")
     trades = relationship("Trade", back_populates="order", cascade="all, delete-orphan")
 
-    def __init__(self, **kwargs) -> Any:
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
         self.remaining_quantity = self.quantity
         if not self.order_id:
@@ -246,7 +248,9 @@ class Trade(db.Model):
     credit_id = Column(Integer, ForeignKey("carbon_credits.id"), nullable=True)
     project_id = Column(Integer, ForeignKey("carbon_projects.id"), nullable=True)
     vintage_year = Column(Integer, nullable=True)
-    status = Column(SQLEnum(TradeStatus), nullable=False, default=TradeStatus.PENDING)
+    status: "Column[Any]" = Column(
+        SQLEnum(TradeStatus), nullable=False, default=TradeStatus.PENDING
+    )
     execution_venue = Column(String(100), nullable=True)
     buyer_fee = Column(Numeric(10, 2), nullable=False, default=0)
     seller_fee = Column(Numeric(10, 2), nullable=False, default=0)
@@ -278,7 +282,7 @@ class Trade(db.Model):
     credit = relationship("CarbonCredit")
     project = relationship("CarbonProject")
 
-    def __init__(self, **kwargs) -> Any:
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
         if not self.trade_id:
             self.trade_id = f"TRD-{datetime.now().strftime('%Y%m%d')}-{str(uuid.uuid4())[:8].upper()}"

@@ -6,7 +6,7 @@ Implements comprehensive user management with KYC and compliance features
 from typing import Any
 import re
 import uuid
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from decimal import Decimal
 from enum import Enum
 from flask_sqlalchemy import SQLAlchemy
@@ -448,7 +448,9 @@ class KYCDocument(db.Model):
     kyc_record_id = Column(
         Integer, ForeignKey("user_kyc.id"), nullable=False, index=True
     )
-    document_type = Column(SQLEnum(DocumentType), nullable=False, index=True)
+    document_type: "Column[Any]" = Column(
+        SQLEnum(DocumentType), nullable=False, index=True
+    )
     document_number = Column(String(100), nullable=True)
     issuing_country = Column(String(3), nullable=True)
     issuing_authority = Column(String(255), nullable=True)
@@ -570,130 +572,5 @@ class UserAuditLog(db.Model):
             "success": self.success,
             "error_message": self.error_message,
             "created_at": self.created_at.isoformat(),
-            "metadata": self.metadata,
+            "metadata": self.event_metadata,
         }
-
-    wallet_address = Column(String(42), unique=True, nullable=True, index=True)
-    status = Column(SQLEnum(UserStatus), nullable=False, default=UserStatus.PENDING)
-    role = Column(SQLEnum(UserRole), nullable=False, default=UserRole.INDIVIDUAL)
-    created_at = Column(
-        DateTime, nullable=False, default=lambda: datetime.now(timezone.utc)
-    )
-    updated_at = Column(
-        DateTime,
-        nullable=False,
-        default=lambda: datetime.now(timezone.utc),
-        onupdate=lambda: datetime.now(timezone.utc),
-    )
-    last_login_at = Column(DateTime, nullable=True)
-    email_verified_at = Column(DateTime, nullable=True)
-    failed_login_attempts = Column(Integer, nullable=False, default=0)
-    locked_until = Column(DateTime, nullable=True)
-    password_changed_at = Column(
-        DateTime, nullable=False, default=lambda: datetime.now(timezone.utc)
-    )
-    two_factor_enabled = Column(Boolean, nullable=False, default=False)
-    two_factor_secret = Column(String(32), nullable=True)
-    backup_codes = Column(Text, nullable=True)
-    profile = relationship(
-        "UserProfile",
-        back_populates="user",
-        uselist=False,
-        cascade="all, delete-orphan",
-    )
-    kyc = relationship(
-        "UserKYC", back_populates="user", uselist=False, cascade="all, delete-orphan"
-    )
-
-    def __init__(self, email: Any, password: Any, **kwargs) -> Any:
-        self.email = email.lower().strip()
-        self.set_password(password)
-        for key, value in kwargs.items():
-            if hasattr(self, key):
-                setattr(self, key, value)
-
-    def set_password(self, password: Any) -> Any:
-        """Set password hash"""
-        self.password_hash = generate_password_hash(password)
-        self.password_changed_at = datetime.now(timezone.utc)
-
-    def check_password(self, password: Any) -> Any:
-        """Check password against hash"""
-        return check_password_hash(self.password_hash, password)
-
-    @hybrid_property
-    def is_active(self) -> Any:
-        """Check if user account is active"""
-        return self.status == UserStatus.ACTIVE
-
-    @hybrid_property
-    def is_locked(self) -> Any:
-        """Check if user account is locked"""
-        if self.locked_until is None:
-            return False
-        return datetime.now(timezone.utc) < self.locked_until
-
-    @hybrid_property
-    def is_email_verified(self) -> Any:
-        """Check if email is verified"""
-        return self.email_verified_at is not None
-
-    @hybrid_property
-    def is_kyc_approved(self) -> Any:
-        """Check if KYC is approved"""
-        return self.kyc and self.kyc.status == KYCStatus.APPROVED
-
-    def lock_account(self, duration_minutes: Any = 30) -> Any:
-        """Lock user account for specified duration"""
-        self.locked_until = datetime.now(timezone.utc) + timedelta(
-            minutes=duration_minutes
-        )
-        self.failed_login_attempts = 0
-
-    def unlock_account(self) -> Any:
-        """Unlock user account"""
-        self.locked_until = None
-        self.failed_login_attempts = 0
-
-    def increment_failed_login(self) -> Any:
-        """Increment failed login attempts"""
-        self.failed_login_attempts += 1
-        if self.failed_login_attempts >= 5:
-            self.lock_account()
-
-    def reset_failed_login(self) -> Any:
-        """Reset failed login attempts"""
-        self.failed_login_attempts = 0
-
-    def to_dict(self, include_sensitive: Any = False) -> Any:
-        """Convert user to dictionary"""
-        data = {
-            "id": self.id,
-            "uuid": self.uuid,
-            "email": self.email,
-            "wallet_address": self.wallet_address,
-            "status": self.status.value,
-            "role": self.role.value,
-            "created_at": self.created_at.isoformat(),
-            "updated_at": self.updated_at.isoformat(),
-            "last_login_at": (
-                self.last_login_at.isoformat() if self.last_login_at else None
-            ),
-            "email_verified": self.is_email_verified,
-            "kyc_approved": self.is_kyc_approved,
-            "two_factor_enabled": self.two_factor_enabled,
-        }
-        if include_sensitive:
-            data.update(
-                {
-                    "failed_login_attempts": self.failed_login_attempts,
-                    "locked_until": (
-                        self.locked_until.isoformat() if self.locked_until else None
-                    ),
-                    "password_changed_at": self.password_changed_at.isoformat(),
-                }
-            )
-        return data
-
-    def __repr__(self) -> Any:
-        return f"<User {self.email}>"

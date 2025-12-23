@@ -5,7 +5,7 @@ Implements comprehensive market data tracking and price analytics
 
 from typing import Any
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from enum import Enum
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Column, DateTime
@@ -55,7 +55,7 @@ class MarketData(db.Model):
     project_id = Column(Integer, ForeignKey("carbon_projects.id"), nullable=True)
     vintage_year = Column(Integer, nullable=True, index=True)
     credit_standard = Column(String(50), nullable=True)
-    data_type = Column(SQLEnum(MarketDataType), nullable=False)
+    data_type: "Column[Any]" = Column(SQLEnum(MarketDataType), nullable=False)
     value = Column(Numeric(15, 8), nullable=False)
     currency = Column(String(3), nullable=False, default="USD")
     volume = Column(Numeric(15, 4), nullable=True)
@@ -156,7 +156,7 @@ class PriceHistory(db.Model):
     symbol = Column(String(50), nullable=False, index=True)
     project_id = Column(Integer, ForeignKey("carbon_projects.id"), nullable=True)
     vintage_year = Column(Integer, nullable=True)
-    timeframe = Column(SQLEnum(TimeFrame), nullable=False)
+    timeframe: "Column[Any]" = Column(SQLEnum(TimeFrame), nullable=False)
     period_start = Column(DateTime, nullable=False, index=True)
     period_end = Column(DateTime, nullable=False)
     open_price = Column(Numeric(10, 4), nullable=False)

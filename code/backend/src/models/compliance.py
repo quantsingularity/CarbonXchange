@@ -82,10 +82,10 @@ class ComplianceRecord(db.Model):
     user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     entity_type = Column(String(50), nullable=False)
     entity_id = Column(String(100), nullable=False)
-    framework = Column(SQLEnum(RegulatoryFramework), nullable=False)
+    framework: "Column[Any]" = Column(SQLEnum(RegulatoryFramework), nullable=False)
     rule_reference = Column(String(100), nullable=False)
     rule_description = Column(Text, nullable=False)
-    status = Column(SQLEnum(ComplianceStatus), nullable=False)
+    status: "Column[Any]" = Column(SQLEnum(ComplianceStatus), nullable=False)
     risk_level = Column(String(20), nullable=False, default="low")
     severity = Column(String(20), nullable=False, default="minor")
     violation_type = Column(String(100), nullable=True)
@@ -127,7 +127,7 @@ class ComplianceRecord(db.Model):
     reviewer = relationship("User", foreign_keys=[reviewed_by])
     approver = relationship("User", foreign_keys=[approved_by])
 
-    def __init__(self, **kwargs) -> Any:
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
         if not self.record_id:
             self.record_id = f"COMP-{datetime.now().strftime('%Y%m%d')}-{str(uuid.uuid4())[:8].upper()}"
@@ -268,13 +268,15 @@ class RegulatoryReport(db.Model):
         String(36), unique=True, nullable=False, default=lambda: str(uuid.uuid4())
     )
     report_id = Column(String(50), unique=True, nullable=False)
-    report_type = Column(SQLEnum(ReportType), nullable=False)
-    framework = Column(SQLEnum(RegulatoryFramework), nullable=False)
+    report_type: "Column[Any]" = Column(SQLEnum(ReportType), nullable=False)
+    framework: "Column[Any]" = Column(SQLEnum(RegulatoryFramework), nullable=False)
     title = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
     reporting_period_start = Column(DateTime, nullable=False)
     reporting_period_end = Column(DateTime, nullable=False)
-    status = Column(SQLEnum(ReportStatus), nullable=False, default=ReportStatus.DRAFT)
+    status: "Column[Any]" = Column(
+        SQLEnum(ReportStatus), nullable=False, default=ReportStatus.DRAFT
+    )
     version = Column(Integer, nullable=False, default=1)
     report_data = Column(Text, nullable=True)
     summary_statistics = Column(Text, nullable=True)
@@ -311,7 +313,7 @@ class RegulatoryReport(db.Model):
     approver = relationship("User", foreign_keys=[approved_by])
     submitter = relationship("User", foreign_keys=[submitted_by])
 
-    def __init__(self, **kwargs) -> Any:
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
         if not self.report_id:
             self.report_id = f"RPT-{datetime.now().strftime('%Y%m%d')}-{str(uuid.uuid4())[:8].upper()}"
