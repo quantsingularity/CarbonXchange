@@ -1,4 +1,4 @@
-# Enhanced Database Module Outputs for Financial Standards Compliance
+# Database Module Outputs for Financial Standards Compliance
 
 # Primary Database Instance
 output "db_instance_id" {
@@ -202,10 +202,10 @@ output "cloudwatch_log_group_arns" {
   value       = [for log_group in aws_cloudwatch_log_group.database_logs : log_group.arn]
 }
 
-# Enhanced Monitoring
-output "enhanced_monitoring_role_arn" {
-  description = "ARN of the enhanced monitoring IAM role"
-  value       = var.enhanced_monitoring_interval > 0 || (var.create_read_replica && var.read_replica_monitoring_interval > 0) ? aws_iam_role.enhanced_monitoring[0].arn : null
+# Monitoring
+output "monitoring_role_arn" {
+  description = "ARN of the monitoring IAM role"
+  value       = var.monitoring_interval > 0 || (var.create_read_replica && var.read_replica_monitoring_interval > 0) ? aws_iam_role.enhanced_monitoring[0].arn : null
 }
 
 # Backup S3 Bucket
@@ -251,7 +251,7 @@ output "security_configuration" {
     publicly_accessible             = aws_db_instance.main.publicly_accessible
     ca_cert_identifier              = aws_db_instance.main.ca_cert_identifier
     performance_insights_enabled    = aws_db_instance.main.performance_insights_enabled
-    enhanced_monitoring_interval    = aws_db_instance.main.monitoring_interval
+    monitoring_interval    = aws_db_instance.main.monitoring_interval
     enabled_cloudwatch_logs_exports = aws_db_instance.main.enabled_cloudwatch_logs_exports
   }
 }
@@ -269,7 +269,7 @@ output "compliance_status" {
     multi_az_enabled               = aws_db_instance.main.multi_az
     deletion_protection_enabled    = aws_db_instance.main.deletion_protection
     performance_monitoring_enabled = aws_db_instance.main.performance_insights_enabled
-    enhanced_monitoring_enabled    = aws_db_instance.main.monitoring_interval > 0
+    monitoring_enabled    = aws_db_instance.main.monitoring_interval > 0
     secrets_management_enabled     = true
     network_isolation_enabled      = !aws_db_instance.main.publicly_accessible
   }
@@ -286,7 +286,7 @@ output "performance_configuration" {
     iops                                  = aws_db_instance.main.iops
     performance_insights_enabled          = aws_db_instance.main.performance_insights_enabled
     performance_insights_retention_period = aws_db_instance.main.performance_insights_retention_period
-    enhanced_monitoring_interval          = aws_db_instance.main.monitoring_interval
+    monitoring_interval          = aws_db_instance.main.monitoring_interval
     read_replica_count                    = var.create_read_replica ? var.read_replica_count : 0
     proxy_enabled                         = var.create_db_proxy
   }
@@ -327,7 +327,7 @@ output "monitoring_endpoints" {
   value = {
     cloudwatch_logs              = [for log_group in aws_cloudwatch_log_group.database_logs : log_group.name]
     performance_insights_enabled = aws_db_instance.main.performance_insights_enabled
-    enhanced_monitoring_enabled  = aws_db_instance.main.monitoring_interval > 0
+    monitoring_enabled  = aws_db_instance.main.monitoring_interval > 0
     metrics_namespace            = "AWS/RDS"
     primary_instance_id          = aws_db_instance.main.identifier
     read_replica_ids             = var.create_read_replica ? aws_db_instance.read_replica[*].identifier : []
@@ -373,7 +373,7 @@ output "resource_inventory" {
     kms_key_count               = var.kms_key_id == "" ? 1 : 0
     secrets_count               = 1
     cloudwatch_log_groups_count = length(var.enabled_cloudwatch_logs_exports)
-    iam_roles_count             = var.enhanced_monitoring_interval > 0 || (var.create_read_replica && var.read_replica_monitoring_interval > 0) ? 1 : 0
+    iam_roles_count             = var.monitoring_interval > 0 || (var.create_read_replica && var.read_replica_monitoring_interval > 0) ? 1 : 0
     s3_buckets_count            = var.create_backup_bucket ? 1 : 0
     proxy_count                 = var.create_db_proxy ? 1 : 0
   }

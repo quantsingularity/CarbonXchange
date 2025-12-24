@@ -1,4 +1,4 @@
-# Enhanced Monitoring Module Variables for Financial Standards Compliance
+# Monitoring Module Variables for Financial Standards Compliance
 
 variable "app_name" {
   description = "Name of the application"
@@ -366,26 +366,26 @@ variable "environment_config" {
   description = "Environment-specific monitoring configuration"
   type = map(object({
     detailed_monitoring = bool
-    enhanced_logging    = bool
+    logging    = bool
     real_time_alerts    = bool
     cost_optimization   = bool
   }))
   default = {
     dev = {
       detailed_monitoring = false
-      enhanced_logging    = false
+      logging    = false
       real_time_alerts    = false
       cost_optimization   = true
     }
     staging = {
       detailed_monitoring = true
-      enhanced_logging    = true
+      logging    = true
       real_time_alerts    = true
       cost_optimization   = true
     }
     prod = {
       detailed_monitoring = true
-      enhanced_logging    = true
+      logging    = true
       real_time_alerts    = true
       cost_optimization   = false
     }

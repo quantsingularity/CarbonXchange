@@ -235,7 +235,7 @@ infrastructure/
 │   └── .vault_pass.example      # Vault password instructions
 │
 ├── ci-cd/
-│   └── ci-cd.yml                # Enhanced GitHub Actions workflow
+│   └── ci-cd.yml                # GitHub Actions workflow
 │
 ├── scripts/
 │   └── deploy.sh                # Deployment automation

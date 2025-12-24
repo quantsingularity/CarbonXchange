@@ -1,4 +1,4 @@
-# Enhanced Monitoring Module Outputs for Financial Standards Compliance
+# Monitoring Module Outputs for Financial Standards Compliance
 
 # CloudWatch Log Groups
 output "application_log_group_name" {

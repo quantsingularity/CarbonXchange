@@ -1,4 +1,4 @@
-# Enhanced Monitoring Module for Financial Standards Compliance
+# Monitoring Module for Financial Standards Compliance
 # This module implements comprehensive monitoring, logging, and alerting for CarbonXchange
 
 # Data sources

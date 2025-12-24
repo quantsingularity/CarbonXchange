@@ -185,7 +185,7 @@ class ComplianceService:
                 violations.append(
                     {
                         "rule": ComplianceRule.KYC_VERIFICATION,
-                        "message": "Enhanced KYC verification required for large transactions",
+                        "message": "KYC verification required for large transactions",
                         "blocking": True,
                         "manual_review": True,
                     }

@@ -1,4 +1,4 @@
-# Enhanced Security Module Variables for Financial Standards Compliance
+# Security Module Variables for Financial Standards Compliance
 
 variable "app_name" {
   description = "Name of the application"

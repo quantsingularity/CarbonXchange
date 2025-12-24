@@ -468,7 +468,7 @@ def handle_api_error(error: Exception) -> tuple:
 def paginate_query(
     query: Any, page: int = 1, per_page: int = 20, max_per_page: int = 100
 ) -> Any:
-    """Enhanced pagination with result wrapper"""
+    """Pagination with result wrapper"""
 
     class PaginationResult:
 

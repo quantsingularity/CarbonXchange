@@ -1,4 +1,4 @@
-# Enhanced Database Module for Financial Standards Compliance
+# Database Module for Financial Standards Compliance
 # This module implements comprehensive database infrastructure for CarbonXchange
 
 # Data sources
@@ -59,7 +59,7 @@ resource "aws_kms_alias" "database" {
   target_key_id = aws_kms_key.database[0].key_id
 }
 
-# Enhanced DB Subnet Group with additional security
+# DB Subnet Group with additional security
 resource "aws_db_subnet_group" "main" {
   name       = "${var.db_name}-${var.environment}-subnet-group"
   subnet_ids = var.private_subnet_ids
@@ -151,7 +151,7 @@ resource "aws_db_parameter_group" "main" {
   })
 }
 
-# Custom DB Option Group for enhanced features
+# Custom DB Option Group for features
 resource "aws_db_option_group" "main" {
   count                    = var.create_option_group ? 1 : 0
   name                     = "${var.db_name}-${var.environment}-options"
@@ -180,7 +180,7 @@ resource "aws_db_option_group" "main" {
   })
 }
 
-# Primary RDS Instance with enhanced security
+# Primary RDS Instance with security
 resource "aws_db_instance" "main" {
   # Basic Configuration
   identifier     = "${var.db_name}-${var.environment}"
@@ -235,8 +235,8 @@ resource "aws_db_instance" "main" {
   availability_zone = var.multi_az ? null : var.availability_zone
 
   # Monitoring and Logging
-  monitoring_interval = var.enhanced_monitoring_interval
-  monitoring_role_arn = var.enhanced_monitoring_interval > 0 ? aws_iam_role.enhanced_monitoring[0].arn : null
+  monitoring_interval = var.monitoring_interval
+  monitoring_role_arn = var.monitoring_interval > 0 ? aws_iam_role.monitoring[0].arn : null
 
   performance_insights_enabled          = var.performance_insights_enabled
   performance_insights_kms_key_id       = var.performance_insights_enabled ? (var.kms_key_id != "" ? var.kms_key_id : aws_kms_key.database[0].arn) : null
@@ -266,7 +266,7 @@ resource "aws_db_instance" "main" {
 
   depends_on = [
     aws_db_parameter_group.main,
-    aws_iam_role.enhanced_monitoring
+    aws_iam_role.monitoring
   ]
 }
 
@@ -293,7 +293,7 @@ resource "aws_db_instance" "read_replica" {
 
   # Monitoring
   monitoring_interval = var.read_replica_monitoring_interval
-  monitoring_role_arn = var.read_replica_monitoring_interval > 0 ? aws_iam_role.enhanced_monitoring[0].arn : null
+  monitoring_role_arn = var.read_replica_monitoring_interval > 0 ? aws_iam_role.monitoring[0].arn : null
 
   performance_insights_enabled          = var.read_replica_performance_insights_enabled
   performance_insights_kms_key_id       = var.read_replica_performance_insights_enabled ? (var.kms_key_id != "" ? var.kms_key_id : aws_kms_key.database[0].arn) : null
@@ -318,10 +318,10 @@ resource "aws_db_instance" "read_replica" {
   depends_on = [aws_db_instance.main]
 }
 
-# Enhanced Monitoring IAM Role
-resource "aws_iam_role" "enhanced_monitoring" {
-  count = var.enhanced_monitoring_interval > 0 || (var.create_read_replica && var.read_replica_monitoring_interval > 0) ? 1 : 0
-  name  = "${var.db_name}-${var.environment}-rds-enhanced-monitoring"
+# Monitoring IAM Role
+resource "aws_iam_role" "monitoring" {
+  count = var.monitoring_interval > 0 || (var.create_read_replica && var.read_replica_monitoring_interval > 0) ? 1 : 0
+  name  = "${var.db_name}-${var.environment}-rds-monitoring"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -337,15 +337,15 @@ resource "aws_iam_role" "enhanced_monitoring" {
   })
 
   tags = merge(var.common_tags, {
-    Name = "${var.db_name}-${var.environment}-enhanced-monitoring-role"
+    Name = "${var.db_name}-${var.environment}-monitoring-role"
     Type = "database-monitoring"
   })
 }
 
-resource "aws_iam_role_policy_attachment" "enhanced_monitoring" {
-  count      = var.enhanced_monitoring_interval > 0 || (var.create_read_replica && var.read_replica_monitoring_interval > 0) ? 1 : 0
-  role       = aws_iam_role.enhanced_monitoring[0].name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonRDSEnhancedMonitoringRole"
+resource "aws_iam_role_policy_attachment" "monitoring" {
+  count      = var.monitoring_interval > 0 || (var.create_read_replica && var.read_replica_monitoring_interval > 0) ? 1 : 0
+  role       = aws_iam_role.monitoring[0].name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonRDSMonitoringRole"
 }
 
 # Database Proxy for connection pooling and security

@@ -2,7 +2,7 @@
 
 ## Overview
 
-CarbonXchange is a comprehensive, institutional-grade carbon credit trading platform built with cutting-edge technology and financial industry best practices. This enhanced version includes advanced trading algorithms, sophisticated risk management, AI-powered analytics, and enterprise-level security features designed for investor presentation and production deployment.
+CarbonXchange is a comprehensive, institutional-grade carbon credit trading platform built with cutting-edge technology and financial industry best practices. This includes advanced trading algorithms, sophisticated risk management, AI-powered analytics, and enterprise-level security features designed for investor presentation and production deployment.
 
 The code directory is the central repository for all source code in the CarbonXchange project, containing core components that power a comprehensive carbon credit trading and management platform. Each subdirectory represents a distinct component of the system architecture, designed to work together seamlessly.
 
@@ -10,7 +10,7 @@ The code directory is the central repository for all source code in the CarbonXc
 
 ```
 CarbonXchange/code/
-├── backend/                 # Flask-based API server (Enhanced)
+├── backend/                 # Flask-based API server
 │   ├── src/
 │   │   ├── models/         # Database models with financial compliance
 │   │   ├── services/       # Advanced trading and risk management services
@@ -19,8 +19,8 @@ CarbonXchange/code/
 │   │   └── utils/         # Financial calculation utilities
 │   ├── tests/             # Comprehensive test suite (>90% coverage)
 │   ├── docs/              # Detailed API documentation
-│   └── requirements.txt   # Enhanced Python dependencies
-├── web-frontend/           # React-based web application (Enhanced)
+│   └── requirements.txt   # Python dependencies
+├── web-frontend/           # React-based web application
 │   ├── src/
 │   │   ├── components/    # Professional trading components
 │   │   │   ├── Dashboard/ # Advanced trading dashboard
@@ -31,18 +31,18 @@ CarbonXchange/code/
 │   │   ├── utils/         # Financial calculation utilities
 │   │   └── styles/        # Tailwind CSS with custom design system
 │   ├── public/            # Static assets and PWA configuration
-│   ├── package.json       # Enhanced Node.js dependencies
+│   ├── package.json       # Node.js dependencies
 │   └── tailwind.config.js # Custom Tailwind configuration
-├── blockchain/             # Smart contracts and blockchain integration (Enhanced)
+├── blockchain/             # Smart contracts and blockchain integration
 │   ├── contracts/         # Advanced Solidity smart contracts
-│   │   ├── AdvancedCarbonCreditToken.sol  # Enhanced token contract
+│   │   ├── AdvancedCarbonCreditToken.sol  # Token contract
 │   │   └── AdvancedMarketplace.sol        # Sophisticated marketplace
 │   ├── scripts/           # Deployment and management scripts
 │   └── tests/             # Comprehensive contract tests
-└── ai_models/             # Machine learning models (Enhanced)
+└── ai_models/             # Machine learning models
     ├── training_scripts/  # Advanced model training code
     │   ├── train_forecasting_model.py     # Original forecasting
-    │   └── advanced_forecasting_model.py  # Enhanced multi-algorithm
+    │   └── advanced_forecasting_model.py  # Multi-algorithm
     ├── models/            # Trained model files
     └── data/              # Training and validation data
 ```
@@ -151,7 +151,7 @@ CarbonXchange/code/
     npx hardhat run scripts/deploy.js --network localhost
     ```
 
-## 📊 Enhanced Features
+## 📊 Features
 
 ### Advanced Trading Features
 

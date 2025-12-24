@@ -1,4 +1,4 @@
-# Enhanced Security Module for Financial Standards Compliance
+# Security Module for Financial Standards Compliance
 # This module implements comprehensive security controls for CarbonXchange
 
 # Data source for current AWS account ID
@@ -225,7 +225,7 @@ resource "aws_security_group" "alb" {
   })
 }
 
-# Application Security Group (Enhanced)
+# Application Security Group
 resource "aws_security_group" "app" {
   name        = "${var.app_name}-${var.environment}-app-sg"
   description = "Security group for ${var.app_name} application in ${var.environment}"
@@ -318,7 +318,7 @@ resource "aws_security_group" "app" {
   })
 }
 
-# Database Security Group (Enhanced)
+# Database Security Group
 resource "aws_security_group" "db" {
   name        = "${var.app_name}-${var.environment}-db-sg"
   description = "Security group for ${var.app_name} database in ${var.environment}"

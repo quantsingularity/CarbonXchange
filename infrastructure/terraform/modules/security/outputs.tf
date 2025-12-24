@@ -1,4 +1,4 @@
-# Enhanced Security Module Outputs for Financial Standards Compliance
+# Security Module Outputs for Financial Standards Compliance
 
 # Security Groups
 output "alb_security_group_id" {

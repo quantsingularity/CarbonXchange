@@ -1,4 +1,4 @@
-# Enhanced Database Module Variables for Financial Standards Compliance
+# Database Module Variables for Financial Standards Compliance
 
 variable "db_name" {
   description = "Name of the database"
@@ -213,13 +213,13 @@ variable "availability_zone" {
 }
 
 # Monitoring Configuration
-variable "enhanced_monitoring_interval" {
-  description = "Enhanced monitoring interval in seconds (0 to disable)"
+variable "monitoring_interval" {
+  description = "Monitoring interval in seconds (0 to disable)"
   type        = number
   default     = 60
   validation {
-    condition     = contains([0, 1, 5, 10, 15, 30, 60], var.enhanced_monitoring_interval)
-    error_message = "Enhanced monitoring interval must be one of: 0, 1, 5, 10, 15, 30, 60."
+    condition     = contains([0, 1, 5, 10, 15, 30, 60], var.monitoring_interval)
+    error_message = "Monitoring interval must be one of: 0, 1, 5, 10, 15, 30, 60."
   }
 }
 
@@ -380,7 +380,7 @@ variable "read_replica_availability_zones" {
 }
 
 variable "read_replica_monitoring_interval" {
-  description = "Enhanced monitoring interval for read replicas"
+  description = "Monitoring interval for read replicas"
   type        = number
   default     = 60
 }
@@ -509,7 +509,7 @@ variable "environment_config" {
     multi_az                     = bool
     deletion_protection          = bool
     performance_insights_enabled = bool
-    enhanced_monitoring_interval = number
+    monitoring_interval = number
   }))
   default = {
     dev = {
@@ -519,7 +519,7 @@ variable "environment_config" {
       multi_az                     = false
       deletion_protection          = false
       performance_insights_enabled = false
-      enhanced_monitoring_interval = 0
+      monitoring_interval = 0
     }
     staging = {
       instance_class               = "db.t3.small"
@@ -528,7 +528,7 @@ variable "environment_config" {
       multi_az                     = true
       deletion_protection          = true
       performance_insights_enabled = true
-      enhanced_monitoring_interval = 60
+      monitoring_interval = 60
     }
     prod = {
       instance_class               = "db.r5.large"
@@ -537,7 +537,7 @@ variable "environment_config" {
       multi_az                     = true
       deletion_protection          = true
       performance_insights_enabled = true
-      enhanced_monitoring_interval = 60
+      monitoring_interval = 60
     }
   }
 }

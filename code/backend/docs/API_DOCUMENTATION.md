@@ -961,26 +961,3 @@ import CarbonXchange from 'carbonxchange-js';
 const client = new CarbonXchange({ apiKey: 'your_api_key' });
 const orders = await client.trading.getOrders();
 ```
-
-## Changelog
-
-### Version 1.2.0 (2023-12-01)
-
-- Added advanced trading algorithms (TWAP, VWAP, Iceberg)
-- Enhanced risk management endpoints
-- Added AI-powered trading signals
-- Improved WebSocket performance
-
-### Version 1.1.0 (2023-11-01)
-
-- Added portfolio optimization endpoints
-- Enhanced compliance reporting
-- Added stress testing capabilities
-- Improved error handling
-
-### Version 1.0.0 (2023-10-01)
-
-- Initial API release
-- Basic trading functionality
-- User management
-- Market data access
