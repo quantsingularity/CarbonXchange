@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 from decimal import Decimal
 from unittest.mock import patch
 import pytest
+from typing import Any
 from src.models.trading import Order, OrderSide, OrderStatus, OrderType, Trade
 from src.models.user import User
 from src.services.trading_service import TradingService
