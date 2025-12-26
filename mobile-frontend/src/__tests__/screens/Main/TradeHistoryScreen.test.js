@@ -2,38 +2,52 @@ import React from 'react';
 import { render, waitFor, fireEvent } from '@testing-library/react-native';
 import { Provider } from 'react-redux';
 import { NavigationContainer } from '@react-navigation/native';
-import configureStore from 'redux-mock-store';
-import thunk from 'redux-thunk';
+import { configureStore } from '@reduxjs/toolkit';
+import authReducer from '../../../store/slices/authSlice';
 import TradeHistoryScreen from '../../../screens/Main/TradeHistoryScreen';
 import * as api from '../../../services/api'; // To mock API calls
 
-const middlewares = [thunk];
-const mockStore = configureStore(middlewares);
-
 // Mock navigation
-const mockNavigation = { navigate: jest.fn() };
+const mockNavigation = {
+    navigate: jest.fn(),
+    addListener: jest.fn(() => jest.fn()), // Mock the focus listener
+};
 
 // Mock API service
 jest.mock('../../../services/api', () => ({
     getUserTrades: jest.fn(),
 }));
 
+const createTestStore = (initialState) => {
+    return configureStore({
+        reducer: { auth: authReducer },
+        preloadedState: initialState,
+    });
+};
+
 describe('TradeHistoryScreen', () => {
-    let store;
     const initialState = {
-        auth: { user: { id: 'user123' }, token: 'test-token', isLoggedIn: true },
-        // Add other relevant initial states if your screen depends on them
+        auth: {
+            user: { id: 'user123' },
+            token: 'test-token',
+            isLoggedIn: true,
+            isLoading: false,
+            isRehydrating: false,
+            error: null,
+        },
     };
 
     beforeEach(() => {
-        store = mockStore(initialState);
         api.getUserTrades.mockClear();
         mockNavigation.navigate.mockClear();
+        mockNavigation.addListener.mockClear();
+        mockNavigation.addListener.mockReturnValue(jest.fn()); // Return cleanup function
     });
 
-    const renderComponent = (currentStore = store) => {
+    const renderComponent = () => {
+        const store = createTestStore(initialState);
         return render(
-            <Provider store={currentStore}>
+            <Provider store={store}>
                 <NavigationContainer>
                     <TradeHistoryScreen navigation={mockNavigation} />
                 </NavigationContainer>

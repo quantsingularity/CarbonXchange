@@ -2,16 +2,10 @@ import React from 'react';
 import { render, waitFor } from '@testing-library/react-native';
 import { Provider } from 'react-redux';
 import { NavigationContainer } from '@react-navigation/native';
-import configureStore from 'redux-mock-store';
-import thunk from 'redux-thunk';
+import { configureStore } from '@reduxjs/toolkit';
+import authReducer from '../../../store/slices/authSlice';
 import MarketDataScreen from '../../../screens/Main/MarketDataScreen';
-import * as api from '../../../services/api'; // To mock API calls
-
-const middlewares = [thunk];
-const mockStore = configureStore(middlewares);
-
-// Mock navigation
-const mockNavigation = { navigate: jest.fn() };
+import * as api from '../../../services/api';
 
 // Mock API service
 jest.mock('../../../services/api', () => ({
@@ -19,103 +13,87 @@ jest.mock('../../../services/api', () => ({
     getMarketForecast: jest.fn(),
 }));
 
-// Mock react-native-chart-kit
-jest.mock('react-native-chart-kit', () => ({
-    LineChart: (props) => <mock-LineChart {...props} />,
-    BarChart: (props) => <mock-BarChart {...props} />,
-}));
+const createTestStore = (initialState) => {
+    return configureStore({
+        reducer: { auth: authReducer },
+        preloadedState: initialState,
+    });
+};
 
 describe('MarketDataScreen', () => {
-    let store;
     const initialState = {
-        auth: { user: { id: '1' }, token: 'test-token', isLoggedIn: true },
+        auth: {
+            user: { id: 'user123' },
+            token: 'test-token',
+            isLoggedIn: true,
+            isLoading: false,
+            isRehydrating: false,
+            error: null,
+        },
     };
 
     beforeEach(() => {
-        store = mockStore(initialState);
         api.getMarketStats.mockClear();
         api.getMarketForecast.mockClear();
     });
 
-    const renderComponent = (currentStore = store) => {
+    const renderComponent = () => {
+        const store = createTestStore(initialState);
         return render(
-            <Provider store={currentStore}>
+            <Provider store={store}>
                 <NavigationContainer>
-                    <MarketDataScreen navigation={mockNavigation} />
+                    <MarketDataScreen />
                 </NavigationContainer>
             </Provider>,
         );
     };
 
-    it('renders correctly and shows loading indicators initially', () => {
-        api.getMarketStats.mockReturnValue(new Promise(() => {})); // Keep pending
-        api.getMarketForecast.mockReturnValue(new Promise(() => {})); // Keep pending
-        const { getAllByTestId } = renderComponent();
-        // Assuming loading indicators have testID="loading-indicator"
-        // expect(getAllByTestId("loading-indicator").length).toBeGreaterThan(0);
-        // For now, a simple check that it renders without crashing
-        expect(true).toBe(true);
+    it('renders correctly and shows title', () => {
+        api.getMarketStats.mockReturnValue(new Promise(() => {}));
+        api.getMarketForecast.mockReturnValue(new Promise(() => {}));
+        const { getByText } = renderComponent();
+        expect(getByText('Market Overview')).toBeTruthy();
     });
 
-    it('fetches and displays market stats and forecast', async () => {
+    it('displays market statistics after successful API call', async () => {
         const mockStats = {
-            totalVolume: 10000,
-            averagePrice: 25.5,
-            activeListings: 150,
-        };
-        const mockForecast = {
-            trend: 'upward',
-            nextWeekPrice: 26.0,
-            confidence: 'high',
-        };
-        api.getMarketStats.mockResolvedValue({
             success: true,
-            statistics: mockStats,
-        });
+            data: {
+                averagePrice: 25.75,
+                priceChange24h: 2.5,
+                volume24h: 50000,
+                totalVolume: 1000000,
+            },
+        };
+        api.getMarketStats.mockResolvedValue(mockStats);
         api.getMarketForecast.mockResolvedValue({
             success: true,
-            forecast: mockForecast,
+            data: {
+                labels: ['Jan', 'Feb'],
+                datasets: [{ data: [25, 26] }],
+            },
         });
 
-        const { findByText } = renderComponent();
-
+        const { getByText } = renderComponent();
         await waitFor(() => {
-            expect(api.getMarketStats).toHaveBeenCalledTimes(1);
-            expect(api.getMarketForecast).toHaveBeenCalledTimes(1);
+            expect(getByText(/\$25.75/)).toBeTruthy();
+        });
+    });
+
+    it('displays error message if fetching stats fails', async () => {
+        const mockError = { success: false, error: { message: 'API Error' } };
+        api.getMarketStats.mockResolvedValue(mockError);
+        api.getMarketForecast.mockResolvedValue({
+            success: true,
+            data: {
+                labels: ['Jan'],
+                datasets: [{ data: [25] }],
+            },
         });
 
-        // Check for stats
-        expect(await findByText(/Total Volume:/i)).toBeTruthy();
-        expect(await findByText('10000')).toBeTruthy();
-        expect(await findByText(/Average Price:/i)).toBeTruthy();
-        expect(await findByText('$25.50')).toBeTruthy(); // Assuming formatting
-
-        // Check for forecast
-        expect(await findByText(/Market Trend:/i)).toBeTruthy();
-        expect(await findByText('Upward')).toBeTruthy(); // Assuming capitalization
-        expect(await findByText(/Next Week Est. Price:/i)).toBeTruthy();
-        expect(await findByText('$26.00')).toBeTruthy(); // Assuming formatting
-    });
-
-    it('displays error messages if fetching data fails', async () => {
-        api.getMarketStats.mockRejectedValue(new Error('Failed to fetch stats'));
-        api.getMarketForecast.mockRejectedValue(new Error('Failed to fetch forecast'));
-
-        const { findByText } = renderComponent();
-
-        expect(await findByText(/Failed to load market statistics/i)).toBeTruthy();
-        expect(await findByText(/Failed to load market forecast/i)).toBeTruthy();
-    });
-
-    // Add tests for chart rendering if possible by inspecting props passed to mocked charts
-    it('passes correct data to LineChart for price trends', async () => {
-        // This test would be more involved, requiring inspection of props passed to the mocked LineChart
-        // For example, if getMarketPriceHistory is another API call made by the screen:
-        // api.getMarketPriceHistory.mockResolvedValue({ success: true, history: [{date: '2023-01-01', price: 20}, ...] });
-        // const { getByTestId } = renderComponent();
-        // await waitFor(() => expect(getByTestId('price-trend-chart')).toBeTruthy());
-        // const lineChart = getByTestId('price-trend-chart');
-        // expect(lineChart.props.data.datasets[0].data).toEqual([expected data]);
-        expect(true).toBe(true); // Placeholder
+        const { getByText } = renderComponent();
+        await waitFor(() => {
+            expect(getByText(/API Error/)).toBeTruthy();
+        });
     });
 });

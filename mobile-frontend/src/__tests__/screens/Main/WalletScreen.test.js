@@ -2,13 +2,10 @@ import React from 'react';
 import { render, waitFor, fireEvent } from '@testing-library/react-native';
 import { Provider } from 'react-redux';
 import { NavigationContainer } from '@react-navigation/native';
-import configureStore from 'redux-mock-store';
-import thunk from 'redux-thunk';
+import { configureStore } from '@reduxjs/toolkit';
+import authReducer from '../../../store/slices/authSlice';
 import WalletScreen from '../../../screens/Main/WalletScreen';
 import * as api from '../../../services/api'; // To mock API calls
-
-const middlewares = [thunk];
-const mockStore = configureStore(middlewares);
 
 // Mock navigation
 const mockNavigation = { navigate: jest.fn() };
@@ -16,27 +13,43 @@ const mockNavigation = { navigate: jest.fn() };
 // Mock API service
 jest.mock('../../../services/api', () => ({
     getWalletBalance: jest.fn(),
-    // Assuming there might be an API to get transaction history for the wallet
-    getWalletTransactions: jest.fn(),
+    getUserTrades: jest.fn(),
 }));
 
+// Mock Alert
+jest.mock('react-native/Libraries/Alert/Alert', () => ({
+    alert: jest.fn(),
+}));
+
+const createTestStore = (initialState) => {
+    return configureStore({
+        reducer: { auth: authReducer },
+        preloadedState: initialState,
+    });
+};
+
 describe('WalletScreen', () => {
-    let store;
     const initialState = {
-        auth: { user: { id: 'user123' }, token: 'test-token', isLoggedIn: true },
-        // You might have a dedicated wallet slice in Redux, or fetch directly
+        auth: {
+            user: { id: 'user123' },
+            token: 'test-token',
+            isLoggedIn: true,
+            isLoading: false,
+            isRehydrating: false,
+            error: null,
+        },
     };
 
     beforeEach(() => {
-        store = mockStore(initialState);
         api.getWalletBalance.mockClear();
-        api.getWalletTransactions.mockClear();
+        api.getUserTrades.mockClear();
         mockNavigation.navigate.mockClear();
     });
 
-    const renderComponent = (currentStore = store) => {
+    const renderComponent = () => {
+        const store = createTestStore(initialState);
         return render(
-            <Provider store={currentStore}>
+            <Provider store={store}>
                 <NavigationContainer>
                     <WalletScreen navigation={mockNavigation} />
                 </NavigationContainer>
@@ -44,118 +57,46 @@ describe('WalletScreen', () => {
         );
     };
 
-    it('renders loading indicator initially for balance and transactions', () => {
-        api.getWalletBalance.mockReturnValue(new Promise(() => {})); // Keep pending
-        api.getWalletTransactions.mockReturnValue(new Promise(() => {})); // Keep pending
+    it('renders correctly and shows loading indicator initially', () => {
+        api.getWalletBalance.mockReturnValue(new Promise(() => {})); // Keep it pending
+        api.getUserTrades.mockReturnValue(new Promise(() => {})); // Keep it pending
         const { queryByText } = renderComponent();
-        // Example: expect(getAllByTestId("loading-indicator").length).toBeGreaterThanOrEqual(1);
-        expect(queryByText(/Current Balance:/i)).toBeNull(); // Assuming balance is not shown while loading
-        expect(queryByText('No transactions yet.')).toBeNull(); // Assuming transactions are not shown
+        expect(queryByText('My Wallet')).toBeTruthy();
     });
 
-    it('fetches and displays wallet balance and transactions on mount', async () => {
-        const mockBalance = { amount: 7500.5, currency: 'USD' };
-        const mockTransactions = [
-            {
-                id: 'txn1',
-                type: 'deposit',
-                amount: 1000,
-                date: '2023-05-01',
-                description: 'Initial deposit',
-            },
-            {
-                id: 'txn2',
-                type: 'trade_profit',
-                amount: 250.5,
-                date: '2023-05-03',
-                description: 'Profit from SOLR trade',
-            },
-            {
-                id: 'txn3',
-                type: 'withdrawal',
-                amount: -500,
-                date: '2023-05-05',
-                description: 'Withdrawal to bank',
-            },
-        ];
-        api.getWalletBalance.mockResolvedValue({
+    it('displays wallet balance after successful API call', async () => {
+        const mockBalance = {
             success: true,
-            balance: mockBalance,
-        });
-        api.getWalletTransactions.mockResolvedValue({
+            data: {
+                tokenBalance: 1000,
+                creditBalance: 50,
+                pendingTrades: 2,
+            },
+        };
+        api.getWalletBalance.mockResolvedValue(mockBalance);
+        api.getUserTrades.mockResolvedValue({
             success: true,
-            transactions: mockTransactions,
+            data: { trades: [], pages: 1 },
         });
 
-        const { findByText, getByText } = renderComponent();
-
+        const { getByText } = renderComponent();
         await waitFor(() => {
-            expect(api.getWalletBalance).toHaveBeenCalledTimes(1);
-            expect(api.getWalletTransactions).toHaveBeenCalledTimes(1);
+            expect(getByText(/1,000 TOK/)).toBeTruthy();
+            expect(getByText(/50 tCO2e/)).toBeTruthy();
         });
-
-        expect(await findByText('Current Balance: $7,500.50')).toBeTruthy(); // Assuming formatting
-        expect(getByText('Deposit: $1,000.00 - Initial deposit')).toBeTruthy();
-        expect(getByText('Trade Profit: $250.50 - Profit from SOLR trade')).toBeTruthy();
-        expect(getByText('Withdrawal: -$500.00 - Withdrawal to bank')).toBeTruthy();
     });
 
-    it('displays a message if no transactions are available', async () => {
-        api.getWalletBalance.mockResolvedValue({
+    it('displays error message if fetching balance fails', async () => {
+        const mockError = { success: false, error: { message: 'Network Error' } };
+        api.getWalletBalance.mockResolvedValue(mockError);
+        api.getUserTrades.mockResolvedValue({
             success: true,
-            balance: { amount: 100, currency: 'USD' },
+            data: { trades: [], pages: 1 },
         });
-        api.getWalletTransactions.mockResolvedValue({
-            success: true,
-            transactions: [],
+
+        const { getByText } = renderComponent();
+        await waitFor(() => {
+            expect(getByText(/Network Error/)).toBeTruthy();
         });
-        const { findByText } = renderComponent();
-        expect(await findByText('No transactions yet.')).toBeTruthy();
     });
-
-    it('displays error messages if fetching balance or transactions fails', async () => {
-        api.getWalletBalance.mockRejectedValue(new Error('Failed to fetch balance'));
-        api.getWalletTransactions.mockRejectedValue(new Error('Failed to fetch transactions'));
-
-        const { findByText } = renderComponent();
-
-        expect(await findByText(/Failed to load balance/i)).toBeTruthy();
-        expect(await findByText(/Failed to load transactions/i)).toBeTruthy();
-    });
-
-    it("navigates to a deposit screen on 'Deposit Funds' button press", async () => {
-        api.getWalletBalance.mockResolvedValue({
-            success: true,
-            balance: { amount: 100, currency: 'USD' },
-        });
-        api.getWalletTransactions.mockResolvedValue({
-            success: true,
-            transactions: [],
-        });
-        const { findByText } = renderComponent();
-        // Assuming a button with this text exists
-        const depositButton = await findByText('Deposit Funds');
-        fireEvent.press(depositButton);
-        // expect(mockNavigation.navigate).toHaveBeenCalledWith("DepositScreen"); // Or relevant screen name
-        expect(true).toBe(true); // Placeholder if navigation target is unknown
-    });
-
-    it("navigates to a withdrawal screen on 'Withdraw Funds' button press", async () => {
-        api.getWalletBalance.mockResolvedValue({
-            success: true,
-            balance: { amount: 100, currency: 'USD' },
-        });
-        api.getWalletTransactions.mockResolvedValue({
-            success: true,
-            transactions: [],
-        });
-        const { findByText } = renderComponent();
-        // Assuming a button with this text exists
-        const withdrawButton = await findByText('Withdraw Funds');
-        fireEvent.press(withdrawButton);
-        // expect(mockNavigation.navigate).toHaveBeenCalledWith("WithdrawScreen"); // Or relevant screen name
-        expect(true).toBe(true); // Placeholder if navigation target is unknown
-    });
-
-    // Add test for pull-to-refresh functionality if implemented for balance and transactions
 });

@@ -3,16 +3,16 @@ import { render } from '@testing-library/react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
-import authReducer from '../../../store/slices/authSlice';
-import AppNavigator from '../../../navigation/AppNavigator';
+import authReducer from '../../store/slices/authSlice';
+import AppNavigator from '../../navigation/AppNavigator';
 
 // Mock screens to avoid rendering their actual content and dependencies
-jest.mock('../../../screens/Main/CreditsListScreen', () => 'CreditsListScreen');
-jest.mock('../../../screens/Main/MarketDataScreen', () => 'MarketDataScreen');
-jest.mock('../../../screens/Main/TradingScreen', () => 'TradingScreen');
-jest.mock('../../../screens/Main/TradeHistoryScreen', () => 'TradeHistoryScreen');
-jest.mock('../../../screens/Main/WalletScreen', () => 'WalletScreen');
-jest.mock('../../../screens/Main/CreditDetailScreen', () => 'CreditDetailScreen');
+jest.mock('../../screens/Main/CreditsListScreen', () => 'CreditsListScreen');
+jest.mock('../../screens/Main/MarketDataScreen', () => 'MarketDataScreen');
+jest.mock('../../screens/Main/TradingScreen', () => 'TradingScreen');
+jest.mock('../../screens/Main/TradeHistoryScreen', () => 'TradeHistoryScreen');
+jest.mock('../../screens/Main/WalletScreen', () => 'WalletScreen');
+jest.mock('../../screens/Main/CreditDetailScreen', () => 'CreditDetailScreen');
 
 // Mock navigation parts that are not part of AppNavigator itself but might be expected by its children
 const mockNavigate = jest.fn();

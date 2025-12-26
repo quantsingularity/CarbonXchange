@@ -1,9 +1,9 @@
 import axios from 'axios';
 import * as SecureStore from 'expo-secure-store'; // For storing JWT token securely
+import { API_CONFIG } from '../config/constants';
 
-// Define the base URL for the API based on environment (adjust as needed)
-// Using placeholder, replace with actual dev/prod URLs from docs if available
-const API_BASE_URL = 'http://localhost:3000/api/v1'; // Replace with actual backend URL
+// Define the base URL for the API from config
+const API_BASE_URL = API_CONFIG.baseURL;
 
 const apiClient = axios.create({
     baseURL: API_BASE_URL,
@@ -19,9 +19,44 @@ apiClient.interceptors.request.use(
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
+
+        // Log requests if enabled
+        if (API_CONFIG.logRequests) {
+            console.log(`[API] ${config.method?.toUpperCase()} ${config.url}`, {
+                params: config.params,
+                data: config.data,
+            });
+        }
+
         return config;
     },
     (error) => {
+        if (API_CONFIG.logRequests) {
+            console.error('[API] Request error:', error);
+        }
+        return Promise.reject(error);
+    },
+);
+
+// Response interceptor for consistent error handling
+apiClient.interceptors.response.use(
+    (response) => {
+        if (API_CONFIG.logRequests) {
+            console.log(`[API] Response from ${response.config.url}:`, response.data);
+        }
+        return response;
+    },
+    async (error) => {
+        if (API_CONFIG.logRequests) {
+            console.error('[API] Response error:', error.response?.data || error.message);
+        }
+
+        // Handle 401 Unauthorized - token expired or invalid
+        if (error.response?.status === 401) {
+            // Clear token and redirect to login (handled by App.js)
+            await SecureStore.deleteItemAsync('userToken');
+        }
+
         return Promise.reject(error);
     },
 );

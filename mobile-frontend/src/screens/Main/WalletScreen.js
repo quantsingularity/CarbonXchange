@@ -7,10 +7,13 @@ import {
     TouchableOpacity,
     FlatList,
     RefreshControl,
+    Alert,
 } from 'react-native';
 import { getWalletBalance, getUserTrades } from '../../services/api';
 import theme from '../../styles/theme'; // Import the theme
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { logout } from '../../store/slices/authSlice';
+import { Ionicons } from '@expo/vector-icons';
 
 const WalletScreen = ({ navigation }) => {
     const [balance, setBalance] = useState(null);
@@ -148,9 +151,30 @@ const WalletScreen = ({ navigation }) => {
         );
     };
 
+    const handleLogout = () => {
+        Alert.alert('Logout', 'Are you sure you want to logout?', [
+            {
+                text: 'Cancel',
+                style: 'cancel',
+            },
+            {
+                text: 'Logout',
+                style: 'destructive',
+                onPress: () => {
+                    dispatch(logout());
+                },
+            },
+        ]);
+    };
+
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>My Wallet</Text>
+            <View style={styles.header}>
+                <Text style={styles.title}>My Wallet</Text>
+                <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
+                    <Ionicons name="log-out-outline" size={24} color={theme.colors.error} />
+                </TouchableOpacity>
+            </View>
 
             {/* Balance Section */}
             <View style={styles.card}>
@@ -224,11 +248,18 @@ const styles = StyleSheet.create({
         backgroundColor: theme.colors.background,
         padding: theme.spacing.lg,
     },
+    header: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: theme.spacing.lg,
+    },
+    logoutButton: {
+        padding: theme.spacing.sm,
+    },
     title: {
         ...theme.typography.h1,
         color: theme.colors.primary,
-        marginBottom: theme.spacing.lg,
-        textAlign: 'center',
     },
     card: {
         ...theme.components.card,

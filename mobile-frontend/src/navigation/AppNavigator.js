@@ -2,6 +2,7 @@ import React from 'react';
 import { Platform } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { Ionicons } from '@expo/vector-icons';
 import CreditsListScreen from '../screens/Main/CreditsListScreen';
 import CreditDetailScreen from '../screens/Main/CreditDetailScreen';
 import TradingScreen from '../screens/Main/TradingScreen';
@@ -10,18 +11,14 @@ import WalletScreen from '../screens/Main/WalletScreen';
 import TradeHistoryScreen from '../screens/Main/TradeHistoryScreen'; // Import the new screen
 import theme from '../styles/theme'; // Import theme for styling
 
-// Import icons (placeholder - install expo vector icons if needed)
-// import { Ionicons } from '@expo/vector-icons';
-
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
-// Define Tab Icons (Placeholder function)
-// Replace with actual icons from a library like @expo/vector-icons
+// Define Tab Icons using Ionicons
 const getTabBarIcon = (routeName, focused, color, size) => {
     let iconName;
     if (routeName === 'Credits') {
-        iconName = focused ? 'leaf' : 'leaf-outline'; // Example names
+        iconName = focused ? 'leaf' : 'leaf-outline';
     } else if (routeName === 'Market') {
         iconName = focused ? 'stats-chart' : 'stats-chart-outline';
     } else if (routeName === 'Wallet') {
@@ -30,9 +27,7 @@ const getTabBarIcon = (routeName, focused, color, size) => {
         iconName = focused ? 'receipt' : 'receipt-outline';
     }
 
-    // Return placeholder text or actual Icon component
-    // return <Ionicons name={iconName} size={size} color={color} />;
-    return <Text style={{ color: color, fontSize: 10 }}>{iconName?.split('-')[0]}</Text>; // Simple text placeholder
+    return <Ionicons name={iconName} size={size} color={color} />;
 };
 
 // Main application tabs

@@ -1,11 +1,11 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
 import { NavigationContainer } from '@react-navigation/native';
-import AuthNavigator from '../../../navigation/AuthNavigator';
+import AuthNavigator from '../../navigation/AuthNavigator';
 
 // Mock screens to avoid rendering their actual content
-jest.mock('../../../screens/Auth/LoginScreen', () => 'LoginScreen');
-jest.mock('../../../screens/Auth/RegisterScreen', () => 'RegisterScreen');
+jest.mock('../../screens/Auth/LoginScreen', () => 'LoginScreen');
+jest.mock('../../screens/Auth/RegisterScreen', () => 'RegisterScreen');
 
 describe('AuthNavigator', () => {
     it('renders LoginScreen as the initial route', () => {
