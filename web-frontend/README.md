@@ -1,101 +1,279 @@
 # CarbonXchange Web Frontend
 
-This directory contains the web-based user interface for the CarbonXchange platform, a real-time carbon credit trading and market data visualization application.
+Modern, production-ready React frontend for the CarbonXchange carbon credit trading platform.
 
-## 🚀 Technology Stack
+## Tech Stack
 
-The frontend is a modern, full-stack application built with the following core technologies:
+- **Framework**: React 18 with TypeScript
+- **Build Tool**: Vite 6
+- **Routing**: React Router v7
+- **Styling**: Tailwind CSS + shadcn/ui components
+- **State Management**: React Context API
+- **HTTP Client**: Axios
+- **Real-time Updates**: Socket.IO Client
+- **Charts**: Recharts + D3.js
+- **Testing**: Vitest + React Testing Library
+- **Code Quality**: ESLint + TypeScript
 
-| Category              | Technology                | Description                                                                                                                            |
-| :-------------------- | :------------------------ | :------------------------------------------------------------------------------------------------------------------------------------- |
-| **Framework**         | **React** (via Vite)      | A fast, component-based JavaScript library for building user interfaces.                                                               |
-| **Language**          | **TypeScript**            | A superset of JavaScript that adds static typing, improving code quality and maintainability.                                          |
-| **Styling**           | **Tailwind CSS**          | A utility-first CSS framework for rapidly building custom designs.                                                                     |
-| **Component Library** | **Shadcn/ui** (Radix UI)  | A collection of reusable components built with Radix UI and styled with Tailwind CSS, providing a modern and accessible design system. |
-| **State Management**  | **React Hooks**           | Utilizes built-in React hooks for state management.                                                                                    |
-| **Data Fetching**     | **Axios** & **Socket.IO** | Axios for traditional REST API calls and Socket.IO for real-time, bidirectional communication with the backend.                        |
-| **Charting**          | **Recharts** & **D3**     | Used for visualizing carbon credit price and trading volume data.                                                                      |
-| **Build Tool**        | **Vite**                  | A next-generation frontend tooling that provides a fast development server and optimized build process.                                |
+## Features
 
-## 📁 Directory Structure
+- ✅ User Authentication (Login/Register)
+- ✅ Real-time Market Dashboard
+- ✅ Carbon Credit Marketplace
+- ✅ Trading Interface (Buy/Sell)
+- ✅ Portfolio Management
+- ✅ Live Price Charts
+- ✅ Mock Data Mode for Standalone Testing
+- ✅ Responsive Design
+- ✅ Dark Mode Support
+- ✅ Comprehensive Test Coverage
 
-The application follows a standard structure for a modern React/Vite project:
+## Getting Started
+
+### Prerequisites
+
+- Node.js 14+ (recommended: Node.js 18+)
+- npm or pnpm
+
+### Installation
+
+1. Install dependencies:
+
+```bash
+npm install
+```
+
+2. Create environment file:
+
+```bash
+cp .env.example .env
+```
+
+3. Configure environment variables in `.env`:
+
+```env
+VITE_API_URL=http://localhost:5000/api
+VITE_SOCKET_URL=http://localhost:5000
+VITE_USE_MOCK_SOCKET=true  # Set to false when backend is running
+VITE_USE_MOCK_DATA=true    # Set to false when backend is running
+```
+
+### Development
+
+Start the development server:
+
+```bash
+npm run dev
+```
+
+The application will be available at `http://localhost:5173`
+
+### Building for Production
+
+Build the application:
+
+```bash
+npm run build
+```
+
+Preview the production build:
+
+```bash
+npm run preview
+```
+
+### Testing
+
+Run tests:
+
+```bash
+npm test
+```
+
+Run tests with UI:
+
+```bash
+npm run test:ui
+```
+
+Run tests once (CI mode):
+
+```bash
+npm run test:run
+```
+
+## Project Structure
 
 ```
 web-frontend/
-├── public/
 ├── src/
-│   ├── assets/             # Static assets like images or icons
-│   ├── components/         # Reusable UI components and page-level components
-│   │   ├── charts/         # Components for data visualization (e.g., CarbonPriceChart)
-│   │   ├── ui/             # Shadcn/ui components (e.g., button, card, dialog)
-│   │   ├── Dashboard.tsx   # Main dashboard view
-│   │   └── MarketStats.tsx # Component for displaying key market statistics
-│   ├── hooks/              # Custom React hooks (e.g., use-mobile, use-toast)
-│   ├── lib/                # Utility functions (e.g., utils.ts for Tailwind class merging)
-│   ├── services/           # API and real-time data handling logic (api.ts)
-│   ├── App.tsx             # Main application component, including layout and routing
-│   ├── main.tsx            # Entry point for the React application
-│   └── index.css           # Global styles, including Tailwind directives
-├── package.json            # Project dependencies and scripts
-├── tailwind.config.js      # Tailwind CSS configuration
-├── vite.config.ts          # Vite build configuration
-└── tsconfig.json           # TypeScript configuration
+│   ├── components/          # Reusable UI components
+│   │   ├── layout/         # Layout components
+│   │   ├── ui/             # shadcn/ui components
+│   │   ├── charts/         # Chart components
+│   │   ├── Dashboard.tsx   # Main dashboard
+│   │   └── ...
+│   ├── pages/              # Page components
+│   │   ├── Login.tsx       # Login page
+│   │   ├── Register.tsx    # Registration page
+│   │   ├── Market.tsx      # Carbon credit marketplace
+│   │   ├── Trade.tsx       # Trading interface
+│   │   └── Portfolio.tsx   # Portfolio management
+│   ├── contexts/           # React contexts
+│   │   └── AuthContext.tsx # Authentication context
+│   ├── services/           # API services
+│   │   └── api.ts          # API client and mock data
+│   ├── hooks/              # Custom React hooks
+│   ├── lib/                # Utility functions
+│   ├── __tests__/          # Test files
+│   └── App.tsx             # Main app component
+├── public/                 # Static assets
+└── ...config files
 ```
 
-## ⚙️ Setup and Installation
+## API Integration
 
-To set up the project locally, follow these steps:
+The frontend is designed to work with the CarbonXchange Python backend (Flask).
 
-1.  **Navigate to the project directory:**
+### Backend Endpoints Used
 
-    ```bash
-    cd CarbonXchange/web-frontend
-    ```
+- `POST /api/auth/login` - User login
+- `POST /api/auth/register` - User registration
+- `GET /api/users/me` - Get current user
+- `GET /api/market/statistics` - Market statistics
+- `GET /api/carbon-credits` - List carbon credits
+- `POST /api/trading/orders` - Create trading order
+- `GET /api/users/me/portfolio` - Get user portfolio
 
-2.  **Install dependencies:**
-    The project uses `pnpm` as the package manager.
+### Mock Data Mode
 
-    ```bash
-    pnpm install
-    ```
+When the backend is not available, the frontend automatically falls back to mock data. This allows:
 
-3.  **Configure Environment Variables (Optional):**
-    The application is configured to connect to a backend API and a Socket.IO server. You may need to create a `.env` file in the `web-frontend` directory to override the default `http://localhost:3000` URLs.
+- Standalone development and testing
+- UI/UX development without backend dependency
+- Demo mode for presentations
 
-    | Variable                         | Default Value                  | Description                                                                                 |
-    | :------------------------------- | :----------------------------- | :------------------------------------------------------------------------------------------ |
-    | `VITE_REACT_APP_API_URL`         | `http://localhost:3000/api/v1` | Base URL for REST API calls (Axios).                                                        |
-    | `VITE_REACT_APP_SOCKET_URL`      | `http://localhost:3000`        | Base URL for the Socket.IO connection.                                                      |
-    | `VITE_REACT_APP_USE_MOCK_SOCKET` | `false`                        | Set to `true` to use mock data and a mock socket for development without a running backend. |
+To enable mock mode, set in `.env`:
 
-    _Note: The `api.ts` file contains logic to use mock data and a mock socket if the backend is unavailable, which is useful for isolated frontend development._
+```env
+VITE_USE_MOCK_DATA=true
+```
 
-## ▶️ Available Scripts
+## Running with Backend
 
-In the project directory, you can run the following scripts:
+1. Start the backend server (see `code/backend/README.md`):
 
-| Script          | Command            | Description                                                                                                                                 |
-| :-------------- | :----------------- | :------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Development** | `pnpm run dev`     | Starts the development server using Vite. The application will be available at `http://localhost:5173` (or another port if 5173 is in use). |
-| **Build**       | `pnpm run build`   | Compiles the application for production into the `dist` directory.                                                                          |
-| **Lint**        | `pnpm run lint`    | Runs ESLint to check for code quality and style issues.                                                                                     |
-| **Preview**     | `pnpm run preview` | Serves the production build locally for testing.                                                                                            |
+```bash
+cd ../code/backend
+python src/main.py
+```
 
-## 🌐 API and Real-Time Data
+2. Update `.env` in web-frontend:
 
-The application uses the `src/services/api.ts` file to manage all backend communication:
+```env
+VITE_API_URL=http://localhost:5000/api
+VITE_USE_MOCK_DATA=false
+```
 
-- **REST API:** Uses **Axios** to fetch market statistics and historical data (price and volume) from the `/api/v1` endpoint.
-- **Real-Time Data:** Uses **Socket.IO** to establish a persistent connection for live updates on market data and trading volume. The frontend subscribes to `market_data_update` and `volume_data_update` events.
+3. Start the frontend:
 
-## 🎨 Design and Components
+```bash
+npm run dev
+```
 
-The UI is built using a component-driven approach:
+## Testing Strategy
 
-- **Main Layout:** Defined in `App.tsx`, featuring a header with navigation, a main content area, and a footer.
-- **Dashboard:** The primary view is `Dashboard.tsx`, which organizes the main features:
-    - **Market Statistics:** Displayed via the `MarketStats.tsx` component.
-    - **Charts:** Interactive charts for price and volume are implemented in `CarbonPriceChart.tsx` and `TradingVolumeChart.tsx`, utilizing a tabbed interface.
-- **Theming:** The application uses `next-themes` and a `ThemeProvider` (`src/components/theme-provider.tsx`) to support light and dark modes.
-- **UI Primitives:** The `src/components/ui` directory contains a comprehensive set of UI components based on Shadcn/ui, ensuring consistency and accessibility across the application.
+### Unit Tests
+
+- Component rendering tests
+- API service tests
+- Utility function tests
+
+### Integration Tests
+
+- User authentication flow
+- Trading workflow
+- Portfolio management
+
+Tests are located in `src/__tests__/` and use Vitest + React Testing Library.
+
+## Deployment
+
+### Build for Production
+
+```bash
+npm run build
+```
+
+The build output will be in the `dist/` directory.
+
+### Deployment Options
+
+1. **Static Hosting** (Vercel, Netlify, etc.)
+    - Deploy the `dist/` folder
+    - Configure environment variables in hosting platform
+
+2. **Serve with Backend**
+    - Copy `dist/` contents to `code/backend/src/static/`
+    - Backend will serve the frontend at root URL
+
+3. **Docker**
+    - Use the provided Dockerfile
+    - Build: `docker build -t carbonxchange-frontend .`
+    - Run: `docker run -p 3000:3000 carbonxchange-frontend`
+
+## Environment Variables
+
+| Variable               | Description        | Default                     |
+| ---------------------- | ------------------ | --------------------------- |
+| `VITE_API_URL`         | Backend API URL    | `http://localhost:5000/api` |
+| `VITE_SOCKET_URL`      | WebSocket URL      | `http://localhost:5000`     |
+| `VITE_USE_MOCK_SOCKET` | Use mock WebSocket | `true`                      |
+| `VITE_USE_MOCK_DATA`   | Use mock API data  | `true`                      |
+| `VITE_APP_ENV`         | Environment        | `development`               |
+
+## Troubleshooting
+
+### Port Already in Use
+
+If port 5173 is in use, Vite will automatically try the next available port.
+
+### API Connection Issues
+
+1. Verify backend is running
+2. Check `VITE_API_URL` in `.env`
+3. Check browser console for CORS errors
+4. Enable mock mode for development without backend
+
+### Build Errors
+
+1. Clear node_modules: `rm -rf node_modules package-lock.json`
+2. Reinstall: `npm install`
+3. Try with legacy peer deps: `npm install --legacy-peer-deps`
+
+## Code Quality
+
+### Linting
+
+```bash
+npm run lint
+```
+
+### Type Checking
+
+```bash
+npx tsc --noEmit
+```
+
+## Contributing
+
+1. Create a feature branch
+2. Make your changes
+3. Add tests for new features
+4. Ensure all tests pass: `npm run test:run`
+5. Run linter: `npm run lint`
+6. Submit a pull request
+
+## License
+
+MIT License - see LICENSE file for details

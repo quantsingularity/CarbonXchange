@@ -1,43 +1,69 @@
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './components/theme-provider';
+import { AuthProvider } from './contexts/AuthContext';
+import Layout from './components/layout/Layout';
+import ProtectedRoute from './components/ProtectedRoute';
+
+// Pages
+import Login from './pages/Login';
+import Register from './pages/Register';
 import Dashboard from './components/Dashboard';
+import Market from './pages/Market';
+import Trade from './pages/Trade';
+import Portfolio from './pages/Portfolio';
 
 function App() {
     return (
         <ThemeProvider defaultTheme="system" storageKey="carbonxchange-theme">
-            <div className="min-h-screen bg-background">
-                <header className="border-b">
-                    <div className="container mx-auto py-4 px-4 flex items-center justify-between">
-                        <div className="flex items-center space-x-2">
-                            <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
-                                <span className="text-primary-foreground font-bold">CX</span>
-                            </div>
-                            <h1 className="text-xl font-bold">CarbonXchange</h1>
-                        </div>
-                        <nav>
-                            <ul className="flex space-x-6">
-                                <li className="font-medium text-primary">Dashboard</li>
-                                <li className="text-muted-foreground hover:text-foreground transition-colors">
-                                    Market
-                                </li>
-                                <li className="text-muted-foreground hover:text-foreground transition-colors">
-                                    Trade
-                                </li>
-                                <li className="text-muted-foreground hover:text-foreground transition-colors">
-                                    Portfolio
-                                </li>
-                            </ul>
-                        </nav>
-                    </div>
-                </header>
-                <main className="py-6">
-                    <Dashboard />
-                </main>
-                <footer className="border-t py-6">
-                    <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-                        <p>© 2025 CarbonXchange. All rights reserved.</p>
-                    </div>
-                </footer>
-            </div>
+            <AuthProvider>
+                <Router>
+                    <Layout>
+                        <Routes>
+                            <Route path="/login" element={<Login />} />
+                            <Route path="/register" element={<Register />} />
+
+                            <Route
+                                path="/dashboard"
+                                element={
+                                    <ProtectedRoute>
+                                        <Dashboard />
+                                    </ProtectedRoute>
+                                }
+                            />
+
+                            <Route
+                                path="/market"
+                                element={
+                                    <ProtectedRoute>
+                                        <Market />
+                                    </ProtectedRoute>
+                                }
+                            />
+
+                            <Route
+                                path="/trade"
+                                element={
+                                    <ProtectedRoute>
+                                        <Trade />
+                                    </ProtectedRoute>
+                                }
+                            />
+
+                            <Route
+                                path="/portfolio"
+                                element={
+                                    <ProtectedRoute>
+                                        <Portfolio />
+                                    </ProtectedRoute>
+                                }
+                            />
+
+                            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+                        </Routes>
+                    </Layout>
+                </Router>
+            </AuthProvider>
         </ThemeProvider>
     );
 }
