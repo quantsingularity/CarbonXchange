@@ -1,287 +1,403 @@
 # Troubleshooting Guide
 
-This guide helps developers and users resolve common issues encountered while working with the CarbonXchange platform.
+Common issues and solutions for CarbonXchange platform.
 
 ## Table of Contents
 
-1. [Development Environment Issues](#development-environment-issues)
-2. [Smart Contract Issues](#smart-contract-issues)
-3. [Frontend Issues](#frontend-issues)
-4. [Backend Issues](#backend-issues)
-5. [Database Issues](#database-issues)
-6. [Blockchain Integration Issues](#blockchain-integration-issues)
-7. [Performance Issues](#performance-issues)
+- [Installation Issues](#installation-issues)
+- [Database Issues](#database-issues)
+- [API Issues](#api-issues)
+- [Blockchain Issues](#blockchain-issues)
+- [Authentication Issues](#authentication-issues)
+- [Trading Issues](#trading-issues)
+- [Performance Issues](#performance-issues)
 
-## Development Environment Issues
+## Installation Issues
 
-### Node.js and npm Issues
+### Problem: Python dependencies fail to install
 
-#### Error: Node version not compatible
+**Symptoms**: `pip install -r requirements.txt` fails with compilation errors
 
-**Problem**: `Error: The engine "node" is incompatible with this module`
-**Solution**:
+**Solutions**:
 
-1. Install nvm (Node Version Manager)
-2. Run:
-    ```bash
-    nvm install 14
-    nvm use 14
-    ```
+1. Update pip and setuptools:
 
-#### Error: Package installation fails
+```bash
+pip install --upgrade pip setuptools wheel
+```
 
-**Problem**: `npm ERR! code ELIFECYCLE`
-**Solution**:
+2. Install system dependencies (Ubuntu/Debian):
+
+```bash
+sudo apt-get install python3-dev postgresql-server-dev-all libpq-dev
+```
+
+3. Install system dependencies (macOS):
+
+```bash
+brew install postgresql openssl
+```
+
+4. Use virtual environment:
+
+```bash
+python3 -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+### Problem: Node.js dependencies fail
+
+**Symptoms**: `npm install` fails or warns about vulnerabilities
+
+**Solutions**:
 
 1. Clear npm cache:
-    ```bash
-    npm cache clean --force
-    ```
-2. Delete node_modules:
-    ```bash
-    rm -rf node_modules package-lock.json
-    npm install
-    ```
 
-### Git Issues
+```bash
+npm cache clean --force
+rm -rf node_modules package-lock.json
+npm install
+```
 
-#### Error: Cannot pull latest changes
+2. Use correct Node.js version (v14+):
 
-**Problem**: Local changes conflict with remote changes
-**Solution**:
+```bash
+nvm use 14  # or nvm use 16
+npm install
+```
 
-1. Stash local changes:
-    ```bash
-    git stash
-    git pull origin main
-    git stash pop
-    ```
+3. Fix vulnerabilities:
 
-## Smart Contract Issues
+```bash
+npm audit fix
+```
 
-### Compilation Errors
+### Problem: Database connection fails
 
-#### Error: Solidity version mismatch
+**Symptoms**: `FATAL: database "carbonxchange" does not exist`
 
-**Problem**: `Error: Source file requires different compiler version`
-**Solution**:
+**Solutions**:
 
-1. Update solidity version in hardhat.config.js
-2. Install correct solidity version:
-    ```bash
-    npm install --save-dev @nomiclabs/hardhat-waffle@^version
-    ```
+1. Create database:
 
-### Deployment Issues
+```bash
+sudo -u postgres createdb carbonxchange
+```
 
-#### Error: Insufficient funds
+2. Check PostgreSQL is running:
 
-**Problem**: `Error: insufficient funds for gas`
-**Solution**:
+```bash
+sudo systemctl status postgresql
+sudo systemctl start postgresql
+```
 
-1. Check wallet balance
-2. Get testnet tokens from faucet
-3. Adjust gas price in deployment script
+3. Verify connection string in `.env`:
 
-### Contract Interaction Issues
-
-#### Error: Transaction reverted
-
-**Problem**: `Error: Transaction has been reverted by the EVM`
-**Solution**:
-
-1. Check contract state
-2. Verify input parameters
-3. Check transaction gas limit
-4. Review error message in contract events
-
-## Frontend Issues
-
-### Build Errors
-
-#### Error: TypeScript compilation fails
-
-**Problem**: `TS2307: Cannot find module or its corresponding type declarations`
-**Solution**:
-
-1. Install missing type definitions:
-    ```bash
-    npm install --save-dev @types/missing-module
-    ```
-2. Check tsconfig.json configuration
-
-### Runtime Errors
-
-#### Error: Web3 not detected
-
-**Problem**: `Error: No Web3 instance injected`
-**Solution**:
-
-1. Install MetaMask
-2. Connect to correct network
-3. Add fallback Web3 provider:
-    ```javascript
-    if (typeof window.ethereum === 'undefined') {
-        web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'));
-    }
-    ```
-
-## Backend Issues
-
-### API Errors
-
-#### Error: Database connection failed
-
-**Problem**: `Error: Could not connect to database`
-**Solution**:
-
-1. Check database credentials
-2. Verify database service is running
-3. Check network connectivity
-4. Review connection string format
-
-### Authentication Issues
-
-#### Error: JWT verification fails
-
-**Problem**: `Error: Invalid token`
-**Solution**:
-
-1. Check token expiration
-2. Verify secret key configuration
-3. Ensure correct token format
-4. Review token generation process
+```bash
+DATABASE_URL=postgresql://username:password@localhost:5432/carbonxchange
+```
 
 ## Database Issues
 
-### Connection Issues
+### Problem: Migration fails
 
-#### Error: PostgreSQL connection refused
+**Symptoms**: `flask db upgrade` fails with errors
 
-**Problem**: `Error: ECONNREFUSED 127.0.0.1:5432`
-**Solution**:
+**Solutions**:
 
-1. Start PostgreSQL service:
-    ```bash
-    sudo service postgresql start
-    ```
-2. Check PostgreSQL configuration
-3. Verify port availability
+1. Check current migration version:
 
-### Migration Issues
+```bash
+flask db current
+```
 
-#### Error: Migration failed
+2. Reset migrations (development only):
 
-**Problem**: `Error: Migration failed with error`
-**Solution**:
+```bash
+flask db downgrade base
+flask db upgrade
+```
 
-1. Roll back failed migration:
-    ```bash
-    npx sequelize-cli db:migrate:undo
-    ```
-2. Fix migration file
-3. Re-run migration
+3. Generate new migration:
 
-## Blockchain Integration Issues
+```bash
+flask db migrate -m "description"
+flask db upgrade
+```
 
-### Network Issues
+4. Drop and recreate database (CAUTION: loses data):
 
-#### Error: Wrong network
+```bash
+dropdb carbonxchange
+createdb carbonxchange
+flask db upgrade
+```
 
-**Problem**: `Error: Connected to wrong network`
-**Solution**:
+### Problem: Connection pool exhausted
 
-1. Switch to correct network in MetaMask
-2. Update network configuration
-3. Check network availability
+**Symptoms**: "Too many connections" error
 
-### Transaction Issues
+**Solutions**:
 
-#### Error: Gas estimation failed
+1. Increase pool size in `config.py`:
 
-**Problem**: `Error: Cannot estimate gas`
-**Solution**:
+```python
+SQLALCHEMY_POOL_SIZE = 50
+SQLALCHEMY_MAX_OVERFLOW = 20
+```
 
-1. Check contract method parameters
-2. Verify sufficient funds
-3. Adjust gas limit
-4. Review contract state
+2. Enable connection recycling:
+
+```python
+SQLALCHEMY_POOL_RECYCLE = 300  # seconds
+```
+
+3. Check for connection leaks in code
+
+## API Issues
+
+### Problem: 401 Unauthorized errors
+
+**Symptoms**: All API requests return 401
+
+**Solutions**:
+
+1. Check token expiration (access tokens expire in 15 minutes)
+2. Refresh token:
+
+```bash
+curl -X POST http://localhost:5000/api/auth/refresh \
+  -H "Content-Type: application/json" \
+  -d '{"refresh_token": "YOUR_REFRESH_TOKEN"}'
+```
+
+3. Re-login if refresh token expired
+
+4. Verify Authorization header format:
+
+```
+Authorization: Bearer <token>
+```
+
+### Problem: 429 Rate Limit Exceeded
+
+**Symptoms**: "Too many requests" error
+
+**Solutions**:
+
+1. Wait for rate limit window to reset (check `X-RateLimit-Reset` header)
+2. Reduce request frequency
+3. For testing, disable rate limiting:
+
+```python
+# config.py (development only)
+RATELIMIT_ENABLED = False
+```
+
+### Problem: CORS errors in browser
+
+**Symptoms**: "Access-Control-Allow-Origin" error
+
+**Solutions**:
+
+1. Configure CORS origins in `.env`:
+
+```bash
+CORS_ORIGINS=http://localhost:3000,https://app.carbonxchange.com
+```
+
+2. For development, allow all origins (not recommended for production):
+
+```bash
+CORS_ORIGINS=*
+```
+
+3. Check browser console for actual error
+
+## Blockchain Issues
+
+### Problem: Smart contract deployment fails
+
+**Symptoms**: "insufficient funds" or "nonce too low"
+
+**Solutions**:
+
+1. Ensure wallet has sufficient balance for gas
+2. Get testnet tokens from faucet (Mumbai):
+    - https://faucet.polygon.technology/
+
+3. Reset nonce in MetaMask:
+    - Settings → Advanced → Reset Account
+
+4. Verify network configuration in `truffle-config.js`
+
+### Problem: Transaction fails with "gas required exceeds allowance"
+
+**Solutions**:
+
+1. Increase gas limit in `.env`:
+
+```bash
+WEB3_GAS_LIMIT=1000000
+```
+
+2. Check contract for infinite loops or expensive operations
+
+3. Use gas estimation:
+
+```javascript
+const gasEstimate = await contract.methods.mint(...).estimateGas();
+```
+
+### Problem: Cannot connect to Web3 provider
+
+**Symptoms**: "Could not connect to provider"
+
+**Solutions**:
+
+1. Verify Infura/Alchemy API key is correct
+2. Check network status: https://status.infura.io/
+3. Test provider URL:
+
+```bash
+curl -X POST YOUR_PROVIDER_URL \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}'
+```
+
+## Authentication Issues
+
+### Problem: MFA code not accepted
+
+**Solutions**:
+
+1. Ensure device time is synchronized
+2. Use time-based codes (not counter-based)
+3. Regenerate QR code if necessary
+4. Check authenticator app is correct (Google Authenticator, Authy, etc.)
+
+### Problem: Password reset email not received
+
+**Solutions**:
+
+1. Check spam/junk folder
+2. Verify email configuration in `.env`:
+
+```bash
+MAIL_SERVER=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME=your-email@gmail.com
+MAIL_PASSWORD=your-app-password
+```
+
+3. Check email logs:
+
+```bash
+tail -f carbonxchange.log | grep "email"
+```
+
+4. Test SMTP connection:
+
+```bash
+python -c "import smtplib; smtplib.SMTP('smtp.gmail.com', 587).connect()"
+```
+
+## Trading Issues
+
+### Problem: Order not executing
+
+**Solutions**:
+
+1. Check order status:
+
+```bash
+curl -H "Authorization: Bearer $TOKEN" \
+  http://localhost:5000/api/trading/orders/{order_id}
+```
+
+2. Verify sufficient portfolio balance for buy orders
+3. Check if market is open (trading hours configuration)
+4. Review risk checks and compliance status
+
+### Problem: Portfolio calculation incorrect
+
+**Solutions**:
+
+1. Trigger portfolio recalculation:
+
+```python
+from services.portfolio_service import PortfolioService
+PortfolioService().recalculate_portfolio(user_id)
+```
+
+2. Check for orphaned trades or orders
+3. Review audit logs for discrepancies
 
 ## Performance Issues
 
-### Slow Loading Times
+### Problem: Slow API response times
 
-#### Problem: Frontend loads slowly
+**Solutions**:
 
-**Solution**:
+1. Enable Redis caching (if not already):
 
-1. Implement code splitting
-2. Optimize bundle size
-3. Use lazy loading
-4. Implement caching
+```bash
+REDIS_URL=redis://localhost:6379/0
+```
 
-### High Gas Costs
+2. Add database indexes:
 
-#### Problem: Transactions too expensive
+```sql
+CREATE INDEX idx_orders_user_id ON orders(user_id);
+CREATE INDEX idx_trades_executed_at ON trades(executed_at);
+```
 
-**Solution**:
+3. Enable query logging to identify slow queries:
 
-1. Optimize contract code
-2. Batch transactions
-3. Use gas price oracle
-4. Implement Layer 2 solutions
+```python
+SQLALCHEMY_RECORD_QUERIES = True
+SQLALCHEMY_SLOW_QUERY_THRESHOLD = 0.5  # seconds
+```
+
+4. Use connection pooling
+5. Scale horizontally with load balancer
+
+### Problem: High memory usage
+
+**Solutions**:
+
+1. Reduce connection pool size
+2. Implement pagination for large result sets
+3. Use database cursors for large queries
+4. Monitor with:
+
+```bash
+ps aux | grep python
+htop
+```
+
+## Getting More Help
+
+If issues persist:
+
+1. Check logs: `tail -f carbonxchange.log`
+2. Enable debug mode (development only): `DEBUG=true`
+3. Search GitHub Issues: https://github.com/abrar2030/CarbonXchange/issues
+4. Create new issue with:
+    - Environment details (OS, Python/Node version)
+    - Error messages and stack traces
+    - Steps to reproduce
+    - Configuration (sanitize secrets)
 
 ## Common Error Codes
 
-### HTTP Status Codes
-
-- `400`: Bad Request - Check input parameters
-- `401`: Unauthorized - Check authentication
-- `403`: Forbidden - Check permissions
-- `404`: Not Found - Check resource exists
-- `500`: Server Error - Check server logs
-
-### Smart Contract Error Codes
-
-- `INSUFFICIENT_BALANCE`
-- `INVALID_SIGNATURE`
-- `UNAUTHORIZED_ACCESS`
-- `INVALID_STATE`
-
-## Debugging Tools
-
-### Frontend Debugging
-
-- Chrome DevTools
-- React Developer Tools
-- Redux DevTools
-- Web3 Inspector
-
-### Backend Debugging
-
-- Postman
-- Morgan logging
-- Debug npm package
-- PM2 logs
-
-### Smart Contract Debugging
-
-- Hardhat console
-- Etherscan
-- Tenderly
-- Remix debugger
-
-## Logging
-
-### Enable Debug Logs
-
-```bash
-# Frontend
-localStorage.debug = '*'
-
-# Backend
-DEBUG=app:* npm start
-
-# Smart Contracts
-npx hardhat console --verbose
-```
+| Code | Meaning               | Common Cause             | Solution                                   |
+| ---- | --------------------- | ------------------------ | ------------------------------------------ |
+| 400  | Bad Request           | Invalid input            | Check request format and required fields   |
+| 401  | Unauthorized          | Missing/invalid token    | Login or refresh token                     |
+| 403  | Forbidden             | Insufficient permissions | Check user role and KYC status             |
+| 404  | Not Found             | Resource doesn't exist   | Verify resource ID                         |
+| 429  | Too Many Requests     | Rate limit exceeded      | Wait or reduce request frequency           |
+| 500  | Internal Server Error | Server-side bug          | Check logs, report issue                   |
+| 503  | Service Unavailable   | Dependency down          | Check database, Redis, blockchain provider |

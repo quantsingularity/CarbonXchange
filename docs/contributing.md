@@ -1,260 +1,216 @@
 # Contributing to CarbonXchange
 
+Thank you for your interest in contributing to CarbonXchange!
+
 ## Table of Contents
 
-1. [Code of Conduct](#code-of-conduct)
-2. [Getting Started](#getting-started)
-3. [Development Process](#development-process)
-4. [Pull Request Process](#pull-request-process)
-5. [Coding Standards](#coding-standards)
-6. [Testing Guidelines](#testing-guidelines)
-7. [Documentation](#documentation)
-8. [Community](#community)
+- [Code of Conduct](#code-of-conduct)
+- [Getting Started](#getting-started)
+- [Development Workflow](#development-workflow)
+- [Code Style](#code-style)
+- [Testing](#testing)
+- [Pull Request Process](#pull-request-process)
+- [Updating Documentation](#updating-documentation)
 
 ## Code of Conduct
 
-### Our Pledge
-
-We pledge to make participation in our project a harassment-free experience for everyone, regardless of age, body size, disability, ethnicity, gender identity and expression, level of experience, nationality, personal appearance, race, religion, or sexual identity and orientation.
-
-### Our Standards
-
-- Use welcoming and inclusive language
-- Be respectful of differing viewpoints and experiences
-- Accept constructive criticism gracefully
-- Focus on what is best for the community
-- Show empathy towards other community members
+Be respectful, inclusive, and professional in all interactions.
 
 ## Getting Started
 
-### Prerequisites
-
-- Node.js (v14 or higher)
-- npm (v6 or higher)
-- Git
-- PostgreSQL (v13 or higher)
-- Python 3.8+ (for AI/ML components)
-
-### Setup Steps
-
 1. Fork the repository
-2. Clone your fork:
-    ```bash
-    git clone https://github.com/YOUR-USERNAME/CarbonXchange.git
-    ```
-3. Add upstream remote:
-    ```bash
-    git remote add upstream https://github.com/original/CarbonXchange.git
-    ```
-4. Install dependencies:
+2. Clone your fork: `git clone https://github.com/abrar2030/CarbonXchange.git`
+3. Add upstream remote: `git remote add upstream https://github.com/abrar2030/CarbonXchange.git`
+4. Set up development environment: `./scripts/dev_env/cx_setup_env.sh`
 
-    ```bash
-    # Frontend
-    cd frontend
-    npm install
+## Development Workflow
 
-    # Backend
-    cd ../backend
-    npm install
+```bash
+# Create feature branch
+git checkout -b feature/your-feature-name
 
-    # Smart Contracts
-    cd ../blockchain
-    npm install
-    ```
+# Make changes and commit
+git add .
+git commit -m "feat: add new feature"
 
-## Development Process
+# Keep your branch up to date
+git fetch upstream
+git rebase upstream/main
 
-### 1. Branching Strategy
+# Push to your fork
+git push origin feature/your-feature-name
 
-- `main` - production-ready code
-- `develop` - main development branch
-- `feature/*` - new features
-- `bugfix/*` - bug fixes
-- `hotfix/*` - urgent production fixes
-
-### 2. Branch Naming Convention
-
-```
-feature/descriptive-feature-name
-bugfix/issue-description
-hotfix/critical-fix-description
+# Create Pull Request on GitHub
 ```
 
-### 3. Commit Messages
+## Code Style
 
-Follow the conventional commits specification:
+### Python (Backend)
 
+- Follow PEP 8 style guide
+- Use Black formatter: `black code/backend/`
+- Run linter: `flake8 code/backend/`
+- Type hints for function signatures
+- Docstrings for all public functions
+
+```python
+def create_order(
+    user_id: int,
+    order_type: str,
+    quantity: Decimal,
+    price: Optional[Decimal] = None
+) -> Order:
+    """
+    Create a new trading order.
+
+    Args:
+        user_id: ID of the user creating the order
+        order_type: Type of order (market, limit, stop_limit)
+        quantity: Order quantity in tCO2e
+        price: Order price (required for limit orders)
+
+    Returns:
+        Created Order object
+
+    Raises:
+        ValueError: If parameters are invalid
+    """
+    # Implementation
 ```
-type(scope): description
 
-[optional body]
+### JavaScript/TypeScript (Frontend)
 
-[optional footer]
+- Use ESLint configuration
+- Prettier for formatting
+- TypeScript for type safety
+- React functional components with hooks
+
+### Solidity (Smart Contracts)
+
+- Follow Solidity style guide
+- Use solhint: `npx solhint 'contracts/**/*.sol'`
+- Comprehensive NatSpec comments
+- OpenZeppelin contracts for standards
+
+## Testing
+
+### Run All Tests
+
+```bash
+./scripts/testing/cx_test_runner.sh --all --coverage
 ```
 
-Types:
+### Backend Tests
 
-- `feat`: New feature
-- `fix`: Bug fix
-- `docs`: Documentation changes
-- `style`: Code style changes
-- `refactor`: Code refactoring
-- `test`: Adding or modifying tests
-- `chore`: Maintenance tasks
-
-Example:
-
+```bash
+cd code/backend
+pytest tests/ -v --cov=src
 ```
-feat(trading): implement limit order functionality
 
-- Add limit order smart contract
-- Implement order matching engine
-- Add API endpoints for limit orders
+### Frontend Tests
 
-Closes #123
+```bash
+cd web-frontend
+npm test
+```
+
+### Smart Contract Tests
+
+```bash
+cd code/blockchain
+npx truffle test
+```
+
+### Writing Tests
+
+- Write tests for all new features
+- Maintain or improve test coverage (target: >80%)
+- Include unit tests, integration tests, and edge cases
+
+Example test:
+
+```python
+def test_create_order(client, auth_headers):
+    """Test order creation endpoint."""
+    response = client.post(
+        '/api/trading/orders',
+        json={
+            'order_type': 'limit',
+            'side': 'buy',
+            'quantity': 100,
+            'price': 25.00,
+            'credit_type': 'renewable_energy'
+        },
+        headers=auth_headers
+    )
+
+    assert response.status_code == 201
+    data = response.json
+    assert data['order']['status'] == 'open'
+    assert data['order']['quantity'] == 100
 ```
 
 ## Pull Request Process
 
-1. **Update Documentation**
-    - Update README.md if necessary
-    - Add/update API documentation
-    - Update architecture diagrams if needed
+1. **Create PR** with clear title and description
+2. **Link related issues** using "Fixes #issue_number"
+3. **Ensure CI passes** (all tests, linting)
+4. **Request review** from maintainers
+5. **Address feedback** and update PR
+6. **Squash commits** if requested
+7. **Maintainer merges** after approval
 
-2. **Testing Requirements**
-    - Add/update unit tests
-    - Add/update integration tests
-    - Ensure all tests pass
-    - Maintain or improve code coverage
+### PR Title Format
 
-3. **Code Review Process**
-    - At least two approvals required
-    - All comments must be resolved
-    - CI/CD checks must pass
+Use conventional commits:
 
-4. **Merge Requirements**
-    - Squash commits into meaningful units
-    - Ensure branch is up to date with develop
-    - No merge conflicts
+- `feat:` New feature
+- `fix:` Bug fix
+- `docs:` Documentation only
+- `style:` Code style changes
+- `refactor:` Code refactoring
+- `test:` Adding tests
+- `chore:` Maintenance tasks
 
-## Coding Standards
+Examples:
 
-### JavaScript/TypeScript
+- `feat: add stop-limit order support`
+- `fix: correct portfolio P&L calculation`
+- `docs: update API reference for trading endpoints`
 
-- Use ESLint with provided configuration
-- Follow Airbnb Style Guide
-- Use TypeScript for type safety
-- Maximum line length: 100 characters
+## Updating Documentation
 
-### Solidity
+When adding or modifying features, update relevant documentation:
 
-- Follow Solidity Style Guide
-- Use latest stable Solidity version
-- Implement natspec documentation
-- Use OpenZeppelin contracts when possible
+1. **API Reference** (`docs/API.md`) - For new endpoints
+2. **Feature Matrix** (`docs/FEATURE_MATRIX.md`) - For new features
+3. **Configuration** (`docs/CONFIGURATION.md`) - For new config options
+4. **Examples** (`docs/examples/`) - Add usage examples
+5. **Architecture** (`docs/ARCHITECTURE.md`) - For architectural changes
 
-### Python
+### Documentation Standards
 
-- Follow PEP 8
-- Use type hints
-- Maximum line length: 88 characters (black formatter)
-- Use pylint for linting
+- Clear, concise language
+- Code examples that work
+- Tables for structured information
+- Links to related documentation
+- Keep TOC updated
 
-### General Guidelines
+## Code Review Checklist
 
-- Write self-documenting code
-- Keep functions small and focused
-- Use meaningful variable names
-- Add comments for complex logic
+Before submitting PR, verify:
 
-## Testing Guidelines
+- [ ] Code follows project style guide
+- [ ] All tests pass locally
+- [ ] New tests added for new features
+- [ ] Documentation updated
+- [ ] No hardcoded secrets or credentials
+- [ ] Error handling implemented
+- [ ] Logging added for important operations
+- [ ] Performance considered
+- [ ] Security implications reviewed
+- [ ] Backward compatibility maintained (if applicable)
 
-### Unit Tests
+## License
 
-- Test each function independently
-- Use mocking for external dependencies
-- Aim for 100% code coverage
-- Test edge cases and error conditions
-
-### Integration Tests
-
-- Test component interactions
-- Test API endpoints
-- Test smart contract interactions
-- Test database operations
-
-### Smart Contract Tests
-
-- Test all contract functions
-- Test access control
-- Test error conditions
-- Use gas optimization tests
-
-## Documentation
-
-### Code Documentation
-
-- Use JSDoc for JavaScript/TypeScript
-- Use NatSpec for Solidity
-- Use docstrings for Python
-- Document complex algorithms
-
-### API Documentation
-
-- Use OpenAPI/Swagger
-- Document all endpoints
-- Include request/response examples
-- Document error responses
-
-### Architecture Documentation
-
-- Keep diagrams up to date
-- Document system interactions
-- Document deployment process
-- Document configuration options
-
-## Community
-
-### Communication Channels
-
-- GitHub Discussions
-- Discord Server
-- Development Blog
-- Monthly Community Calls
-
-### Getting Help
-
-- Check existing issues
-- Ask in Discord
-- Join community calls
-- Read documentation
-
-### Recognition
-
-- Contributors list in README
-- Monthly contributor highlights
-- Community awards
-- Speaking opportunities
-
-## Additional Resources
-
-### Learning Resources
-
-- Ethereum Development Documentation
-- React.js Documentation
-- Node.js Best Practices
-- Smart Contract Security Best Practices
-
-### Useful Tools
-
-- Hardhat for smart contract development
-- Remix IDE for quick testing
-- MetaMask for wallet integration
-- Etherscan for contract verification
-
-### Security
-
-- Report security issues privately
-- Follow responsible disclosure
-- Use security tools provided
-- Regular security reviews
+By contributing, you agree that your contributions will be licensed under the MIT License.
