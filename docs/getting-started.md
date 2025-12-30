@@ -123,16 +123,3 @@ Before you begin, ensure you have the following installed:
 3. **Frontend Build Errors**
     - Clear npm cache: `npm cache clean --force`
     - Delete node_modules and reinstall: `rm -rf node_modules && npm install`
-
-## Additional Resources
-
-- [Project Documentation](./documentation.md)
-- [API Reference](./api-reference.md)
-- [Smart Contract Documentation](./smart-contracts.md)
-- [Contributing Guidelines](./contributing.md)
-
-## Need Help?
-
-- Check our [Troubleshooting Guide](./troubleshooting.md)
-- Open an issue on GitHub
-- Contact the development team

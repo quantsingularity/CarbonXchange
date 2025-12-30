@@ -1,7 +1,5 @@
 # Contributing to CarbonXchange
 
-Thank you for your interest in contributing to CarbonXchange! This document provides guidelines and instructions for contributing to the project.
-
 ## Table of Contents
 
 1. [Code of Conduct](#code-of-conduct)
