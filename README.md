@@ -1,7 +1,7 @@
 # CarbonXchange
 
-![CI/CD Status](https://img.shields.io/github/actions/workflow/status/abrar2030/CarbonXchange/cicd.yml?branch=main&label=CI/CD&logo=github)
-[![Test Coverage](https://img.shields.io/badge/coverage-81%25-brightgreen)](https://github.com/abrar2030/CarbonXchange/actions)
+![CI/CD Status](https://img.shields.io/github/actions/workflow/status/quantsingularity/CarbonXchange/cicd.yml?branch=main&label=CI/CD&logo=github)
+[![Test Coverage](https://img.shields.io/badge/coverage-81%25-brightgreen)](https://github.com/quantsingularity/CarbonXchange/actions)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 ## 🌿 Blockchain-Based Carbon Credit Trading Platform
@@ -157,7 +157,7 @@ CarbonXchange/
 
 ```bash
 # Clone the repository
-git clone https://github.com/abrar2030/CarbonXchange.git
+git clone https://github.com/quantsingularity/CarbonXchange.git
 cd CarbonXchange
 
 # Run the setup script
@@ -172,7 +172,7 @@ cd CarbonXchange
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/abrar2030/CarbonXchange.git
+git clone https://github.com/quantsingularity/CarbonXchange.git
 cd CarbonXchange
 ```
 

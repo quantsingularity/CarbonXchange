@@ -26,7 +26,7 @@ Get up and running in 3 steps:
 
 ```bash
 # 1. Clone and enter repository
-git clone https://github.com/abrar2030/CarbonXchange.git
+git clone https://github.com/quantsingularity/CarbonXchange.git
 cd CarbonXchange
 
 # 2. Set up environment (automated)

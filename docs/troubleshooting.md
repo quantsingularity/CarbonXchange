@@ -383,7 +383,7 @@ If issues persist:
 
 1. Check logs: `tail -f carbonxchange.log`
 2. Enable debug mode (development only): `DEBUG=true`
-3. Search GitHub Issues: https://github.com/abrar2030/CarbonXchange/issues
+3. Search GitHub Issues: https://github.com/quantsingularity/CarbonXchange/issues
 4. Create new issue with:
     - Environment details (OS, Python/Node version)
     - Error messages and stack traces

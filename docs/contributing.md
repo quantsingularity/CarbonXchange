@@ -19,8 +19,8 @@ Be respectful, inclusive, and professional in all interactions.
 ## Getting Started
 
 1. Fork the repository
-2. Clone your fork: `git clone https://github.com/abrar2030/CarbonXchange.git`
-3. Add upstream remote: `git remote add upstream https://github.com/abrar2030/CarbonXchange.git`
+2. Clone your fork: `git clone https://github.com/quantsingularity/CarbonXchange.git`
+3. Add upstream remote: `git remote add upstream https://github.com/quantsingularity/CarbonXchange.git`
 4. Set up development environment: `./scripts/dev_env/cx_setup_env.sh`
 
 ## Development Workflow

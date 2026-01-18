@@ -59,7 +59,7 @@ The fastest way to get started with CarbonXchange:
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/abrar2030/CarbonXchange.git
+git clone https://github.com/quantsingularity/CarbonXchange.git
 cd CarbonXchange
 
 # 2. Run the automated setup script
@@ -88,7 +88,7 @@ For more control over the installation process:
 ### Step 1: Clone Repository
 
 ```bash
-git clone https://github.com/abrar2030/CarbonXchange.git
+git clone https://github.com/quantsingularity/CarbonXchange.git
 cd CarbonXchange
 ```
 
@@ -184,7 +184,7 @@ For production or isolated development environments:
 
 ```bash
 # Clone repository
-git clone https://github.com/abrar2030/CarbonXchange.git
+git clone https://github.com/quantsingularity/CarbonXchange.git
 cd CarbonXchange
 
 # Build and start containers
