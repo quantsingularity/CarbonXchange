@@ -17,6 +17,7 @@ CarbonXchange is an innovative platform that leverages blockchain technology and
 ## Table of Contents
 
 - [Overview](#overview)
+- [Project Structure](#project-structure)
 - [Key Features](#key-features)
 - [Technology Stack](#technology-stack)
 - [Architecture](#architecture)
