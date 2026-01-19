@@ -32,6 +32,24 @@ CarbonXchange is an innovative platform that leverages blockchain technology and
 
 CarbonXchange is a decentralized platform that transforms how carbon credits are verified, traded, and retired. By combining blockchain's immutability with AI-powered verification, the platform ensures transparency and trust in the carbon offset market while making it accessible to businesses of all sizes and environmentally conscious individuals.
 
+## Project Structure
+
+The project is organized into several main components:
+
+```
+CarbonXchange/
+├── code/                   # Core backend logic, services, and shared utilities
+├── docs/                   # Project documentation
+├── infrastructure/         # DevOps, deployment, and infra-related code
+├── mobile-frontend/        # Mobile application
+├── web-frontend/           # Web dashboard
+├── scripts/                # Automation, setup, and utility scripts
+├── LICENSE                 # License information
+├── README.md               # Project overview and instructions
+├── eslint.config.js        # ESLint configuration
+└── package.json            # Node.js project metadata and dependencies
+```
+
 ## Key Features
 
 ### Blockchain-Based Carbon Credit Tokenization
