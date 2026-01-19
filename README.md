@@ -24,6 +24,7 @@ CarbonXchange is an innovative platform that leverages blockchain technology and
 - [Usage](#usage)
 - [Testing](#testing)
 - [CI/CD Pipeline](#cicd-pipeline)
+- [Documentation](#documentation)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -290,13 +291,39 @@ npm test
 
 CarbonXchange uses GitHub Actions for continuous integration and deployment:
 
-| Stage                            | Description                            |
-| :------------------------------- | :------------------------------------- |
-| Automated testing                | On each pull request                   |
-| Smart contract security scanning | To ensure contract safety              |
-| Code quality checks              | To enforce standards                   |
-| Docker image building            | And publishing                         |
-| Automated deployment             | To staging and production environments |
+| Stage                   | Control Area (exact from workflow)                  | Institutional-Grade Detail                                                                               |
+| :---------------------- | :-------------------------------------------------- | :------------------------------------------------------------------------------------------------------- |
+| **CI Formatting Check** | `on: push, pull_request, workflow_dispatch`         | Enforced on `push`/`pull_request` to `main` & `develop`; manual dispatch via workflow_dispatch           |
+|                         | `jobs.formatting_check.runs-on: ubuntu-latest`      | Standardized runner for reproducible execution                                                           |
+|                         | `jobs.formatting_check.env`                         | Environment variables: `BACKEND_DIR`, `WEB_FRONTEND_DIR`, `MOBILE_FRONTEND_DIR`, `INFRASTRUCTURE_DIR`    |
+|                         | `Checkout repository` (uses: `actions/checkout@v4`) | Full checkout with `fetch-depth: 0` for auditability and accurate diffs                                  |
+|                         | `Set up Python` (uses: `actions/setup-python@v5`)   | Python 3.10 runtime enforced for backend validation                                                      |
+|                         | `Cache pip` (uses: `actions/cache@v4`)              | Deterministic dependency caching to speed runs and ensure repeatability                                  |
+|                         | `Install Python formatters`                         | Install `autoflake` and `black` for non-intrusive formatting checks                                      |
+|                         | `Run Python formatting checks (backend)`            | Temporary copy + `autoflake` + `black --check` with diff-based validation to avoid auto-modifying source |
+|                         | `Set up Node.js` (uses: `actions/setup-node@v4`)    | Node 18 runtime with npm cache enabled                                                                   |
+|                         | `Install Node dependencies (root)` (`npm ci`)       | Locked, reproducible JS dependency installation                                                          |
+|                         | `Run Prettier Checks (web-frontend)`                | `npx --no-install prettier --check` against `${WEB_FRONTEND_DIR}` front-end assets                       |
+|                         | `Run Prettier Checks (mobile-frontend)`             | `npx --no-install prettier --check` against `${MOBILE_FRONTEND_DIR}` mobile assets                       |
+|                         | `Run Prettier Checks (all .md files in repo)`       | Repo-wide markdown formatting enforcement via Prettier                                                   |
+|                         | `Run Prettier Checks (infrastructure YAML)`         | Prettier checks for `${INFRASTRUCTURE_DIR}/**/*.{yml,yaml}` (only if directory exists)                   |
+|                         | `Finalize Check`                                    | Pipeline emits clear pass/fail signal; failures block merges until addressed                             |
+
+## Documentation
+
+| Document                    | Path                 | Description                                                          |
+| :-------------------------- | :------------------- | :------------------------------------------------------------------- |
+| **README**                  | `README.md`          | High-level overview, project scope, and repository entry point       |
+| **Installation Guide**      | `INSTALLATION.md`    | Step-by-step installation and environment setup                      |
+| **API Reference**           | `API.md`             | Detailed documentation for all API endpoints                         |
+| **CLI Reference**           | `CLI.md`             | Command-line interface usage, commands, and examples                 |
+| **User Guide**              | `USAGE.md`           | Comprehensive end-user guide, workflows, and examples                |
+| **Architecture Overview**   | `ARCHITECTURE.md`    | System architecture, components, and design rationale                |
+| **Configuration Guide**     | `CONFIGURATION.md`   | Configuration options, environment variables, and tuning             |
+| **Feature Matrix**          | `FEATURE_MATRIX.md`  | Feature coverage, capabilities, and roadmap alignment                |
+| **Smart Contracts**         | `SMART_CONTRACTS.md` | Smart contract architecture, interfaces, and security considerations |
+| **Contributing Guidelines** | `CONTRIBUTING.md`    | Contribution workflow, coding standards, and PR requirements         |
+| **Troubleshooting**         | `TROUBLESHOOTING.md` | Common issues, diagnostics, and remediation steps                    |
 
 ## Contributing
 
