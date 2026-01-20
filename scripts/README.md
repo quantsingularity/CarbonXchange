@@ -1,6 +1,4 @@
-#!/bin/bash
-
-# CarbonXchange Automation Scripts - README
+# CarbonXchange Automation Scripts
 
 # Overview
 
@@ -45,12 +43,6 @@ This package contains a set of automation scripts designed to streamline develop
 
     ```
     chmod +x /path/to/CarbonXchange/carbonxchange_automation/*/*.sh
-    ```
-
-3. (Optional) Add the scripts to your PATH for easier access:
-    ```
-    echo 'export PATH="$PATH:/path/to/CarbonXchange/carbonxchange_automation/dev_env:/path/to/CarbonXchange/carbonxchange_automation/orchestration:/path/to/CarbonXchange/carbonxchange_automation/testing:/path/to/CarbonXchange/carbonxchange_automation/deployment:/path/to/CarbonXchange/carbonxchange_automation/docs"' >> ~/.bashrc
-    source ~/.bashrc
     ```
 
 # Usage
