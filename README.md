@@ -310,23 +310,21 @@ npm test
 
 CarbonXchange uses GitHub Actions for continuous integration and deployment:
 
-| Stage                | Control Area (exact from workflow)                  | Institutional-Grade Detail                                                                               |
-| :------------------- | :-------------------------------------------------- | :------------------------------------------------------------------------------------------------------- |
-| **Formatting Check** | `on: push, pull_request, workflow_dispatch`         | Enforced on `push`/`pull_request` to `main` & `develop`; manual dispatch via workflow_dispatch           |
-|                      | `jobs.formatting_check.runs-on: ubuntu-latest`      | Standardized runner for reproducible execution                                                           |
-|                      | `jobs.formatting_check.env`                         | Environment variables: `BACKEND_DIR`, `WEB_FRONTEND_DIR`, `MOBILE_FRONTEND_DIR`, `INFRASTRUCTURE_DIR`    |
-|                      | `Checkout repository` (uses: `actions/checkout@v4`) | Full checkout with `fetch-depth: 0` for auditability and accurate diffs                                  |
-|                      | `Set up Python` (uses: `actions/setup-python@v5`)   | Python 3.10 runtime enforced for backend validation                                                      |
-|                      | `Cache pip` (uses: `actions/cache@v4`)              | Deterministic dependency caching to speed runs and ensure repeatability                                  |
-|                      | `Install Python formatters`                         | Install `autoflake` and `black` for non-intrusive formatting checks                                      |
-|                      | `Run Python formatting checks (backend)`            | Temporary copy + `autoflake` + `black --check` with diff-based validation to avoid auto-modifying source |
-|                      | `Set up Node.js` (uses: `actions/setup-node@v4`)    | Node 18 runtime with npm cache enabled                                                                   |
-|                      | `Install Node dependencies (root)` (`npm ci`)       | Locked, reproducible JS dependency installation                                                          |
-|                      | `Run Prettier Checks (web-frontend)`                | `npx --no-install prettier --check` against `${WEB_FRONTEND_DIR}` front-end assets                       |
-|                      | `Run Prettier Checks (mobile-frontend)`             | `npx --no-install prettier --check` against `${MOBILE_FRONTEND_DIR}` mobile assets                       |
-|                      | `Run Prettier Checks (all .md files in repo)`       | Repo-wide markdown formatting enforcement via Prettier                                                   |
-|                      | `Run Prettier Checks (infrastructure YAML)`         | Prettier checks for `${INFRASTRUCTURE_DIR}/**/*.{yml,yaml}` (only if directory exists)                   |
-|                      | `Finalize Check`                                    | Pipeline emits clear pass/fail signal; failures block merges until addressed                             |
+| Stage                | Control Area                    | Institutional-Grade Detail                                                              |
+| :------------------- | :------------------------------ | :-------------------------------------------------------------------------------------- |
+| **Formatting Check** | Change Triggers                 | Enforced on all `push` and `pull_request` events to `main` and `develop`                |
+|                      | Manual Oversight                | On-demand execution via controlled `workflow_dispatch`                                  |
+|                      | Source Integrity                | Full repository checkout with complete Git history for auditability                     |
+|                      | Python Runtime Standardization  | Python 3.10 with deterministic dependency caching                                       |
+|                      | Backend Code Hygiene            | `autoflake` to detect unused imports/variables using non-mutating diff-based validation |
+|                      | Backend Style Compliance        | `black --check` to enforce institutional formatting standards                           |
+|                      | Non-Intrusive Validation        | Temporary workspace comparison to prevent unauthorized source modification              |
+|                      | Node.js Runtime Control         | Node.js 18 with locked dependency installation via `npm ci`                             |
+|                      | Web Frontend Formatting Control | Prettier checks for web-facing assets                                                   |
+|                      | Mobile Frontend Formatting      | Prettier enforcement for mobile application codebases                                   |
+|                      | Documentation Governance        | Repository-wide Markdown formatting enforcement                                         |
+|                      | Infrastructure Configuration    | Prettier validation for YAML/YML infrastructure definitions                             |
+|                      | Compliance Gate                 | Any formatting deviation fails the pipeline and blocks merge                            |
 
 ## Documentation
 
