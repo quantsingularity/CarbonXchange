@@ -210,17 +210,17 @@ The build output will be in the `dist/` directory.
 ### Deployment Options
 
 1. **Static Hosting** (Vercel, Netlify, etc.)
-    - Deploy the `dist/` folder
-    - Configure environment variables in hosting platform
+   - Deploy the `dist/` folder
+   - Configure environment variables in hosting platform
 
 2. **Serve with Backend**
-    - Copy `dist/` contents to `code/backend/src/static/`
-    - Backend will serve the frontend at root URL
+   - Copy `dist/` contents to `code/backend/src/static/`
+   - Backend will serve the frontend at root URL
 
 3. **Docker**
-    - Use the provided Dockerfile
-    - Build: `docker build -t carbonxchange-frontend .`
-    - Run: `docker run -p 3000:3000 carbonxchange-frontend`
+   - Use the provided Dockerfile
+   - Build: `docker build -t carbonxchange-frontend .`
+   - Run: `docker run -p 3000:3000 carbonxchange-frontend`
 
 ## Environment Variables
 

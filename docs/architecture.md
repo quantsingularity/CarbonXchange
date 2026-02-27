@@ -316,16 +316,16 @@ pytest==7.4.3             # Testing framework
 
 ```json
 {
-    "dependencies": {
-        "react": "^18.2.0",
-        "typescript": "^5.0.0",
-        "@reduxjs/toolkit": "^1.9.5",
-        "ethers": "^6.7.0",
-        "tailwindcss": "^3.3.0",
-        "react-router-dom": "^6.14.0",
-        "axios": "^1.4.0",
-        "recharts": "^2.7.0"
-    }
+  "dependencies": {
+    "react": "^18.2.0",
+    "typescript": "^5.0.0",
+    "@reduxjs/toolkit": "^1.9.5",
+    "ethers": "^6.7.0",
+    "tailwindcss": "^3.3.0",
+    "react-router-dom": "^6.14.0",
+    "axios": "^1.4.0",
+    "recharts": "^2.7.0"
+  }
 }
 ```
 

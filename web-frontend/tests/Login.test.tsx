@@ -1,57 +1,61 @@
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
-import Login from '../src/pages/Login';
-import { AuthProvider } from '../src/contexts/AuthContext';
+import { describe, it, expect, vi } from "vitest";
+import { render, screen } from "@testing-library/react";
+import { BrowserRouter } from "react-router-dom";
+import Login from "../src/pages/Login";
+import { AuthProvider } from "../src/contexts/AuthContext";
 
 // Mock the API
-vi.mock('../src/services/api', () => ({
-    login: vi.fn(),
-    register: vi.fn(),
-    logout: vi.fn(),
-    getCurrentUser: vi.fn(),
+vi.mock("../src/services/api", () => ({
+  login: vi.fn(),
+  register: vi.fn(),
+  logout: vi.fn(),
+  getCurrentUser: vi.fn(),
 }));
 
-describe('Login Page', () => {
-    const renderLogin = () => {
-        return render(
-            <BrowserRouter>
-                <AuthProvider>
-                    <Login />
-                </AuthProvider>
-            </BrowserRouter>,
-        );
-    };
+describe("Login Page", () => {
+  const renderLogin = () => {
+    return render(
+      <BrowserRouter>
+        <AuthProvider>
+          <Login />
+        </AuthProvider>
+      </BrowserRouter>,
+    );
+  };
 
-    it('renders login form', () => {
-        renderLogin();
+  it("renders login form", () => {
+    renderLogin();
 
-        expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
-        expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
-        expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument();
-    });
+    expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /sign in/i }),
+    ).toBeInTheDocument();
+  });
 
-    it('displays CarbonXchange branding', () => {
-        renderLogin();
+  it("displays CarbonXchange branding", () => {
+    renderLogin();
 
-        expect(screen.getByText(/welcome back/i)).toBeInTheDocument();
-        expect(screen.getByText(/CX/)).toBeInTheDocument();
-    });
+    expect(screen.getByText(/welcome back/i)).toBeInTheDocument();
+    expect(screen.getByText(/CX/)).toBeInTheDocument();
+  });
 
-    it('has a link to register page', () => {
-        renderLogin();
+  it("has a link to register page", () => {
+    renderLogin();
 
-        expect(screen.getByText(/register/i)).toBeInTheDocument();
-    });
+    expect(screen.getByText(/register/i)).toBeInTheDocument();
+  });
 
-    it('validates required fields', async () => {
-        renderLogin();
+  it("validates required fields", async () => {
+    renderLogin();
 
-        // Form should have HTML5 validation
-        const emailInput = screen.getByLabelText(/email/i) as HTMLInputElement;
-        const passwordInput = screen.getByLabelText(/password/i) as HTMLInputElement;
+    // Form should have HTML5 validation
+    const emailInput = screen.getByLabelText(/email/i) as HTMLInputElement;
+    const passwordInput = screen.getByLabelText(
+      /password/i,
+    ) as HTMLInputElement;
 
-        expect(emailInput.required).toBe(true);
-        expect(passwordInput.required).toBe(true);
-    });
+    expect(emailInput.required).toBe(true);
+    expect(passwordInput.required).toBe(true);
+  });
 });

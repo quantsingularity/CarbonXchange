@@ -9,13 +9,13 @@ Complete reference for the CarbonXchange REST API. All endpoints require authent
 - [Rate Limiting](#rate-limiting)
 - [Error Handling](#error-handling)
 - [Endpoints](#endpoints)
-    - [Authentication](#authentication-endpoints)
-    - [User Management](#user-management)
-    - [Carbon Credits](#carbon-credits)
-    - [Trading](#trading)
-    - [Market Data](#market-data)
-    - [Compliance](#compliance)
-    - [Admin](#admin)
+  - [Authentication](#authentication-endpoints)
+  - [User Management](#user-management)
+  - [Carbon Credits](#carbon-credits)
+  - [Trading](#trading)
+  - [Market Data](#market-data)
+  - [Compliance](#compliance)
+  - [Admin](#admin)
 
 ## Base URL and Versioning
 
@@ -66,9 +66,9 @@ All errors follow a consistent format:
 
 ```json
 {
-    "error": "Error Type",
-    "message": "Detailed error message",
-    "status_code": 400
+  "error": "Error Type",
+  "message": "Detailed error message",
+  "status_code": 400
 }
 ```
 
@@ -123,17 +123,17 @@ curl -X POST http://localhost:5000/api/auth/register \
 
 ```json
 {
-    "message": "User registered successfully",
-    "user": {
-        "id": 1,
-        "email": "trader@example.com",
-        "full_name": "Jane Trader",
-        "user_type": "individual",
-        "status": "pending_verification",
-        "created_at": "2024-01-15T10:30:00Z"
-    },
-    "access_token": "eyJhbGciOiJIUzI1NiIs...",
-    "refresh_token": "eyJhbGciOiJIUzI1NiIs..."
+  "message": "User registered successfully",
+  "user": {
+    "id": 1,
+    "email": "trader@example.com",
+    "full_name": "Jane Trader",
+    "user_type": "individual",
+    "status": "pending_verification",
+    "created_at": "2024-01-15T10:30:00Z"
+  },
+  "access_token": "eyJhbGciOiJIUzI1NiIs...",
+  "refresh_token": "eyJhbGciOiJIUzI1NiIs..."
 }
 ```
 
@@ -164,16 +164,16 @@ curl -X POST http://localhost:5000/api/auth/login \
 
 ```json
 {
-    "access_token": "eyJhbGciOiJIUzI1NiIs...",
-    "refresh_token": "eyJhbGciOiJIUzI1NiIs...",
-    "user": {
-        "id": 1,
-        "email": "trader@example.com",
-        "full_name": "Jane Trader",
-        "user_type": "individual",
-        "is_verified": true,
-        "mfa_enabled": false
-    }
+  "access_token": "eyJhbGciOiJIUzI1NiIs...",
+  "refresh_token": "eyJhbGciOiJIUzI1NiIs...",
+  "user": {
+    "id": 1,
+    "email": "trader@example.com",
+    "full_name": "Jane Trader",
+    "user_type": "individual",
+    "is_verified": true,
+    "mfa_enabled": false
+  }
 }
 ```
 
@@ -191,7 +191,7 @@ Refresh access token using refresh token.
 
 ```json
 {
-    "access_token": "eyJhbGciOiJIUzI1NiIs..."
+  "access_token": "eyJhbGciOiJIUzI1NiIs..."
 }
 ```
 
@@ -210,7 +210,7 @@ curl -X POST http://localhost:5000/api/auth/logout \
 
 ```json
 {
-    "message": "Logged out successfully"
+  "message": "Logged out successfully"
 }
 ```
 
@@ -222,9 +222,9 @@ Enable two-factor authentication.
 
 ```json
 {
-    "qr_code": "data:image/png;base64,iVBORw0KGgo...",
-    "secret": "JBSWY3DPEHPK3PXP",
-    "message": "Scan QR code with authenticator app"
+  "qr_code": "data:image/png;base64,iVBORw0KGgo...",
+  "secret": "JBSWY3DPEHPK3PXP",
+  "message": "Scan QR code with authenticator app"
 }
 ```
 
@@ -255,18 +255,18 @@ curl -X GET http://localhost:5000/api/users/profile \
 
 ```json
 {
-    "user": {
-        "id": 1,
-        "email": "trader@example.com",
-        "full_name": "Jane Trader",
-        "user_type": "individual",
-        "status": "active",
-        "is_verified": true,
-        "kyc_status": "approved",
-        "mfa_enabled": true,
-        "created_at": "2024-01-15T10:30:00Z",
-        "last_login": "2024-01-20T14:22:00Z"
-    }
+  "user": {
+    "id": 1,
+    "email": "trader@example.com",
+    "full_name": "Jane Trader",
+    "user_type": "individual",
+    "status": "active",
+    "is_verified": true,
+    "kyc_status": "approved",
+    "mfa_enabled": true,
+    "created_at": "2024-01-15T10:30:00Z",
+    "last_login": "2024-01-20T14:22:00Z"
+  }
 }
 ```
 
@@ -297,23 +297,23 @@ curl -X GET http://localhost:5000/api/users/portfolio \
 
 ```json
 {
-    "portfolio": {
-        "total_value": 125000.5,
-        "cost_basis": 120000.0,
-        "unrealized_pnl": 5000.5,
-        "realized_pnl": 2500.0,
-        "holdings": [
-            {
-                "credit_type": "renewable_energy",
-                "quantity": 5000,
-                "average_price": 24.0,
-                "current_market_price": 25.0,
-                "unrealized_pnl": 5000.0,
-                "percentage_of_portfolio": 100.0
-            }
-        ],
-        "last_updated": "2024-01-20T14:30:00Z"
-    }
+  "portfolio": {
+    "total_value": 125000.5,
+    "cost_basis": 120000.0,
+    "unrealized_pnl": 5000.5,
+    "realized_pnl": 2500.0,
+    "holdings": [
+      {
+        "credit_type": "renewable_energy",
+        "quantity": 5000,
+        "average_price": 24.0,
+        "current_market_price": 25.0,
+        "unrealized_pnl": 5000.0,
+        "percentage_of_portfolio": 100.0
+      }
+    ],
+    "last_updated": "2024-01-20T14:30:00Z"
+  }
 }
 ```
 
@@ -367,25 +367,25 @@ curl -X GET "http://localhost:5000/api/carbon-credits?credit_type=renewable_ener
 
 ```json
 {
-    "credits": [
-        {
-            "id": 101,
-            "credit_type": "renewable_energy",
-            "project_name": "Solar Farm Delta",
-            "project_id": 42,
-            "quantity_available": 50000,
-            "price": 25.5,
-            "vintage_year": 2024,
-            "verification_status": "verified",
-            "verification_standard": "Gold Standard",
-            "location": "California, USA",
-            "created_at": "2024-01-10T00:00:00Z"
-        }
-    ],
-    "total": 150,
-    "page": 1,
-    "per_page": 50,
-    "pages": 3
+  "credits": [
+    {
+      "id": 101,
+      "credit_type": "renewable_energy",
+      "project_name": "Solar Farm Delta",
+      "project_id": 42,
+      "quantity_available": 50000,
+      "price": 25.5,
+      "vintage_year": 2024,
+      "verification_status": "verified",
+      "verification_standard": "Gold Standard",
+      "location": "California, USA",
+      "created_at": "2024-01-10T00:00:00Z"
+    }
+  ],
+  "total": 150,
+  "page": 1,
+  "per_page": 50,
+  "pages": 3
 }
 ```
 
@@ -397,35 +397,35 @@ Get detailed information about specific carbon credit.
 
 ```json
 {
-    "credit": {
-        "id": 101,
-        "credit_type": "renewable_energy",
-        "project_name": "Solar Farm Delta",
-        "project_id": 42,
-        "quantity_total": 100000,
-        "quantity_available": 50000,
-        "quantity_retired": 50000,
-        "price": 25.5,
-        "vintage_year": 2024,
-        "verification_status": "verified",
-        "verification_standard": "Gold Standard",
-        "methodology": "ACM0002",
-        "location": "California, USA",
-        "project_description": "500MW solar installation generating renewable energy",
-        "issuer": {
-            "id": 5,
-            "name": "Green Energy Co",
-            "verified": true
-        },
-        "documents": [
-            {
-                "type": "verification_report",
-                "url": "/api/files/verification_101.pdf",
-                "uploaded_at": "2024-01-10T00:00:00Z"
-            }
-        ],
-        "created_at": "2024-01-10T00:00:00Z"
-    }
+  "credit": {
+    "id": 101,
+    "credit_type": "renewable_energy",
+    "project_name": "Solar Farm Delta",
+    "project_id": 42,
+    "quantity_total": 100000,
+    "quantity_available": 50000,
+    "quantity_retired": 50000,
+    "price": 25.5,
+    "vintage_year": 2024,
+    "verification_status": "verified",
+    "verification_standard": "Gold Standard",
+    "methodology": "ACM0002",
+    "location": "California, USA",
+    "project_description": "500MW solar installation generating renewable energy",
+    "issuer": {
+      "id": 5,
+      "name": "Green Energy Co",
+      "verified": true
+    },
+    "documents": [
+      {
+        "type": "verification_report",
+        "url": "/api/files/verification_101.pdf",
+        "uploaded_at": "2024-01-10T00:00:00Z"
+      }
+    ],
+    "created_at": "2024-01-10T00:00:00Z"
+  }
 }
 ```
 
@@ -462,16 +462,16 @@ Retire carbon credits permanently.
 
 ```json
 {
-    "retirement": {
-        "id": 501,
-        "user_id": 1,
-        "credit_type": "renewable_energy",
-        "quantity": 100,
-        "reason": "Corporate carbon neutrality 2024",
-        "retired_at": "2024-01-20T15:00:00Z",
-        "certificate_url": "/api/compliance/certificates/501"
-    },
-    "message": "Credits retired successfully"
+  "retirement": {
+    "id": 501,
+    "user_id": 1,
+    "credit_type": "renewable_energy",
+    "quantity": 100,
+    "reason": "Corporate carbon neutrality 2024",
+    "retired_at": "2024-01-20T15:00:00Z",
+    "certificate_url": "/api/compliance/certificates/501"
+  },
+  "message": "Credits retired successfully"
 }
 ```
 
@@ -524,24 +524,24 @@ curl -X POST http://localhost:5000/api/trading/orders \
 
 ```json
 {
-    "order": {
-        "id": 1001,
-        "user_id": 1,
-        "order_type": "limit",
-        "side": "buy",
-        "status": "open",
-        "quantity": 100,
-        "filled_quantity": 0,
-        "remaining_quantity": 100,
-        "price": 25.0,
-        "average_fill_price": null,
-        "credit_type": "renewable_energy",
-        "time_in_force": "GTC",
-        "created_at": "2024-01-20T15:30:00Z",
-        "submitted_at": "2024-01-20T15:30:01Z",
-        "expires_at": null
-    },
-    "message": "Order created successfully"
+  "order": {
+    "id": 1001,
+    "user_id": 1,
+    "order_type": "limit",
+    "side": "buy",
+    "status": "open",
+    "quantity": 100,
+    "filled_quantity": 0,
+    "remaining_quantity": 100,
+    "price": 25.0,
+    "average_fill_price": null,
+    "credit_type": "renewable_energy",
+    "time_in_force": "GTC",
+    "created_at": "2024-01-20T15:30:00Z",
+    "submitted_at": "2024-01-20T15:30:01Z",
+    "expires_at": null
+  },
+  "message": "Order created successfully"
 }
 ```
 
@@ -570,12 +570,12 @@ Cancel an open order.
 
 ```json
 {
-    "message": "Order cancelled successfully",
-    "order": {
-        "id": 1001,
-        "status": "cancelled",
-        "cancelled_at": "2024-01-20T16:00:00Z"
-    }
+  "message": "Order cancelled successfully",
+  "order": {
+    "id": 1001,
+    "status": "cancelled",
+    "cancelled_at": "2024-01-20T16:00:00Z"
+  }
 }
 ```
 
@@ -595,21 +595,21 @@ Get trade execution history.
 
 ```json
 {
-    "trades": [
-        {
-            "id": 5001,
-            "order_id": 1001,
-            "quantity": 50,
-            "price": 25.1,
-            "side": "buy",
-            "credit_type": "renewable_energy",
-            "executed_at": "2024-01-20T15:35:00Z",
-            "counterparty_order_id": 1002
-        }
-    ],
-    "total": 25,
-    "page": 1,
-    "per_page": 50
+  "trades": [
+    {
+      "id": 5001,
+      "order_id": 1001,
+      "quantity": 50,
+      "price": 25.1,
+      "side": "buy",
+      "credit_type": "renewable_energy",
+      "executed_at": "2024-01-20T15:35:00Z",
+      "counterparty_order_id": 1002
+    }
+  ],
+  "total": 25,
+  "page": 1,
+  "per_page": 50
 }
 ```
 
@@ -636,22 +636,22 @@ curl -X GET http://localhost:5000/api/market/data \
 
 ```json
 {
-    "market_data": [
-        {
-            "credit_type": "renewable_energy",
-            "last_price": 25.5,
-            "bid_price": 25.4,
-            "ask_price": 25.6,
-            "volume_24h": 125000,
-            "price_change_24h": 0.5,
-            "price_change_pct_24h": 2.0,
-            "high_24h": 26.0,
-            "low_24h": 24.8,
-            "total_supply": 5000000,
-            "circulating_supply": 3500000,
-            "last_updated": "2024-01-20T15:30:00Z"
-        }
-    ]
+  "market_data": [
+    {
+      "credit_type": "renewable_energy",
+      "last_price": 25.5,
+      "bid_price": 25.4,
+      "ask_price": 25.6,
+      "volume_24h": 125000,
+      "price_change_24h": 0.5,
+      "price_change_pct_24h": 2.0,
+      "high_24h": 26.0,
+      "low_24h": 24.8,
+      "total_supply": 5000000,
+      "circulating_supply": 3500000,
+      "last_updated": "2024-01-20T15:30:00Z"
+    }
+  ]
 }
 ```
 
@@ -670,20 +670,20 @@ Get order book for specific credit type.
 
 ```json
 {
-    "orderbook": {
-        "credit_type": "renewable_energy",
-        "bids": [
-            { "price": 25.4, "quantity": 1000 },
-            { "price": 25.3, "quantity": 2500 },
-            { "price": 25.2, "quantity": 1500 }
-        ],
-        "asks": [
-            { "price": 25.6, "quantity": 800 },
-            { "price": 25.7, "quantity": 1200 },
-            { "price": 25.8, "quantity": 2000 }
-        ],
-        "last_updated": "2024-01-20T15:30:00Z"
-    }
+  "orderbook": {
+    "credit_type": "renewable_energy",
+    "bids": [
+      { "price": 25.4, "quantity": 1000 },
+      { "price": 25.3, "quantity": 2500 },
+      { "price": 25.2, "quantity": 1500 }
+    ],
+    "asks": [
+      { "price": 25.6, "quantity": 800 },
+      { "price": 25.7, "quantity": 1200 },
+      { "price": 25.8, "quantity": 2000 }
+    ],
+    "last_updated": "2024-01-20T15:30:00Z"
+  }
 }
 ```
 
@@ -726,19 +726,19 @@ Get retirement certificate.
 
 ```json
 {
-    "certificate": {
-        "retirement_id": 501,
-        "user_name": "Jane Trader",
-        "credit_type": "renewable_energy",
-        "quantity": 100,
-        "project_name": "Solar Farm Delta",
-        "vintage_year": 2024,
-        "retired_at": "2024-01-20T15:00:00Z",
-        "reason": "Corporate carbon neutrality 2024",
-        "certificate_number": "CX-RET-501-2024",
-        "blockchain_tx": "0x1234567890abcdef...",
-        "pdf_url": "/api/compliance/certificates/501/download"
-    }
+  "certificate": {
+    "retirement_id": 501,
+    "user_name": "Jane Trader",
+    "credit_type": "renewable_energy",
+    "quantity": 100,
+    "project_name": "Solar Farm Delta",
+    "vintage_year": 2024,
+    "retired_at": "2024-01-20T15:00:00Z",
+    "reason": "Corporate carbon neutrality 2024",
+    "certificate_number": "CX-RET-501-2024",
+    "blockchain_tx": "0x1234567890abcdef...",
+    "pdf_url": "/api/compliance/certificates/501/download"
+  }
 }
 ```
 
@@ -760,17 +760,17 @@ Get platform statistics.
 
 ```json
 {
-    "stats": {
-        "total_users": 1250,
-        "active_users": 1100,
-        "total_credits_issued": 10000000,
-        "total_credits_traded": 5000000,
-        "total_credits_retired": 2000000,
-        "total_trade_volume": 125000000.0,
-        "active_orders": 450,
-        "trades_24h": 1200,
-        "volume_24h": 30000000.0
-    }
+  "stats": {
+    "total_users": 1250,
+    "active_users": 1100,
+    "total_credits_issued": 10000000,
+    "total_credits_traded": 5000000,
+    "total_credits_retired": 2000000,
+    "total_trade_volume": 125000000.0,
+    "active_orders": 450,
+    "trades_24h": 1200,
+    "volume_24h": 30000000.0
+  }
 }
 ```
 
@@ -784,15 +784,15 @@ Health check endpoint (no authentication required).
 
 ```json
 {
-    "status": "healthy",
-    "timestamp": "2024-01-20T15:30:00Z",
-    "version": "1.0.0",
-    "environment": "production",
-    "services": {
-        "database": "healthy",
-        "redis": "healthy",
-        "api": "healthy"
-    }
+  "status": "healthy",
+  "timestamp": "2024-01-20T15:30:00Z",
+  "version": "1.0.0",
+  "environment": "production",
+  "services": {
+    "database": "healthy",
+    "redis": "healthy",
+    "api": "healthy"
+  }
 }
 ```
 
@@ -804,27 +804,27 @@ API information endpoint (no authentication required).
 
 ```json
 {
-    "name": "CarbonXchange Backend API",
-    "version": "1.0.0",
-    "description": "Production-ready carbon credit trading platform API",
-    "environment": "production",
-    "features": [
-        "User Management & KYC",
-        "Carbon Credit Trading",
-        "Portfolio Management",
-        "Market Data & Analytics",
-        "Compliance & Reporting",
-        "Blockchain Integration"
-    ],
-    "endpoints": {
-        "auth": "/api/auth",
-        "users": "/api/users",
-        "carbon_credits": "/api/carbon-credits",
-        "trading": "/api/trading",
-        "market": "/api/market",
-        "compliance": "/api/compliance",
-        "admin": "/api/admin"
-    }
+  "name": "CarbonXchange Backend API",
+  "version": "1.0.0",
+  "description": "Production-ready carbon credit trading platform API",
+  "environment": "production",
+  "features": [
+    "User Management & KYC",
+    "Carbon Credit Trading",
+    "Portfolio Management",
+    "Market Data & Analytics",
+    "Compliance & Reporting",
+    "Blockchain Integration"
+  ],
+  "endpoints": {
+    "auth": "/api/auth",
+    "users": "/api/users",
+    "carbon_credits": "/api/carbon-credits",
+    "trading": "/api/trading",
+    "market": "/api/market",
+    "compliance": "/api/compliance",
+    "admin": "/api/admin"
+  }
 }
 ```
 

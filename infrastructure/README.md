@@ -249,28 +249,28 @@ infrastructure/
 ## Security Best Practices
 
 1. **Secrets Management**
-    - Use AWS Secrets Manager or HashiCorp Vault for production
-    - Use Ansible Vault for configuration management
-    - Use Kubernetes Sealed Secrets or External Secrets Operator
-    - Never commit `.tfvars`, `values.yaml`, or `hosts.yml`
+   - Use AWS Secrets Manager or HashiCorp Vault for production
+   - Use Ansible Vault for configuration management
+   - Use Kubernetes Sealed Secrets or External Secrets Operator
+   - Never commit `.tfvars`, `values.yaml`, or `hosts.yml`
 
 2. **Access Control**
-    - Use MFA for all administrative access
-    - Implement least-privilege IAM roles
-    - Rotate credentials regularly (90 days recommended)
-    - Use service accounts with minimal permissions
+   - Use MFA for all administrative access
+   - Implement least-privilege IAM roles
+   - Rotate credentials regularly (90 days recommended)
+   - Use service accounts with minimal permissions
 
 3. **Network Security**
-    - Enable VPC Flow Logs
-    - Use private subnets for databases and internal services
-    - Implement Network Policies in Kubernetes
-    - Enable WAF and Shield for public endpoints
+   - Enable VPC Flow Logs
+   - Use private subnets for databases and internal services
+   - Implement Network Policies in Kubernetes
+   - Enable WAF and Shield for public endpoints
 
 4. **Monitoring & Audit**
-    - Enable CloudTrail/audit logs
-    - Set up alerts for security events
-    - Monitor for configuration drift
-    - Regular security assessments
+   - Enable CloudTrail/audit logs
+   - Set up alerts for security events
+   - Monitor for configuration drift
+   - Regular security assessments
 
 ## Troubleshooting
 

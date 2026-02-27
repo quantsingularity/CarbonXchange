@@ -1,400 +1,400 @@
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-    name: carbonxchange-backend-netpol
-    namespace: carbonxchange
-    labels:
-        app.kubernetes.io/name: carbonxchange
-        app.kubernetes.io/component: security
-        tier: backend
-        compliance.carbonxchange.io/pci-dss: 'true'
-        compliance.carbonxchange.io/sox: 'true'
-    annotations:
-        compliance.carbonxchange.io/description: 'Network policy for backend services - restricts traffic to authorized sources only'
-        security.carbonxchange.io/policy-type: 'micro-segmentation'
+  name: carbonxchange-backend-netpol
+  namespace: carbonxchange
+  labels:
+    app.kubernetes.io/name: carbonxchange
+    app.kubernetes.io/component: security
+    tier: backend
+    compliance.carbonxchange.io/pci-dss: "true"
+    compliance.carbonxchange.io/sox: "true"
+  annotations:
+    compliance.carbonxchange.io/description: "Network policy for backend services - restricts traffic to authorized sources only"
+    security.carbonxchange.io/policy-type: "micro-segmentation"
 spec:
-    podSelector:
-        matchLabels:
-            component: backend
-    policyTypes:
-        - Ingress
-        - Egress
-    ingress:
-        # Allow traffic from frontend
-        - from:
-              - podSelector:
-                    matchLabels:
-                        component: frontend
-          ports:
-              - protocol: TCP
-                port: 8000
-        # Allow traffic from load balancer
-        - from:
-              - namespaceSelector:
-                    matchLabels:
-                        name: ingress-nginx
-          ports:
-              - protocol: TCP
-                port: 8000
-        # Allow health checks from monitoring
-        - from:
-              - podSelector:
-                    matchLabels:
-                        component: monitoring
-          ports:
-              - protocol: TCP
-                port: 8080
-              - protocol: TCP
-                port: 9090
-        # Allow traffic from API gateway
-        - from:
-              - podSelector:
-                    matchLabels:
-                        component: api-gateway
-          ports:
-              - protocol: TCP
-                port: 8000
-    egress:
-        # Allow DNS resolution
-        - to: []
-          ports:
-              - protocol: UDP
-                port: 53
-              - protocol: TCP
-                port: 53
-        # Allow database connections
-        - to:
-              - podSelector:
-                    matchLabels:
-                        component: database
-          ports:
-              - protocol: TCP
-                port: 3306
-              - protocol: TCP
-                port: 5432
-        # Allow Redis connections
-        - to:
-              - podSelector:
-                    matchLabels:
-                        component: redis
-          ports:
-              - protocol: TCP
-                port: 6379
-        # Allow HTTPS for external APIs
-        - to: []
-          ports:
-              - protocol: TCP
-                port: 443
-        # Allow monitoring and logging
-        - to:
-              - podSelector:
-                    matchLabels:
-                        component: monitoring
-          ports:
-              - protocol: TCP
-                port: 9090
-              - protocol: TCP
-                port: 3000
+  podSelector:
+    matchLabels:
+      component: backend
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # Allow traffic from frontend
+    - from:
+        - podSelector:
+            matchLabels:
+              component: frontend
+      ports:
+        - protocol: TCP
+          port: 8000
+    # Allow traffic from load balancer
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: ingress-nginx
+      ports:
+        - protocol: TCP
+          port: 8000
+    # Allow health checks from monitoring
+    - from:
+        - podSelector:
+            matchLabels:
+              component: monitoring
+      ports:
+        - protocol: TCP
+          port: 8080
+        - protocol: TCP
+          port: 9090
+    # Allow traffic from API gateway
+    - from:
+        - podSelector:
+            matchLabels:
+              component: api-gateway
+      ports:
+        - protocol: TCP
+          port: 8000
+  egress:
+    # Allow DNS resolution
+    - to: []
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    # Allow database connections
+    - to:
+        - podSelector:
+            matchLabels:
+              component: database
+      ports:
+        - protocol: TCP
+          port: 3306
+        - protocol: TCP
+          port: 5432
+    # Allow Redis connections
+    - to:
+        - podSelector:
+            matchLabels:
+              component: redis
+      ports:
+        - protocol: TCP
+          port: 6379
+    # Allow HTTPS for external APIs
+    - to: []
+      ports:
+        - protocol: TCP
+          port: 443
+    # Allow monitoring and logging
+    - to:
+        - podSelector:
+            matchLabels:
+              component: monitoring
+      ports:
+        - protocol: TCP
+          port: 9090
+        - protocol: TCP
+          port: 3000
 
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-    name: carbonxchange-frontend-netpol
-    namespace: carbonxchange
-    labels:
-        app.kubernetes.io/name: carbonxchange
-        app.kubernetes.io/component: security
-        tier: frontend
-        compliance.carbonxchange.io/pci-dss: 'true'
+  name: carbonxchange-frontend-netpol
+  namespace: carbonxchange
+  labels:
+    app.kubernetes.io/name: carbonxchange
+    app.kubernetes.io/component: security
+    tier: frontend
+    compliance.carbonxchange.io/pci-dss: "true"
 spec:
-    podSelector:
-        matchLabels:
-            component: frontend
-    policyTypes:
-        - Ingress
-        - Egress
-    ingress:
-        # Allow traffic from load balancer/ingress
-        - from:
-              - namespaceSelector:
-                    matchLabels:
-                        name: ingress-nginx
-          ports:
-              - protocol: TCP
-                port: 80
-              - protocol: TCP
-                port: 443
-        # Allow health checks from monitoring
-        - from:
-              - podSelector:
-                    matchLabels:
-                        component: monitoring
-          ports:
-              - protocol: TCP
-                port: 8080
-    egress:
-        # Allow DNS resolution
-        - to: []
-          ports:
-              - protocol: UDP
-                port: 53
-              - protocol: TCP
-                port: 53
-        # Allow backend API calls
-        - to:
-              - podSelector:
-                    matchLabels:
-                        component: backend
-          ports:
-              - protocol: TCP
-                port: 8000
-        # Allow CDN and external resources
-        - to: []
-          ports:
-              - protocol: TCP
-                port: 80
-              - protocol: TCP
-                port: 443
+  podSelector:
+    matchLabels:
+      component: frontend
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # Allow traffic from load balancer/ingress
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: ingress-nginx
+      ports:
+        - protocol: TCP
+          port: 80
+        - protocol: TCP
+          port: 443
+    # Allow health checks from monitoring
+    - from:
+        - podSelector:
+            matchLabels:
+              component: monitoring
+      ports:
+        - protocol: TCP
+          port: 8080
+  egress:
+    # Allow DNS resolution
+    - to: []
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    # Allow backend API calls
+    - to:
+        - podSelector:
+            matchLabels:
+              component: backend
+      ports:
+        - protocol: TCP
+          port: 8000
+    # Allow CDN and external resources
+    - to: []
+      ports:
+        - protocol: TCP
+          port: 80
+        - protocol: TCP
+          port: 443
 
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-    name: carbonxchange-database-netpol
-    namespace: carbonxchange
-    labels:
-        app.kubernetes.io/name: carbonxchange
-        app.kubernetes.io/component: security
-        tier: database
-        compliance.carbonxchange.io/pci-dss: 'true'
-        compliance.carbonxchange.io/sox: 'true'
-        compliance.carbonxchange.io/gdpr: 'true'
-    annotations:
-        compliance.carbonxchange.io/description: 'Highly restrictive network policy for database - only allows authorized application access'
-        security.carbonxchange.io/criticality: 'high'
+  name: carbonxchange-database-netpol
+  namespace: carbonxchange
+  labels:
+    app.kubernetes.io/name: carbonxchange
+    app.kubernetes.io/component: security
+    tier: database
+    compliance.carbonxchange.io/pci-dss: "true"
+    compliance.carbonxchange.io/sox: "true"
+    compliance.carbonxchange.io/gdpr: "true"
+  annotations:
+    compliance.carbonxchange.io/description: "Highly restrictive network policy for database - only allows authorized application access"
+    security.carbonxchange.io/criticality: "high"
 spec:
-    podSelector:
-        matchLabels:
-            component: database
-    policyTypes:
-        - Ingress
-        - Egress
-    ingress:
-        # Allow connections from backend only
-        - from:
-              - podSelector:
-                    matchLabels:
-                        component: backend
-          ports:
-              - protocol: TCP
-                port: 3306
-              - protocol: TCP
-                port: 5432
-        # Allow monitoring connections
-        - from:
-              - podSelector:
-                    matchLabels:
-                        component: monitoring
-          ports:
-              - protocol: TCP
-                port: 3306
-              - protocol: TCP
-                port: 5432
-        # Allow backup service connections
-        - from:
-              - podSelector:
-                    matchLabels:
-                        component: backup
-          ports:
-              - protocol: TCP
-                port: 3306
-              - protocol: TCP
-                port: 5432
-    egress:
-        # Allow DNS resolution
-        - to: []
-          ports:
-              - protocol: UDP
-                port: 53
-              - protocol: TCP
-                port: 53
-        # Allow replication traffic (if needed)
-        - to:
-              - podSelector:
-                    matchLabels:
-                        component: database
-                        role: replica
-          ports:
-              - protocol: TCP
-                port: 3306
-              - protocol: TCP
-                port: 5432
+  podSelector:
+    matchLabels:
+      component: database
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # Allow connections from backend only
+    - from:
+        - podSelector:
+            matchLabels:
+              component: backend
+      ports:
+        - protocol: TCP
+          port: 3306
+        - protocol: TCP
+          port: 5432
+    # Allow monitoring connections
+    - from:
+        - podSelector:
+            matchLabels:
+              component: monitoring
+      ports:
+        - protocol: TCP
+          port: 3306
+        - protocol: TCP
+          port: 5432
+    # Allow backup service connections
+    - from:
+        - podSelector:
+            matchLabels:
+              component: backup
+      ports:
+        - protocol: TCP
+          port: 3306
+        - protocol: TCP
+          port: 5432
+  egress:
+    # Allow DNS resolution
+    - to: []
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    # Allow replication traffic (if needed)
+    - to:
+        - podSelector:
+            matchLabels:
+              component: database
+              role: replica
+      ports:
+        - protocol: TCP
+          port: 3306
+        - protocol: TCP
+          port: 5432
 
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-    name: carbonxchange-redis-netpol
-    namespace: carbonxchange
-    labels:
-        app.kubernetes.io/name: carbonxchange
-        app.kubernetes.io/component: security
-        tier: cache
-        compliance.carbonxchange.io/pci-dss: 'true'
+  name: carbonxchange-redis-netpol
+  namespace: carbonxchange
+  labels:
+    app.kubernetes.io/name: carbonxchange
+    app.kubernetes.io/component: security
+    tier: cache
+    compliance.carbonxchange.io/pci-dss: "true"
 spec:
-    podSelector:
-        matchLabels:
-            component: redis
-    policyTypes:
-        - Ingress
-        - Egress
-    ingress:
-        # Allow connections from backend only
-        - from:
-              - podSelector:
-                    matchLabels:
-                        component: backend
-          ports:
-              - protocol: TCP
-                port: 6379
-        # Allow monitoring connections
-        - from:
-              - podSelector:
-                    matchLabels:
-                        component: monitoring
-          ports:
-              - protocol: TCP
-                port: 6379
-    egress:
-        # Allow DNS resolution
-        - to: []
-          ports:
-              - protocol: UDP
-                port: 53
-              - protocol: TCP
-                port: 53
-        # Allow cluster communication (if Redis cluster)
-        - to:
-              - podSelector:
-                    matchLabels:
-                        component: redis
-          ports:
-              - protocol: TCP
-                port: 6379
-              - protocol: TCP
-                port: 16379
+  podSelector:
+    matchLabels:
+      component: redis
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # Allow connections from backend only
+    - from:
+        - podSelector:
+            matchLabels:
+              component: backend
+      ports:
+        - protocol: TCP
+          port: 6379
+    # Allow monitoring connections
+    - from:
+        - podSelector:
+            matchLabels:
+              component: monitoring
+      ports:
+        - protocol: TCP
+          port: 6379
+  egress:
+    # Allow DNS resolution
+    - to: []
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    # Allow cluster communication (if Redis cluster)
+    - to:
+        - podSelector:
+            matchLabels:
+              component: redis
+      ports:
+        - protocol: TCP
+          port: 6379
+        - protocol: TCP
+          port: 16379
 
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-    name: carbonxchange-monitoring-netpol
-    namespace: carbonxchange
-    labels:
-        app.kubernetes.io/name: carbonxchange
-        app.kubernetes.io/component: security
-        tier: monitoring
+  name: carbonxchange-monitoring-netpol
+  namespace: carbonxchange
+  labels:
+    app.kubernetes.io/name: carbonxchange
+    app.kubernetes.io/component: security
+    tier: monitoring
 spec:
-    podSelector:
-        matchLabels:
-            component: monitoring
-    policyTypes:
-        - Ingress
-        - Egress
-    ingress:
-        # Allow Grafana access from authorized users
-        - from:
-              - namespaceSelector:
-                    matchLabels:
-                        name: ingress-nginx
-          ports:
-              - protocol: TCP
-                port: 3000
-        # Allow Prometheus scraping
-        - from:
-              - podSelector:
-                    matchLabels:
-                        app: prometheus
-          ports:
-              - protocol: TCP
-                port: 9090
-    egress:
-        # Allow DNS resolution
-        - to: []
-          ports:
-              - protocol: UDP
-                port: 53
-              - protocol: TCP
-                port: 53
-        # Allow scraping all application metrics
-        - to:
-              - podSelector: {}
-          ports:
-              - protocol: TCP
-                port: 8080
-              - protocol: TCP
-                port: 9090
-        # Allow database monitoring
-        - to:
-              - podSelector:
-                    matchLabels:
-                        component: database
-          ports:
-              - protocol: TCP
-                port: 3306
-              - protocol: TCP
-                port: 5432
-        # Allow external alerting (HTTPS)
-        - to: []
-          ports:
-              - protocol: TCP
-                port: 443
+  podSelector:
+    matchLabels:
+      component: monitoring
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # Allow Grafana access from authorized users
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: ingress-nginx
+      ports:
+        - protocol: TCP
+          port: 3000
+    # Allow Prometheus scraping
+    - from:
+        - podSelector:
+            matchLabels:
+              app: prometheus
+      ports:
+        - protocol: TCP
+          port: 9090
+  egress:
+    # Allow DNS resolution
+    - to: []
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    # Allow scraping all application metrics
+    - to:
+        - podSelector: {}
+      ports:
+        - protocol: TCP
+          port: 8080
+        - protocol: TCP
+          port: 9090
+    # Allow database monitoring
+    - to:
+        - podSelector:
+            matchLabels:
+              component: database
+      ports:
+        - protocol: TCP
+          port: 3306
+        - protocol: TCP
+          port: 5432
+    # Allow external alerting (HTTPS)
+    - to: []
+      ports:
+        - protocol: TCP
+          port: 443
 
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-    name: carbonxchange-default-deny
-    namespace: carbonxchange
-    labels:
-        app.kubernetes.io/name: carbonxchange
-        app.kubernetes.io/component: security
-        policy-type: default-deny
-    annotations:
-        compliance.carbonxchange.io/description: 'Default deny policy - blocks all traffic not explicitly allowed'
-        security.carbonxchange.io/enforcement: 'strict'
+  name: carbonxchange-default-deny
+  namespace: carbonxchange
+  labels:
+    app.kubernetes.io/name: carbonxchange
+    app.kubernetes.io/component: security
+    policy-type: default-deny
+  annotations:
+    compliance.carbonxchange.io/description: "Default deny policy - blocks all traffic not explicitly allowed"
+    security.carbonxchange.io/enforcement: "strict"
 spec:
-    podSelector: {}
-    policyTypes:
-        - Ingress
-        - Egress
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
 
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-    name: carbonxchange-allow-dns
-    namespace: carbonxchange
-    labels:
-        app.kubernetes.io/name: carbonxchange
-        app.kubernetes.io/component: security
-        policy-type: dns-allow
+  name: carbonxchange-allow-dns
+  namespace: carbonxchange
+  labels:
+    app.kubernetes.io/name: carbonxchange
+    app.kubernetes.io/component: security
+    policy-type: dns-allow
 spec:
-    podSelector: {}
-    policyTypes:
-        - Egress
-    egress:
-        # Allow DNS resolution to kube-dns
-        - to:
-              - namespaceSelector:
-                    matchLabels:
-                        name: kube-system
-              - podSelector:
-                    matchLabels:
-                        k8s-app: kube-dns
-          ports:
-              - protocol: UDP
-                port: 53
-              - protocol: TCP
-                port: 53
+  podSelector: {}
+  policyTypes:
+    - Egress
+  egress:
+    # Allow DNS resolution to kube-dns
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              name: kube-system
+        - podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53

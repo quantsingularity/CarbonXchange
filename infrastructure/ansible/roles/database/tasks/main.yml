@@ -2,49 +2,49 @@
 # roles/database/tasks/main.yml
 - name: Install database packages
   ansible.builtin.dnf:
-      name:
-          - mariadb-server
-          - mariadb
-          - python3-PyMySQL
-      state: present
+    name:
+      - mariadb-server
+      - mariadb
+      - python3-PyMySQL
+    state: present
 
 - name: Configure MariaDB
   ansible.builtin.template:
-      src: my.cnf.j2
-      dest: /etc/my.cnf.d/server.cnf
-      owner: root
-      group: root
-      mode: '0644'
+    src: my.cnf.j2
+    dest: /etc/my.cnf.d/server.cnf
+    owner: root
+    group: root
+    mode: "0644"
   notify: Restart MariaDB
 
 - name: Start and enable MariaDB
   ansible.builtin.systemd:
-      name: mariadb
-      state: started
-      enabled: true
+    name: mariadb
+    state: started
+    enabled: true
 
 - name: Set root password
   community.mysql.mysql_user:
-      name: root
-      password: '{{ database_root_password }}'
-      host_all: true
-      state: present
+    name: root
+    password: "{{ database_root_password }}"
+    host_all: true
+    state: present
   no_log: true
 
 - name: Create application database
   community.mysql.mysql_db:
-      name: '{{ database_name }}'
-      state: present
-      login_user: root
-      login_password: '{{ database_root_password }}'
+    name: "{{ database_name }}"
+    state: present
+    login_user: root
+    login_password: "{{ database_root_password }}"
 
 - name: Create application database user
   community.mysql.mysql_user:
-      name: '{{ database_user }}'
-      password: '{{ database_password }}'
-      priv: '{{ database_name }}.*:ALL'
-      host: '%'
-      state: present
-      login_user: root
-      login_password: '{{ database_root_password }}'
+    name: "{{ database_user }}"
+    password: "{{ database_password }}"
+    priv: "{{ database_name }}.*:ALL"
+    host: "%"
+    state: present
+    login_user: root
+    login_password: "{{ database_root_password }}"
   no_log: true

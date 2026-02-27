@@ -174,22 +174,22 @@ Check and update version information:
 ### Registration and Authentication
 
 1. **Register New Account**
-    - Navigate to `http://localhost:3000/register`
-    - Provide email, password, and wallet address
-    - Verify email (check logs in development)
-    - Complete KYC verification
+   - Navigate to `http://localhost:3000/register`
+   - Provide email, password, and wallet address
+   - Verify email (check logs in development)
+   - Complete KYC verification
 
 2. **Login**
-    - Navigate to `http://localhost:3000/login`
-    - Enter credentials
-    - Enable MFA (recommended)
-    - Access dashboard
+   - Navigate to `http://localhost:3000/login`
+   - Enter credentials
+   - Enable MFA (recommended)
+   - Access dashboard
 
 3. **Enable Two-Factor Authentication**
-    - Go to Settings → Security
-    - Click "Enable 2FA"
-    - Scan QR code with authenticator app
-    - Enter verification code
+   - Go to Settings → Security
+   - Click "Enable 2FA"
+   - Scan QR code with authenticator app
+   - Enter verification code
 
 ### Trading Interface
 

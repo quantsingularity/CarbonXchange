@@ -7,43 +7,43 @@ This package contains a set of automation scripts designed to streamline develop
 # Scripts Included
 
 1. **Environment Manager** (`dev_env/cx_env_manager.sh`)
-    - Comprehensive environment setup and validation
-    - Dependency management and version checking
-    - Cross-platform compatibility
+   - Comprehensive environment setup and validation
+   - Dependency management and version checking
+   - Cross-platform compatibility
 
 2. **Service Orchestrator** (`orchestration/cx_service_orchestrator.sh`)
-    - Unified service management (start, stop, restart)
-    - Service health monitoring
-    - Log viewing and management
+   - Unified service management (start, stop, restart)
+   - Service health monitoring
+   - Log viewing and management
 
 3. **Test Runner** (`testing/cx_test_runner.sh`)
-    - Automated test execution (unit, integration, end-to-end)
-    - Test reporting and coverage analysis
-    - Pre-commit hook setup
+   - Automated test execution (unit, integration, end-to-end)
+   - Test reporting and coverage analysis
+   - Pre-commit hook setup
 
 4. **Deployment Pipeline** (`deployment/cx_deploy.sh`)
-    - Environment-specific deployment
-    - Configuration management
-    - Deployment validation and rollback
+   - Environment-specific deployment
+   - Configuration management
+   - Deployment validation and rollback
 
 5. **Documentation Generator** (`docs/cx_docs_generator.sh`)
-    - API documentation generation
-    - Project status reporting
-    - Changelog generation and documentation validation
+   - API documentation generation
+   - Project status reporting
+   - Changelog generation and documentation validation
 
 # Installation
 
 1. Extract the zip file to your CarbonXchange project root directory:
 
-    ```
-    unzip carbonxchange_automation.zip -d /path/to/CarbonXchange/
-    ```
+   ```
+   unzip carbonxchange_automation.zip -d /path/to/CarbonXchange/
+   ```
 
 2. Make all scripts executable:
 
-    ```
-    chmod +x /path/to/CarbonXchange/carbonxchange_automation/*/*.sh
-    ```
+   ```
+   chmod +x /path/to/CarbonXchange/carbonxchange_automation/*/*.sh
+   ```
 
 # Usage
 

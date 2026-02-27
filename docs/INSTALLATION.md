@@ -275,9 +275,9 @@ docker run -d -p 6379:6379 redis:alpine
 ### Setting Up Web3 Provider
 
 1. **Create Infura Account** (or use Alchemy, QuickNode)
-    - Visit [Infura](https://infura.io/)
-    - Create a new project
-    - Copy the project ID
+   - Visit [Infura](https://infura.io/)
+   - Create a new project
+   - Copy the project ID
 
 2. **Configure Environment Variables**
 
@@ -309,10 +309,10 @@ npx truffle migrate --network polygon
 ```
 
 4. **Configure MetaMask**
-    - Install MetaMask browser extension
-    - Add Polygon network
-    - Import wallet or create new one
-    - Save private key to `.env` (for server operations only)
+   - Install MetaMask browser extension
+   - Add Polygon network
+   - Import wallet or create new one
+   - Save private key to `.env` (for server operations only)
 
 ## Verification
 
@@ -328,12 +328,12 @@ Expected output:
 
 ```json
 {
-    "status": "healthy",
-    "services": {
-        "database": "healthy",
-        "redis": "healthy",
-        "api": "healthy"
-    }
+  "status": "healthy",
+  "services": {
+    "database": "healthy",
+    "redis": "healthy",
+    "api": "healthy"
+  }
 }
 ```
 

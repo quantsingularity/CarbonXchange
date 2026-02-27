@@ -225,10 +225,10 @@ CORS_ORIGINS=*
 
 1. Ensure wallet has sufficient balance for gas
 2. Get testnet tokens from faucet (Mumbai):
-    - https://faucet.polygon.technology/
+   - https://faucet.polygon.technology/
 
 3. Reset nonce in MetaMask:
-    - Settings → Advanced → Reset Account
+   - Settings → Advanced → Reset Account
 
 4. Verify network configuration in `truffle-config.js`
 
@@ -385,10 +385,10 @@ If issues persist:
 2. Enable debug mode (development only): `DEBUG=true`
 3. Search GitHub Issues: https://github.com/quantsingularity/CarbonXchange/issues
 4. Create new issue with:
-    - Environment details (OS, Python/Node version)
-    - Error messages and stack traces
-    - Steps to reproduce
-    - Configuration (sanitize secrets)
+   - Environment details (OS, Python/Node version)
+   - Error messages and stack traces
+   - Steps to reproduce
+   - Configuration (sanitize secrets)
 
 ## Common Error Codes
 

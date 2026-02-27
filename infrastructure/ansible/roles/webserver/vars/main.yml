@@ -3,5 +3,5 @@
 webserver_app_name: carbonxchange
 webserver_worker_processes: auto
 webserver_worker_connections: 1024
-webserver_client_max_body_size: '10M'
+webserver_client_max_body_size: "10M"
 webserver_keepalive_timeout: 65
