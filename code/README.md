@@ -20,19 +20,6 @@ CarbonXchange/code/
 │   ├── tests/                             # Comprehensive test suite (>90% coverage)
 │   ├── docs/                              # Detailed API documentation
 │   └── requirements.txt                   # Python dependencies
-├── web-frontend/                          # React-based web application
-│   ├── src/
-│   │   ├── components/                    # Professional trading components
-│   │   │   ├── Dashboard/                 # Advanced trading dashboard
-│   │   │   ├── Analytics/                 # Market analytics and charts
-│   │   │   └── Trading/                   # Order management interface
-│   │   ├── pages/                         # Application pages with modern UX
-│   │   ├── hooks/                         # Custom React hooks for trading
-│   │   ├── utils/                         # Financial calculation utilities
-│   │   └── styles/                        # Tailwind CSS with custom design system
-│   ├── public/                            # Static assets and PWA configuration
-│   ├── package.json                       # Node.js dependencies
-│   └── tailwind.config.js                 # Custom Tailwind configuration
 ├── blockchain/                            # Smart contracts and blockchain integration
 │   ├── contracts/                         # Advanced Solidity smart contracts
 │   │   ├── AdvancedCarbonCreditToken.sol  # Token contract
@@ -58,16 +45,6 @@ CarbonXchange/code/
 - **API Documentation**: Flask-RESTX with OpenAPI/Swagger
 - **Testing**: pytest with comprehensive coverage
 - **Monitoring**: Prometheus metrics, structured logging
-
-### Frontend
-
-- **Framework**: React 18.2.0 with modern hooks
-- **Styling**: Tailwind CSS 3.3.6 with custom design system
-- **Charts**: Recharts, D3.js, Lightweight Charts for financial data visualization
-- **State Management**: Zustand with Immer for immutable updates
-- **Real-time**: Socket.IO client for WebSocket connections
-- **Testing**: Jest with React Testing Library
-- **Build**: Webpack 5 with optimization plugins
 
 ### Blockchain
 
@@ -97,7 +74,7 @@ CarbonXchange/code/
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/your-org/CarbonXchange.git
+   git clone https://github.com/QuantSingularity/CarbonXchange.git
    cd CarbonXchange/code
    ```
 
@@ -124,19 +101,7 @@ CarbonXchange/code/
    flask run --host=0.0.0.0 --port=8000
    ```
 
-3. **Frontend Setup**
-
-   ```bash
-   cd ../web-frontend
-
-   # Install dependencies
-   npm install
-
-   # Start development server
-   npm start
-   ```
-
-4. **Blockchain Setup** (Optional)
+3. **Blockchain Setup** (Optional)
 
    ```bash
    cd ../blockchain
