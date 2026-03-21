@@ -4,7 +4,7 @@
 [![Test Coverage](https://img.shields.io/badge/coverage-81%25-brightgreen)](https://github.com/quantsingularity/CarbonXchange/actions)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-## 🌿 Blockchain-Based Carbon Credit Trading Platform
+## Blockchain-Based Carbon Credit Trading Platform
 
 CarbonXchange is an innovative platform that leverages blockchain technology and artificial intelligence to revolutionize carbon credit trading, making it more transparent, efficient, and accessible for businesses and individuals.
 

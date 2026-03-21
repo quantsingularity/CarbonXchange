@@ -6,7 +6,7 @@ CarbonXchange is a comprehensive, institutional-grade carbon credit trading plat
 
 The code directory is the central repository for all source code in the CarbonXchange project, containing core components that power a comprehensive carbon credit trading and management platform. Each subdirectory represents a distinct component of the system architecture, designed to work together seamlessly.
 
-## 🏗️ Directory Structure
+## Directory Structure
 
 ```
 CarbonXchange/code/
@@ -34,7 +34,7 @@ CarbonXchange/code/
     └── data/                              # Training and validation data
 ```
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 ### Backend
 
@@ -59,7 +59,7 @@ CarbonXchange/code/
 - **Models**: LSTM networks, ARIMA time series, ensemble methods
 - **Features**: Price prediction, risk assessment, sentiment analysis
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 
@@ -116,7 +116,7 @@ CarbonXchange/code/
    npx hardhat run scripts/deploy.js --network localhost
    ```
 
-## 📊 Features
+## Features
 
 ### Advanced Trading Features
 
@@ -153,7 +153,7 @@ CarbonXchange/code/
 - **Order Management**: Sophisticated order entry with pre-trade risk checks
 - **Portfolio Analytics**: Performance attribution, risk decomposition, scenario analysis
 
-## 🧪 Testing & Quality Assurance
+## Testing & Quality Assurance
 
 ### Comprehensive Test Coverage
 
@@ -191,7 +191,7 @@ npm run test:integration
 - `GET /api/v1/analytics/trading-signals` - AI-powered trading signals
 - `GET /api/v1/market/depth/{symbol}` - Real-time order book data
 
-## 🔐 Enterprise Security Features
+## Enterprise Security Features
 
 ### Multi-Layer Security
 
