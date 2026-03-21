@@ -2,7 +2,7 @@
 
 This directory contains the mobile application for the CarbonXchange platform, designed to provide users with on-the-go access to carbon credit trading, market data, and portfolio management.
 
-## 🚀 Technology Stack
+## Technology Stack
 
 The mobile application is built using the following core technologies:
 
@@ -17,7 +17,7 @@ The mobile application is built using the following core technologies:
 | **Security**         | **Expo SecureStore**       | Used for securely storing sensitive data like the user's JWT token on the device.                            |
 | **Charting**         | **react-native-chart-kit** | Used for displaying data visualizations, such as market trends.                                              |
 
-## 📁 Directory Structure
+## Directory Structure
 
 The application follows a standard structure for a React Native/Expo project, with a clear separation of concerns:
 
@@ -39,7 +39,7 @@ mobile-frontend/
 └── index.js                # Entry point for the React Native application
 ```
 
-## ⚙️ Setup and Installation
+## Setup and Installation
 
 To set up the project locally, you must have Node.js and Expo CLI installed.
 
@@ -66,7 +66,7 @@ To set up the project locally, you must have Node.js and Expo CLI installed.
     ```
     You will need to update this `API_BASE_URL` to point to your running backend server's IP address or domain. For development on a physical device, `localhost` will not work; you must use your computer's local network IP address (e.g., `http://192.168.1.x:3000/api/v1`).
 
-## ▶️ Available Scripts
+## Available Scripts
 
 In the project directory, you can run the following scripts using the Expo CLI:
 
@@ -79,13 +79,13 @@ In the project directory, you can run the following scripts using the Expo CLI:
 | **Run Tests**         | `npm test`                  | Executes unit and integration tests using Jest.                                                                             |
 | **Lint Code**         | `npm run lint`              | Runs ESLint to check for code quality and style issues.                                                                     |
 
-## 🔒 Authentication and State Management
+## Authentication and State Management
 
 - **Authentication Flow:** The application uses `App.js` to determine the initial navigation stack. It checks for a stored `userToken` using `expo-secure-store`. If a token is found, the user is directed to the `AppNavigator` (main screens); otherwise, they are directed to the `AuthNavigator` (login/register screens).
 - **State Management:** **Redux Toolkit** is used to manage global state. The `authSlice` handles user login, registration, and logout, storing the user object and JWT token.
 - **API Security:** The `src/services/api.js` file includes an **Axios interceptor** that automatically attaches the JWT token (retrieved from SecureStore) as a `Bearer` token in the `Authorization` header for all authenticated API requests.
 
-## 📱 Key Features and Screens
+## Key Features and Screens
 
 The application is structured around several key functional areas:
 
