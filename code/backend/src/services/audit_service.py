@@ -394,7 +394,7 @@ class AuditService:
                 and_(
                     UserAuditLog.user_id == user_id,
                     UserAuditLog.created_at >= start_date,
-                    UserAuditLog.success == False,
+                    not UserAuditLog.success,
                 )
             ).count()
             recent_events = (
@@ -464,7 +464,7 @@ class AuditService:
                     or_(
                         UserAuditLog.event_category.in_(security_categories),
                         UserAuditLog.event_type.in_(security_event_types),
-                        UserAuditLog.success == False,
+                        not UserAuditLog.success,
                     ),
                 )
             )

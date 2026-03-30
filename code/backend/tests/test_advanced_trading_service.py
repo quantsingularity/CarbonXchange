@@ -88,7 +88,7 @@ class TestAdvancedTradingService:
             with patch.object(
                 trading_service, "_get_current_price", return_value=Decimal("85.50")
             ):
-                with patch("src.models.db.session") as mock_session:
+                with patch("src.models.db.session"):
                     child_orders = trading_service.execute_vwap_order(
                         user_id=mock_user.id,
                         symbol="CARBON_CREDIT_A",
@@ -108,7 +108,7 @@ class TestAdvancedTradingService:
         with patch.object(
             trading_service, "_get_current_price", return_value=Decimal("85.50")
         ):
-            with patch("src.models.db.session") as mock_session:
+            with patch("src.models.db.session"):
                 iceberg_order = trading_service.execute_iceberg_order(
                     user_id=mock_user.id,
                     symbol="CARBON_CREDIT_A",
@@ -322,7 +322,7 @@ class TestAdvancedTradingService:
         with patch.object(
             trading_service, "_get_current_price", return_value=Decimal("85.50")
         ):
-            with patch("src.models.db.session") as mock_session:
+            with patch("src.models.db.session"):
                 orders1 = trading_service.execute_twap_order(
                     user_id=mock_user.id,
                     symbol="CARBON_CREDIT_A",

@@ -56,7 +56,7 @@ def create_app(config_name: Optional[str] = None) -> Flask:
     try:
         redis_client = redis.from_url(app.config["RATELIMIT_STORAGE_URL"])
         redis_client.ping()  # Test connection
-        limiter = Limiter(
+        Limiter(
             get_remote_address,
             app=app,
             storage_uri=app.config["RATELIMIT_STORAGE_URL"],
@@ -66,7 +66,7 @@ def create_app(config_name: Optional[str] = None) -> Flask:
     except Exception as e:
         logger.warning(f"Redis not available for rate limiting: {e}")
         # Disable rate limiting when Redis is not available
-        limiter = Limiter(
+        Limiter(
             get_remote_address,
             app=app,
             default_limits=[],  # Empty list disables rate limiting

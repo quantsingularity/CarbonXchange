@@ -517,7 +517,7 @@ class AuthService:
             if not user:
                 return True
             reset_token = secrets.token_urlsafe(32)
-            reset_expires = datetime.utcnow() + timedelta(hours=1)
+            datetime.utcnow() + timedelta(hours=1)
             if self.redis_client:
                 self.redis_client.setex(f"password_reset:{reset_token}", 3600, user.id)
             self.audit_service.log_event(

@@ -298,7 +298,7 @@ class AdvancedForecastingModel:
             logger.info(f"Training {model_name}...")
             start_time = datetime.now()
             try:
-                cv_scores = cross_val_score(
+                cross_val_score(
                     model, X_selected, y, cv=tscv, scoring="neg_mean_squared_error"
                 )
                 model.fit(X_selected, y)

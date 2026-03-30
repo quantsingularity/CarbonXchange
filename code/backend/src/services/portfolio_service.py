@@ -370,7 +370,7 @@ class PortfolioService:
                 user_id=portfolio.user_id,
                 event_type="portfolio_rebalance",
                 event_category="portfolio",
-                event_description=f"Portfolio rebalancing initiated",
+                event_description="Portfolio rebalancing initiated",
                 metadata={
                     "portfolio_id": portfolio_id,
                     "trades_count": len(execution_results),

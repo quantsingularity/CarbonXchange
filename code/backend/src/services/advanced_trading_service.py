@@ -102,7 +102,7 @@ class AdvancedTradingService:
             child_orders = []
             current_time = datetime.now(timezone.utc)
             for i in range(num_orders):
-                execution_time = current_time + timedelta(minutes=i * interval_minutes)
+                current_time + timedelta(minutes=i * interval_minutes)
                 current_price = self._get_current_price(symbol)
                 if not current_price:
                     logger.error(f"Unable to get price for {symbol}")
