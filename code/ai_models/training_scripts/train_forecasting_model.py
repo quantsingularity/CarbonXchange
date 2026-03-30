@@ -3,9 +3,13 @@ import os
 import pandas as pd
 from joblib import dump
 from sklearn.ensemble import RandomForestRegressor
-from core.logging import get_logger
+import logging
 
-logger = get_logger(__name__)
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
+logger = logging.getLogger(__name__)
 
 
 def train_model() -> Any:
