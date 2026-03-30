@@ -144,7 +144,7 @@ class User(db.Model):
 
     def __init__(
         self, email: Any, password: Any, first_name: Any, last_name: Any, **kwargs
-    ) -> Any:
+    ) -> None:
         self.email = email.lower().strip()
         self.set_password(password)
         self.first_name = first_name.strip()

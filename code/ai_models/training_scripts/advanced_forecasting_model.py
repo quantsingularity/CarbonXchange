@@ -74,7 +74,7 @@ class ForecastResult:
 class FeatureEngineer:
     """Advanced feature engineering for carbon credit price prediction"""
 
-    def __init__(self) -> Any:
+    def __init__(self) -> None:
         self.scalers = {}
         self.feature_names = []
 
@@ -183,7 +183,7 @@ class FeatureEngineer:
 class AdvancedForecastingModel:
     """Advanced forecasting model with multiple algorithms"""
 
-    def __init__(self) -> Any:
+    def __init__(self) -> None:
         self.models = {}
         self.scalers = {}
         self.feature_engineer = FeatureEngineer()
