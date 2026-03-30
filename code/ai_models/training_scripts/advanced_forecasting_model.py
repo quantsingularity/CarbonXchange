@@ -10,7 +10,7 @@ import os
 import warnings
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from typing import Dict, List, Tuple
+from typing import Any, Dict, List, Tuple
 import joblib
 import numpy as np
 import pandas as pd
