@@ -9,14 +9,13 @@ from datetime import datetime, timezone
 from enum import Enum
 from typing import Any
 
-from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Boolean, Column, DateTime
 from sqlalchemy import Enum as SQLEnum
 from sqlalchemy import ForeignKey, Integer, Numeric, String, Text
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
 
-db = SQLAlchemy()
+from . import db
 
 
 class ComplianceStatus(Enum):

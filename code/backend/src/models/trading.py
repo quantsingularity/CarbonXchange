@@ -9,14 +9,13 @@ from decimal import Decimal
 from enum import Enum
 from typing import Any
 
-from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Boolean, Column, DateTime
 from sqlalchemy import Enum as SQLEnum
 from sqlalchemy import ForeignKey, Integer, Numeric, String, Text
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
 
-db = SQLAlchemy()
+from . import db
 
 
 class OrderType(Enum):
@@ -114,7 +113,18 @@ class Order(db.Model):
     closed_at = Column(DateTime, nullable=True)
     user = relationship("User", back_populates="orders")
     project = relationship("CarbonProject")
-    trades = relationship("Trade", back_populates="order", cascade="all, delete-orphan")
+    buy_trades = relationship(
+        "Trade",
+        foreign_keys="Trade.buy_order_id",
+        back_populates="buy_order",
+        cascade="all, delete-orphan",
+    )
+    sell_trades = relationship(
+        "Trade",
+        foreign_keys="Trade.sell_order_id",
+        back_populates="sell_order",
+        cascade="all, delete-orphan",
+    )
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
@@ -275,10 +285,10 @@ class Trade(db.Model):
         DateTime, nullable=False, default=lambda: datetime.now(timezone.utc)
     )
     buy_order = relationship(
-        "Order", foreign_keys=[buy_order_id], back_populates="trades"
+        "Order", foreign_keys=[buy_order_id], back_populates="buy_trades"
     )
     sell_order = relationship(
-        "Order", foreign_keys=[sell_order_id], back_populates="trades"
+        "Order", foreign_keys=[sell_order_id], back_populates="sell_trades"
     )
     credit = relationship("CarbonCredit")
     project = relationship("CarbonProject")

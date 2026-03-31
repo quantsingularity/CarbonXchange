@@ -223,7 +223,7 @@ class ComplianceService:
     def _check_trading_hours_compliance(self) -> List[Dict[str, Any]]:
         """Check trading hours compliance"""
         violations = []
-        current_time = datetime.utcnow()
+        current_time = datetime.now(timezone.utc)
         current_day = current_time.strftime("%A").lower()
         current_hour_minute = current_time.strftime("%H:%M")
         if current_day not in self.trading_hours["trading_days"]:
@@ -328,7 +328,7 @@ class ComplianceService:
         """Check for wash trading patterns"""
         violations = []
         try:
-            recent_window = datetime.utcnow() - timedelta(
+            recent_window = datetime.now(timezone.utc) - timedelta(
                 seconds=self.compliance_rules["wash_trading_detection_window"]
             )
             opposite_side = "sell" if order_data.get("side") == "buy" else "buy"
@@ -360,7 +360,7 @@ class ComplianceService:
         """Check transaction velocity limits"""
         violations = []
         try:
-            one_hour_ago = datetime.utcnow() - timedelta(hours=1)
+            one_hour_ago = datetime.now(timezone.utc) - timedelta(hours=1)
             hourly_orders = (
                 db.session.query(func.count(Order.id))
                 .filter(Order.user_id == user_id, Order.created_at >= one_hour_ago)
@@ -374,7 +374,7 @@ class ComplianceService:
                         "blocking": True,
                     }
                 )
-            today = datetime.utcnow().date()
+            today = datetime.now(timezone.utc).date()
             daily_orders = (
                 db.session.query(func.count(Order.id))
                 .filter(Order.user_id == user_id, func.date(Order.created_at) == today)
@@ -480,7 +480,7 @@ class ComplianceService:
                 "aml": aml_status,
                 "trading": trading_compliance,
                 "recent_issues": recent_issues,
-                "last_assessment": datetime.utcnow().isoformat(),
+                "last_assessment": datetime.now(timezone.utc).isoformat(),
             }
         except Exception as e:
             logger.error(f"Error getting user compliance status: {str(e)}")
@@ -512,7 +512,7 @@ class ComplianceService:
 
     def _get_recent_user_orders(self, user_id: int, minutes: int = 30) -> List[Order]:
         """Get user's recent orders"""
-        cutoff_time = datetime.utcnow() - timedelta(minutes=minutes)
+        cutoff_time = datetime.now(timezone.utc) - timedelta(minutes=minutes)
         return (
             db.session.query(Order)
             .filter(Order.user_id == user_id, Order.created_at >= cutoff_time)
@@ -521,7 +521,7 @@ class ComplianceService:
 
     def _get_daily_trading_volume(self, user_id: int) -> Decimal:
         """Get user's trading volume for today"""
-        today = datetime.utcnow().date()
+        today = datetime.now(timezone.utc).date()
         volume = (
             db.session.query(func.sum(Trade.total_value))
             .join(
@@ -538,7 +538,7 @@ class ComplianceService:
 
     def _get_daily_transaction_count(self, user_id: int) -> int:
         """Get user's transaction count for today"""
-        today = datetime.utcnow().date()
+        today = datetime.now(timezone.utc).date()
         count = (
             db.session.query(func.count(Order.id))
             .filter(Order.user_id == user_id, func.date(Order.created_at) == today)
@@ -548,7 +548,7 @@ class ComplianceService:
 
     def _get_user_average_order_value(self, user_id: int) -> Decimal:
         """Get user's average order value over last 30 days"""
-        thirty_days_ago = datetime.utcnow() - timedelta(days=30)
+        thirty_days_ago = datetime.now(timezone.utc) - timedelta(days=30)
         avg_value = (
             db.session.query(func.avg(Trade.total_value))
             .join(
@@ -590,7 +590,7 @@ class ComplianceService:
         }
         score += risk_scores.get(user.risk_level.value, 0)
         if user.created_at:
-            days_active = (datetime.utcnow() - user.created_at).days
+            days_active = (datetime.now(timezone.utc) - user.created_at).days
             if days_active > 365:
                 score += 20
             elif days_active > 90:

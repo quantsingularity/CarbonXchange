@@ -15,7 +15,8 @@ import redis
 from flask import current_app, request
 from sqlalchemy import text
 from sqlalchemy.orm import Query
-from src.models import db
+
+from .models import db
 
 logger = logging.getLogger(__name__)
 

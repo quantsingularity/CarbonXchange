@@ -210,9 +210,9 @@ class AuthService:
                         error_message="Invalid MFA code",
                     )
                     raise AuthenticationError("Invalid MFA code")
-            user.last_login_at = datetime.utcnow()
+            user.last_login_at = datetime.now(timezone.utc)
             user.last_login_ip = self._get_client_ip()
-            user.last_activity_at = datetime.utcnow()
+            user.last_activity_at = datetime.now(timezone.utc)
             user.failed_login_attempts = 0
             access_token = self._create_access_token(user)
             refresh_token = self._create_refresh_token(user)
@@ -272,11 +272,12 @@ class AuthService:
             new_refresh_token = self._create_refresh_token(user)
             session.session_token = self._generate_session_token()
             session.refresh_token = new_refresh_token
-            session.last_activity_at = datetime.utcnow()
+            session.last_activity_at = datetime.now(timezone.utc)
             session.expires_at = (
-                datetime.utcnow() + current_app.config["JWT_REFRESH_TOKEN_EXPIRES"]
+                datetime.now(timezone.utc)
+                + current_app.config["JWT_REFRESH_TOKEN_EXPIRES"]
             )
-            user.last_activity_at = datetime.utcnow()
+            user.last_activity_at = datetime.now(timezone.utc)
             db.session.commit()
             self.audit_service.log_event(
                 user_id=user.id,
@@ -519,7 +520,7 @@ class AuthService:
             if not user:
                 return True
             reset_token = secrets.token_urlsafe(32)
-            datetime.utcnow() + timedelta(hours=1)
+            datetime.now(timezone.utc) + timedelta(hours=1)
             if self.redis_client:
                 self.redis_client.setex(f"password_reset:{reset_token}", 3600, user.id)
             self.audit_service.log_event(
@@ -664,7 +665,7 @@ class AuthService:
             device_fingerprint=self._get_device_fingerprint(),
             user_agent=request.headers.get("User-Agent", ""),
             ip_address=self._get_client_ip(),
-            expires_at=datetime.utcnow()
+            expires_at=datetime.now(timezone.utc)
             + current_app.config["JWT_REFRESH_TOKEN_EXPIRES"],
         )
         db.session.add(session)

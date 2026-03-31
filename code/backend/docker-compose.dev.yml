@@ -1,0 +1,34 @@
+version: "3.9"
+# Development overrides - use with:
+# docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+
+services:
+  backend:
+    environment:
+      FLASK_ENV: development
+      LOG_LEVEL: DEBUG
+    volumes:
+      - ./src:/app/src:ro
+      - ./logs:/app/logs
+      - ./uploads:/app/uploads
+    command: >
+      gunicorn
+      --bind 0.0.0.0:5000
+      --workers 1
+      --worker-class gevent
+      --reload
+      --log-level debug
+      src.main:app
+
+  postgres:
+    ports:
+      - "5432:5432"
+
+  redis:
+    ports:
+      - "6379:6379"
+
+  # Disable nginx in dev
+  nginx:
+    profiles:
+      - production

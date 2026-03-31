@@ -9,19 +9,16 @@ from datetime import datetime, timezone
 from enum import Enum
 from typing import Any
 
-from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Boolean, Column, DateTime
 from sqlalchemy import Enum as SQLEnum
 from sqlalchemy import ForeignKey, Integer, Numeric, String, Text
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
 
-db = SQLAlchemy()
+from . import db
 
 
 class TransactionType(Enum):
-    """Transaction type enumeration"""
-
     DEPOSIT = "deposit"
     WITHDRAWAL = "withdrawal"
     TRADE_BUY = "trade_buy"
@@ -36,8 +33,6 @@ class TransactionType(Enum):
 
 
 class TransactionStatus(Enum):
-    """Transaction status enumeration"""
-
     PENDING = "pending"
     PROCESSING = "processing"
     COMPLETED = "completed"
@@ -47,8 +42,6 @@ class TransactionStatus(Enum):
 
 
 class PaymentMethod(Enum):
-    """Payment method enumeration"""
-
     BANK_TRANSFER = "bank_transfer"
     CREDIT_CARD = "credit_card"
     DEBIT_CARD = "debit_card"
@@ -58,8 +51,6 @@ class PaymentMethod(Enum):
 
 
 class AuditAction(Enum):
-    """Audit action enumeration"""
-
     CREATE = "create"
     READ = "read"
     UPDATE = "update"
@@ -86,7 +77,7 @@ class Transaction(db.Model):
     transaction_id = Column(String(50), unique=True, nullable=False)
     reference_id = Column(String(100), nullable=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    transaction_type: "Column[Any]" = Column(SQLEnum(TransactionType), nullable=False)
+    transaction_type = Column(SQLEnum(TransactionType), nullable=False)
     status = Column(
         SQLEnum(TransactionStatus), nullable=False, default=TransactionStatus.PENDING
     )
@@ -98,7 +89,7 @@ class Transaction(db.Model):
     credit_price = Column(Numeric(10, 4), nullable=True)
     project_id = Column(Integer, ForeignKey("carbon_projects.id"), nullable=True)
     vintage_year = Column(Integer, nullable=True)
-    payment_method: "Column[Any]" = Column(SQLEnum(PaymentMethod), nullable=True)
+    payment_method = Column(SQLEnum(PaymentMethod), nullable=True)
     payment_reference = Column(String(100), nullable=True)
     payment_processor = Column(String(100), nullable=True)
     counterparty_id = Column(Integer, ForeignKey("users.id"), nullable=True)
@@ -145,65 +136,60 @@ class Transaction(db.Model):
         super().__init__(**kwargs)
         if not self.transaction_id:
             self.transaction_id = f"TXN-{datetime.now().strftime('%Y%m%d')}-{str(uuid.uuid4())[:8].upper()}"
-        self.net_amount = self.amount - self.fee_amount
+        if self.amount is not None and self.fee_amount is not None:
+            self.net_amount = self.amount - self.fee_amount
+        elif self.amount is not None:
+            self.net_amount = self.amount
 
     @hybrid_property
-    def is_completed(self) -> Any:
-        """Check if transaction is completed"""
+    def is_completed(self) -> bool:
         return self.status == TransactionStatus.COMPLETED
 
     @hybrid_property
-    def is_pending(self) -> Any:
-        """Check if transaction is pending"""
+    def is_pending(self) -> bool:
         return self.status == TransactionStatus.PENDING
 
     @hybrid_property
-    def is_failed(self) -> Any:
-        """Check if transaction is failed"""
+    def is_failed(self) -> bool:
         return self.status == TransactionStatus.FAILED
 
     @hybrid_property
-    def involves_carbon_credits(self) -> Any:
-        """Check if transaction involves carbon credits"""
+    def involves_carbon_credits(self) -> bool:
         return self.credit_quantity is not None and self.credit_quantity > 0
 
     @hybrid_property
     def processing_time_minutes(self) -> Any:
-        """Get processing time in minutes"""
         if self.processed_at and self.created_at:
             delta = self.processed_at - self.created_at
             return delta.total_seconds() / 60
         return None
 
-    def complete(self, settlement_reference: Any = None) -> Any:
-        """Mark transaction as completed"""
+    def complete(self, settlement_reference: Any = None) -> None:
         self.status = TransactionStatus.COMPLETED
         self.completed_at = datetime.now(timezone.utc)
         if settlement_reference:
             self.settlement_reference = settlement_reference
 
-    def fail(self, reason: Any = None) -> Any:
-        """Mark transaction as failed"""
+    def fail(self, reason: Any = None) -> None:
         self.status = TransactionStatus.FAILED
         self.processed_at = datetime.now(timezone.utc)
         if reason:
             self.notes = f"{self.notes or ''}\nFailed: {reason}".strip()
 
-    def add_metadata(self, key: Any, value: Any) -> Any:
-        """Add metadata to transaction"""
-        metadata = json.loads(self.metadata) if self.metadata else {}
+    def add_metadata(self, key: Any, value: Any) -> None:
+        metadata = (
+            json.loads(self.transaction_metadata) if self.transaction_metadata else {}
+        )
         metadata[key] = value
-        self.metadata = json.dumps(metadata)
+        self.transaction_metadata = json.dumps(metadata)
 
     def get_metadata(self, key: Any, default: Any = None) -> Any:
-        """Get metadata value"""
-        if not self.metadata:
+        if not self.transaction_metadata:
             return default
-        metadata = json.loads(self.metadata)
+        metadata = json.loads(self.transaction_metadata)
         return metadata.get(key, default)
 
-    def to_dict(self, include_sensitive: Any = False) -> Any:
-        """Convert transaction to dictionary"""
+    def to_dict(self, include_sensitive: bool = False) -> dict:
         data = {
             "id": self.id,
             "uuid": self.uuid,
@@ -244,12 +230,16 @@ class Transaction(db.Model):
                     "aml_checked": self.aml_checked,
                     "sanctions_checked": self.sanctions_checked,
                     "notes": self.notes,
-                    "metadata": self.metadata,
+                    "metadata": (
+                        json.loads(self.transaction_metadata)
+                        if self.transaction_metadata
+                        else None
+                    ),
                 }
             )
         return data
 
-    def __repr__(self) -> Any:
+    def __repr__(self) -> str:
         return f"<Transaction {self.transaction_id} - {self.transaction_type.value} {self.amount} {self.currency}>"
 
 
@@ -278,14 +268,12 @@ class TransactionLog(db.Model):
     transaction = relationship("Transaction", back_populates="logs")
     user = relationship("User")
 
-    def add_field_change(self, field_name: Any, old_value: Any, new_value: Any) -> Any:
-        """Add field change to log"""
+    def add_field_change(self, field_name: Any, old_value: Any, new_value: Any) -> None:
         changes = json.loads(self.field_changes) if self.field_changes else {}
         changes[field_name] = {"old": old_value, "new": new_value}
         self.field_changes = json.dumps(changes)
 
-    def to_dict(self) -> Any:
-        """Convert log to dictionary"""
+    def to_dict(self) -> dict:
         return {
             "id": self.id,
             "uuid": self.uuid,
@@ -300,7 +288,7 @@ class TransactionLog(db.Model):
             "created_at": self.created_at.isoformat(),
         }
 
-    def __repr__(self) -> Any:
+    def __repr__(self) -> str:
         return f"<TransactionLog {self.transaction_id} - {self.action}>"
 
 
@@ -314,7 +302,7 @@ class AuditLog(db.Model):
     )
     user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     session_id = Column(String(100), nullable=True)
-    action: "Column[Any]" = Column(SQLEnum(AuditAction), nullable=False)
+    action = Column(SQLEnum(AuditAction), nullable=False)
     resource_type = Column(String(100), nullable=False)
     resource_id = Column(String(100), nullable=True)
     event_name = Column(String(255), nullable=False)
@@ -342,37 +330,33 @@ class AuditLog(db.Model):
     user = relationship("User")
 
     @hybrid_property
-    def is_high_risk(self) -> Any:
-        """Check if this is a high-risk event"""
+    def is_high_risk(self) -> bool:
         return self.risk_level in ["high", "critical"]
 
     @hybrid_property
-    def is_successful(self) -> Any:
-        """Check if the action was successful"""
+    def is_successful(self) -> bool:
         return self.outcome == "success"
 
-    def add_compliance_flag(self, flag: Any) -> Any:
-        """Add compliance flag"""
+    def add_compliance_flag(self, flag: Any) -> None:
         flags = json.loads(self.compliance_flags) if self.compliance_flags else []
         if flag not in flags:
             flags.append(flag)
             self.compliance_flags = json.dumps(flags)
 
-    def add_tag(self, tag: Any) -> Any:
-        """Add tag to audit log"""
+    def add_tag(self, tag: Any) -> None:
         tags = json.loads(self.tags) if self.tags else []
         if tag not in tags:
             tags.append(tag)
             self.tags = json.dumps(tags)
 
-    def add_metadata(self, key: Any, value: Any) -> Any:
-        """Add metadata to audit log"""
-        metadata = json.loads(self.metadata) if self.metadata else {}
+    def add_metadata(self, key: Any, value: Any) -> None:
+        metadata = (
+            json.loads(self.transaction_metadata) if self.transaction_metadata else {}
+        )
         metadata[key] = value
-        self.metadata = json.dumps(metadata)
+        self.transaction_metadata = json.dumps(metadata)
 
-    def to_dict(self, include_sensitive: Any = False) -> Any:
-        """Convert audit log to dictionary"""
+    def to_dict(self, include_sensitive: bool = False) -> dict:
         data = {
             "id": self.id,
             "uuid": self.uuid,
@@ -406,7 +390,11 @@ class AuditLog(db.Model):
                         if self.compliance_flags
                         else None
                     ),
-                    "metadata": json.loads(self.metadata) if self.metadata else None,
+                    "metadata": (
+                        json.loads(self.transaction_metadata)
+                        if self.transaction_metadata
+                        else None
+                    ),
                     "tags": json.loads(self.tags) if self.tags else None,
                 }
             )
@@ -414,19 +402,18 @@ class AuditLog(db.Model):
 
     @classmethod
     def log_event(
-        cls: Any,
-        user_id: Any,
-        action: Any,
-        resource_type: Any,
-        event_name: Any,
-        resource_id: Any = None,
-        description: Any = None,
-        outcome: Any = "success",
-        risk_level: Any = "low",
-        ip_address: Any = None,
+        cls,
+        user_id,
+        action,
+        resource_type,
+        event_name,
+        resource_id=None,
+        description=None,
+        outcome="success",
+        risk_level="low",
+        ip_address=None,
         **kwargs,
-    ) -> Any:
-        """Create audit log entry"""
+    ):
         log = cls(
             user_id=user_id,
             action=action,
@@ -445,7 +432,7 @@ class AuditLog(db.Model):
                 log.add_metadata(key, value)
         return log
 
-    def __repr__(self) -> Any:
+    def __repr__(self) -> str:
         return (
             f"<AuditLog {self.event_name} - {self.action.value} {self.resource_type}>"
         )

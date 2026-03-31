@@ -4,11 +4,11 @@ Implements comprehensive audit logging for financial industry compliance
 """
 
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional
 
 from flask import current_app, request
-from sqlalchemy import and_, desc, or_
+from sqlalchemy import and_, desc
 
 from ..models import db
 from ..models.user import UserAuditLog
@@ -40,25 +40,7 @@ class AuditService:
         success: bool = True,
         error_message: Optional[str] = None,
     ) -> bool:
-        """
-        Log audit event with comprehensive context
-
-        Args:
-            event_type: Type of event (e.g., 'login', 'trade_executed', 'kyc_approved')
-            event_category: Category of event (e.g., 'authentication', 'trading', 'compliance')
-            event_description: Human-readable description of the event
-            user_id: ID of the user who performed the action (optional for system events)
-            ip_address: IP address of the client
-            session_id: Session identifier
-            old_values: Previous values for change events
-            new_values: New values for change events
-            metadata: Additional event metadata
-            success: Whether the event was successful
-            error_message: Error message if event failed
-
-        Returns:
-            True if audit log created successfully
-        """
+        """Log audit event with comprehensive context"""
         if not self.enabled:
             return True
         try:
@@ -77,487 +59,122 @@ class AuditService:
                 session_id=session_id,
                 old_values=old_values,
                 new_values=new_values,
-                metadata=metadata,
+                event_metadata=metadata,
                 success=success,
                 error_message=error_message,
             )
             db.session.add(audit_log)
             db.session.commit()
-            log_level = logging.INFO if success else logging.WARNING
-            logger.log(
-                log_level,
-                f"AUDIT: {event_category}.{event_type} - {event_description} (User: {user_id}, IP: {ip_address}, Success: {success})",
-            )
             return True
         except Exception as e:
-            logger.error(f"Failed to create audit log: {str(e)}")
+            logger.error(f"Failed to log audit event: {e}")
+            db.session.rollback()
             return False
 
-    def log_authentication_event(
+    def log_authentication(
         self,
-        event_type: str,
+        email: str,
+        success: bool,
+        ip_address: Optional[str] = None,
         user_id: Optional[int] = None,
-        email: Optional[str] = None,
-        success: bool = True,
         error_message: Optional[str] = None,
         metadata: Optional[Dict] = None,
     ) -> bool:
-        """
-        Log authentication-related events
-
-        Args:
-            event_type: Type of authentication event
-            user_id: User ID (if available)
-            email: User email (for failed attempts where user_id might not be available)
-            success: Whether the authentication was successful
-            error_message: Error message for failed attempts
-            metadata: Additional metadata
-
-        Returns:
-            True if audit log created successfully
-        """
-        description = f"Authentication event: {event_type}"
-        if email:
-            description += f" for {email}"
+        """Log authentication events"""
         event_metadata = metadata or {}
-        if email and (not user_id):
+        if email:
             event_metadata["email"] = email
         return self.log_event(
-            event_type=event_type,
-            event_category="authentication",
-            event_description=description,
+            event_type="authentication",
+            event_category="security",
+            event_description=f"Authentication {'successful' if success else 'failed'} for {email}",
             user_id=user_id,
+            ip_address=ip_address,
+            metadata=event_metadata,
             success=success,
             error_message=error_message,
-            metadata=event_metadata,
         )
 
-    def log_trading_event(
+    def log_data_access(
         self,
-        event_type: str,
-        user_id: int,
-        trade_data: Dict,
-        success: bool = True,
-        error_message: Optional[str] = None,
+        table_name: str,
+        record_id: Any,
+        action: str,
+        user_id: Optional[int] = None,
+        sanitized_data: Optional[Dict] = None,
+        metadata: Optional[Dict] = None,
     ) -> bool:
-        """
-        Log trading-related events
-
-        Args:
-            event_type: Type of trading event
-            user_id: User ID who performed the trade
-            trade_data: Trading data (order details, execution details, etc.)
-            success: Whether the trading operation was successful
-            error_message: Error message for failed operations
-
-        Returns:
-            True if audit log created successfully
-        """
-        sanitized_data = self._sanitize_trading_data(trade_data)
-        description = f"Trading event: {event_type}"
-        if "order_id" in sanitized_data:
-            description += f" (Order: {sanitized_data['order_id']})"
+        """Log data access events"""
         return self.log_event(
-            event_type=event_type,
-            event_category="trading",
-            event_description=description,
+            event_type=f"data_{action}",
+            event_category="data_access",
+            event_description=f"{action.capitalize()} operation on {table_name} record {record_id}",
             user_id=user_id,
-            success=success,
-            error_message=error_message,
-            metadata=sanitized_data,
+            metadata={
+                "table_name": table_name,
+                "record_id": record_id,
+                **(metadata or {}),
+            },
+            new_values=sanitized_data,
         )
 
     def log_compliance_event(
         self,
         event_type: str,
+        description: str,
         user_id: Optional[int] = None,
         compliance_data: Optional[Dict] = None,
-        success: bool = True,
-        error_message: Optional[str] = None,
     ) -> bool:
-        """
-        Log compliance-related events
-
-        Args:
-            event_type: Type of compliance event
-            user_id: User ID (if applicable)
-            compliance_data: Compliance-related data
-            success: Whether the compliance check was successful
-            error_message: Error message for failed checks
-
-        Returns:
-            True if audit log created successfully
-        """
-        description = f"Compliance event: {event_type}"
+        """Log compliance-related events"""
         return self.log_event(
             event_type=event_type,
             event_category="compliance",
             event_description=description,
             user_id=user_id,
-            success=success,
-            error_message=error_message,
             metadata=compliance_data,
         )
 
-    def log_kyc_event(
+    def get_user_audit_trail(
         self,
-        event_type: str,
         user_id: int,
-        kyc_data: Dict,
-        success: bool = True,
-        error_message: Optional[str] = None,
-    ) -> bool:
-        """
-        Log KYC-related events
-
-        Args:
-            event_type: Type of KYC event
-            user_id: User ID
-            kyc_data: KYC-related data
-            success: Whether the KYC operation was successful
-            error_message: Error message for failed operations
-
-        Returns:
-            True if audit log created successfully
-        """
-        sanitized_data = self._sanitize_kyc_data(kyc_data)
-        description = f"KYC event: {event_type}"
-        if "verification_level" in sanitized_data:
-            description += f" (Level: {sanitized_data['verification_level']})"
-        return self.log_event(
-            event_type=event_type,
-            event_category="kyc",
-            event_description=description,
-            user_id=user_id,
-            success=success,
-            error_message=error_message,
-            metadata=sanitized_data,
-        )
-
-    def log_data_change(
-        self,
-        event_type: str,
-        user_id: int,
-        table_name: str,
-        record_id: int,
-        old_values: Dict,
-        new_values: Dict,
-        success: bool = True,
-        error_message: Optional[str] = None,
-    ) -> bool:
-        """
-        Log data change events for audit trail
-
-        Args:
-            event_type: Type of data change event
-            user_id: User ID who made the change
-            table_name: Name of the database table
-            record_id: ID of the record that was changed
-            old_values: Previous values
-            new_values: New values
-            success: Whether the change was successful
-            error_message: Error message for failed changes
-
-        Returns:
-            True if audit log created successfully
-        """
-        description = f"Data change: {event_type} in {table_name} (ID: {record_id})"
-        sanitized_old = self._sanitize_data_values(old_values)
-        sanitized_new = self._sanitize_data_values(new_values)
-        metadata = {"table_name": table_name, "record_id": record_id}
-        return self.log_event(
-            event_type=event_type,
-            event_category="data_change",
-            event_description=description,
-            user_id=user_id,
-            old_values=sanitized_old,
-            new_values=sanitized_new,
-            metadata=metadata,
-            success=success,
-            error_message=error_message,
-        )
-
-    def log_system_event(
-        self,
-        event_type: str,
-        event_description: str,
-        metadata: Optional[Dict] = None,
-        success: bool = True,
-        error_message: Optional[str] = None,
-    ) -> bool:
-        """
-        Log system-level events
-
-        Args:
-            event_type: Type of system event
-            event_description: Description of the system event
-            metadata: Additional metadata
-            success: Whether the system operation was successful
-            error_message: Error message for failed operations
-
-        Returns:
-            True if audit log created successfully
-        """
-        return self.log_event(
-            event_type=event_type,
-            event_category="system",
-            event_description=event_description,
-            user_id=None,
-            metadata=metadata,
-            success=success,
-            error_message=error_message,
-        )
-
-    def get_audit_logs(
-        self,
-        user_id: Optional[int] = None,
-        event_category: Optional[str] = None,
-        event_type: Optional[str] = None,
-        start_date: Optional[datetime] = None,
-        end_date: Optional[datetime] = None,
-        success: Optional[bool] = None,
         limit: int = 100,
         offset: int = 0,
+        event_category: Optional[str] = None,
     ) -> List[Dict]:
-        """
-        Retrieve audit logs with filtering
-
-        Args:
-            user_id: Filter by user ID
-            event_category: Filter by event category
-            event_type: Filter by event type
-            start_date: Filter by start date
-            end_date: Filter by end date
-            success: Filter by success status
-            limit: Maximum number of records to return
-            offset: Number of records to skip
-
-        Returns:
-            List of audit log dictionaries
-        """
+        """Get audit trail for a specific user"""
         try:
-            query = UserAuditLog.query
-            if user_id is not None:
-                query = query.filter(UserAuditLog.user_id == user_id)
+            query = UserAuditLog.query.filter_by(user_id=user_id)
             if event_category:
-                query = query.filter(UserAuditLog.event_category == event_category)
-            if event_type:
-                query = query.filter(UserAuditLog.event_type == event_type)
-            if start_date:
-                query = query.filter(UserAuditLog.created_at >= start_date)
-            if end_date:
-                query = query.filter(UserAuditLog.created_at <= end_date)
-            if success is not None:
-                query = query.filter(UserAuditLog.success == success)
-            query = query.order_by(desc(UserAuditLog.created_at))
-            audit_logs = query.offset(offset).limit(limit).all()
-            return [log.to_dict() for log in audit_logs]
+                query = query.filter_by(event_category=event_category)
+            logs = (
+                query.order_by(desc(UserAuditLog.created_at))
+                .limit(limit)
+                .offset(offset)
+                .all()
+            )
+            return [log.to_dict() for log in logs]
         except Exception as e:
-            logger.error(f"Failed to retrieve audit logs: {str(e)}")
+            logger.error(f"Failed to get audit trail: {e}")
             return []
-
-    def get_user_activity_summary(self, user_id: int, days: int = 30) -> Dict[str, Any]:
-        """
-        Get user activity summary for the specified period
-
-        Args:
-            user_id: User ID
-            days: Number of days to look back
-
-        Returns:
-            Dictionary containing activity summary
-        """
-        try:
-            start_date = datetime.utcnow() - timedelta(days=days)
-            total_events = UserAuditLog.query.filter(
-                and_(
-                    UserAuditLog.user_id == user_id,
-                    UserAuditLog.created_at >= start_date,
-                )
-            ).count()
-            category_query = (
-                db.session.query(
-                    UserAuditLog.event_category,
-                    db.func.count(UserAuditLog.id).label("count"),
-                )
-                .filter(
-                    and_(
-                        UserAuditLog.user_id == user_id,
-                        UserAuditLog.created_at >= start_date,
-                    )
-                )
-                .group_by(UserAuditLog.event_category)
-                .all()
-            )
-            events_by_category = {
-                row.event_category: row.count for row in category_query
-            }
-            failed_events = UserAuditLog.query.filter(
-                and_(
-                    UserAuditLog.user_id == user_id,
-                    UserAuditLog.created_at >= start_date,
-                    not UserAuditLog.success,
-                )
-            ).count()
-            recent_events = (
-                UserAuditLog.query.filter(
-                    and_(
-                        UserAuditLog.user_id == user_id,
-                        UserAuditLog.created_at >= start_date,
-                    )
-                )
-                .order_by(desc(UserAuditLog.created_at))
-                .limit(10)
-                .all()
-            )
-            return {
-                "user_id": user_id,
-                "period_days": days,
-                "total_events": total_events,
-                "failed_events": failed_events,
-                "success_rate": (
-                    (total_events - failed_events) / total_events
-                    if total_events > 0
-                    else 1.0
-                ),
-                "events_by_category": events_by_category,
-                "recent_events": [event.to_dict() for event in recent_events],
-            }
-        except Exception as e:
-            logger.error(f"Failed to get user activity summary: {str(e)}")
-            return {
-                "user_id": user_id,
-                "period_days": days,
-                "total_events": 0,
-                "failed_events": 0,
-                "success_rate": 0.0,
-                "events_by_category": {},
-                "recent_events": [],
-            }
 
     def get_security_events(
-        self, user_id: Optional[int] = None, hours: int = 24
+        self,
+        hours: int = 24,
+        event_type: Optional[str] = None,
     ) -> List[Dict]:
-        """
-        Get security-related events for monitoring
-
-        Args:
-            user_id: Filter by user ID (optional)
-            hours: Number of hours to look back
-
-        Returns:
-            List of security event dictionaries
-        """
+        """Get security events within timeframe"""
         try:
-            start_date = datetime.utcnow() - timedelta(hours=hours)
-            security_categories = ["authentication", "security", "compliance"]
-            security_event_types = [
-                "login_failed",
-                "login_blocked",
-                "mfa_failed",
-                "password_change_failed",
-                "suspicious_activity",
-                "account_locked",
-                "unauthorized_access",
-            ]
+            cutoff = datetime.now(timezone.utc) - timedelta(hours=hours)
             query = UserAuditLog.query.filter(
                 and_(
-                    UserAuditLog.created_at >= start_date,
-                    or_(
-                        UserAuditLog.event_category.in_(security_categories),
-                        UserAuditLog.event_type.in_(security_event_types),
-                        not UserAuditLog.success,
-                    ),
+                    UserAuditLog.event_category == "security",
+                    UserAuditLog.created_at >= cutoff,
                 )
             )
-            if user_id is not None:
-                query = query.filter(UserAuditLog.user_id == user_id)
-            security_events = (
-                query.order_by(desc(UserAuditLog.created_at)).limit(100).all()
-            )
-            return [event.to_dict() for event in security_events]
+            if event_type:
+                query = query.filter_by(event_type=event_type)
+            logs = query.order_by(desc(UserAuditLog.created_at)).all()
+            return [log.to_dict() for log in logs]
         except Exception as e:
-            logger.error(f"Failed to get security events: {str(e)}")
+            logger.error(f"Failed to get security events: {e}")
             return []
-
-    def cleanup_old_logs(self, retention_days: Optional[int] = None) -> int:
-        """
-        Clean up old audit logs based on retention policy
-
-        Args:
-            retention_days: Number of days to retain logs (uses config if not provided)
-
-        Returns:
-            Number of logs deleted
-        """
-        try:
-            if retention_days is None:
-                retention_days = current_app.config.get("DATA_RETENTION_DAYS", 2555)
-            cutoff_date = datetime.utcnow() - timedelta(days=retention_days)
-            deleted_count = UserAuditLog.query.filter(
-                UserAuditLog.created_at < cutoff_date
-            ).delete()
-            db.session.commit()
-            if deleted_count > 0:
-                logger.info(f"Cleaned up {deleted_count} old audit logs")
-                self.log_system_event(
-                    event_type="audit_cleanup",
-                    event_description=f"Cleaned up {deleted_count} audit logs older than {retention_days} days",
-                    metadata={
-                        "deleted_count": deleted_count,
-                        "retention_days": retention_days,
-                    },
-                )
-            return deleted_count
-        except Exception as e:
-            logger.error(f"Failed to cleanup old audit logs: {str(e)}")
-            return 0
-
-    def _sanitize_trading_data(self, data: Dict) -> Dict:
-        """Sanitize trading data to remove sensitive information"""
-        sensitive_fields = ["api_key", "private_key", "password", "secret"]
-        sanitized = data.copy()
-        for field in sensitive_fields:
-            if field in sanitized:
-                sanitized[field] = "[REDACTED]"
-        return sanitized
-
-    def _sanitize_kyc_data(self, data: Dict) -> Dict:
-        """Sanitize KYC data to remove sensitive personal information"""
-        sensitive_fields = [
-            "document_number",
-            "ssn",
-            "tax_id",
-            "passport_number",
-            "drivers_license_number",
-            "bank_account_number",
-        ]
-        sanitized = data.copy()
-        for field in sensitive_fields:
-            if field in sanitized:
-                value = str(sanitized[field])
-                if len(value) > 4:
-                    sanitized[field] = "*" * (len(value) - 4) + value[-4:]
-                else:
-                    sanitized[field] = "[REDACTED]"
-        return sanitized
-
-    def _sanitize_data_values(self, data: Dict) -> Dict:
-        """Sanitize data values to remove sensitive information"""
-        sensitive_fields = [
-            "password",
-            "password_hash",
-            "mfa_secret",
-            "api_key",
-            "private_key",
-            "secret",
-            "token",
-            "ssn",
-            "tax_id",
-            "bank_account_number",
-        ]
-        sanitized = data.copy()
-        for field in sensitive_fields:
-            if field in sanitized:
-                sanitized[field] = "[REDACTED]"
-        return sanitized

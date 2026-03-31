@@ -14,10 +14,11 @@ from typing import Any, Callable, Optional
 
 from flask import current_app, g, jsonify, request
 from flask_jwt_extended import get_jwt, get_jwt_identity, verify_jwt_in_request
-from src.models import db
-from src.models.transaction import AuditAction, AuditLog
-from src.models.user import User, UserRole, UserStatus
 from werkzeug.exceptions import Forbidden, Unauthorized
+
+from .models import db
+from .models.transaction import AuditAction, AuditLog
+from .models.user import User, UserRole, UserStatus
 
 logger = logging.getLogger(__name__)
 

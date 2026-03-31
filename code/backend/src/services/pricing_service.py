@@ -75,7 +75,7 @@ class PricingService:
             price_data.update(
                 {
                     "pricing_model": pricing_model,
-                    "timestamp": datetime.utcnow().isoformat(),
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
                     "data_quality_score": self._calculate_data_quality_score(
                         project_id, credit_type
                     ),
@@ -87,7 +87,7 @@ class PricingService:
             return {
                 "price": Decimal("0"),
                 "error": str(e),
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             }
 
     def _market_based_pricing(
@@ -102,7 +102,7 @@ class PricingService:
         try:
             query = db.session.query(Trade).filter(
                 Trade.status == TradeStatus.SETTLED,
-                Trade.executed_at >= datetime.utcnow() - timedelta(days=30),
+                Trade.executed_at >= datetime.now(timezone.utc) - timedelta(days=30),
             )
             if project_id:
                 query = query.filter(Trade.project_id == project_id)
@@ -369,7 +369,7 @@ class PricingService:
                     for k, v in model_prices.items()
                 },
                 "confidence_score": self._calculate_confidence_score(model_prices),
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             }
         except Exception as e:
             logger.error(f"Error calculating fair value: {str(e)}")
@@ -445,7 +445,7 @@ class PricingService:
                     "r2_score": model.score(X_scaled, y),
                     "training_samples": len(df),
                 },
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             }
         except Exception as e:
             logger.error(f"Error generating price forecast: {str(e)}")
@@ -464,7 +464,7 @@ class PricingService:
         }
         base_price = base_prices.get(credit_type, Decimal("45.00"))
         if vintage_year:
-            current_year = datetime.utcnow().year
+            current_year = datetime.now(timezone.utc).year
             vintage_adjustment = max(0.8, 1 - (current_year - vintage_year) * 0.02)
             base_price *= Decimal(str(vintage_adjustment))
         return {
@@ -508,7 +508,7 @@ class PricingService:
         """Calculate vintage year adjustment"""
         if not vintage_year:
             return Decimal("1.0")
-        current_year = datetime.utcnow().year
+        current_year = datetime.now(timezone.utc).year
         age = current_year - vintage_year
         if age <= 0:
             return Decimal("1.10")
@@ -538,7 +538,7 @@ class PricingService:
     ) -> List[Dict[str, Any]]:
         """Get historical price data"""
         try:
-            cutoff_date = datetime.utcnow() - timedelta(days=days)
+            cutoff_date = datetime.now(timezone.utc) - timedelta(days=days)
             query = db.session.query(Trade).filter(
                 Trade.status == TradeStatus.SETTLED, Trade.executed_at >= cutoff_date
             )
@@ -660,7 +660,7 @@ class PricingService:
         if credit_type in ["VCS", "GOLD_STANDARD"]:
             risk_factors["credit_risk"] *= 0.8
         if vintage_year:
-            current_year = datetime.utcnow().year
+            current_year = datetime.now(timezone.utc).year
             age = current_year - vintage_year
             if age > 5:
                 risk_factors["market_risk"] *= 1 + age * 0.1

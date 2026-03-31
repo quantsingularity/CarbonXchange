@@ -98,11 +98,19 @@ class BaseConfig:
     LOG_FORMAT = (
         "%(asctime)s - %(name)s - %(levelname)s - %(funcName)s:%(lineno)d - %(message)s"
     )
-    LOG_FILE = os.getenv("LOG_FILE", "carbonxchange.log")
+    LOG_FILE = os.getenv(
+        "LOG_FILE",
+        os.path.join(
+            os.path.dirname(os.path.dirname(__file__)), "logs", "carbonxchange.log"
+        ),
+    )
     LOG_MAX_BYTES = 10 * 1024 * 1024
     LOG_BACKUP_COUNT = 5
     AUDIT_LOG_ENABLED = True
-    AUDIT_LOG_FILE = os.getenv("AUDIT_LOG_FILE", "audit.log")
+    AUDIT_LOG_FILE = os.getenv(
+        "AUDIT_LOG_FILE",
+        os.path.join(os.path.dirname(os.path.dirname(__file__)), "logs", "audit.log"),
+    )
     DATA_RETENTION_DAYS = int(os.getenv("DATA_RETENTION_DAYS", "2555"))
     COMPLIANCE_MONITORING_ENABLED = True
     KYC_VERIFICATION_REQUIRED = True
@@ -156,6 +164,9 @@ class BaseConfig:
     def init_app(cls: Type["BaseConfig"], app: Any) -> None:
         """Initialize application with configuration"""
         os.makedirs(cls.UPLOAD_FOLDER, exist_ok=True)
+        logs_dir = os.path.dirname(cls.LOG_FILE)
+        if logs_dir:
+            os.makedirs(logs_dir, exist_ok=True)
         from logging.handlers import RotatingFileHandler
 
         file_handler = RotatingFileHandler(

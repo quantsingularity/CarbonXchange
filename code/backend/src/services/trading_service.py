@@ -155,7 +155,7 @@ class TradingService:
         """Get estimated market price for credit type"""
         query = db.session.query(func.avg(Trade.price)).filter(
             Trade.status == TradeStatus.SETTLED,
-            Trade.executed_at >= datetime.utcnow() - timedelta(days=7),
+            Trade.executed_at >= datetime.now(timezone.utc) - timedelta(days=7),
         )
         if vintage_year:
             query = query.filter(Trade.vintage_year == vintage_year)
@@ -279,7 +279,7 @@ class TradingService:
     def get_market_statistics(self) -> Dict[str, Any]:
         """Get comprehensive market statistics"""
         try:
-            yesterday = datetime.utcnow() - timedelta(days=1)
+            yesterday = datetime.now(timezone.utc) - timedelta(days=1)
             total_volume = (
                 db.session.query(func.sum(Trade.quantity))
                 .filter(
@@ -337,7 +337,7 @@ class TradingService:
                 "min_price_24h": float(min_price),
                 "max_price_24h": float(max_price),
                 "active_orders": active_orders,
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             }
         except Exception as e:
             logger.error(f"Error calculating market statistics: {str(e)}")
@@ -393,7 +393,7 @@ class TradingService:
                 "bids": bids,
                 "asks": asks,
                 "spread": spread,
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             }
         except Exception as e:
             logger.error(f"Error getting order book summary: {str(e)}")
@@ -409,7 +409,7 @@ class TradingService:
         try:
             period_days = {"1d": 1, "7d": 7, "30d": 30, "90d": 90, "1y": 365}
             days = period_days.get(period, 30)
-            start_date = datetime.utcnow() - timedelta(days=days)
+            start_date = datetime.now(timezone.utc) - timedelta(days=days)
             query = db.session.query(Trade).filter(
                 Trade.status == TradeStatus.SETTLED, Trade.executed_at >= start_date
             )
@@ -418,7 +418,7 @@ class TradingService:
             trades = query.order_by(Trade.executed_at).all()
             price_history = []
             current_date = start_date.date()
-            end_date = datetime.utcnow().date()
+            end_date = datetime.now(timezone.utc).date()
             while current_date <= end_date:
                 day_trades = [t for t in trades if t.executed_at.date() == current_date]
                 if day_trades:
@@ -471,7 +471,7 @@ class TradingService:
             portfolio = Portfolio.query.get(portfolio_id)
             if not portfolio or portfolio.user_id != user_id:
                 return {}
-            one_year_ago = datetime.utcnow() - timedelta(days=365)
+            one_year_ago = datetime.now(timezone.utc) - timedelta(days=365)
             user_trades = (
                 db.session.query(Trade)
                 .join(
@@ -510,7 +510,7 @@ class TradingService:
                 )
             else:
                 total_return = 0.0
-            days_active = (datetime.utcnow() - user_trades[0].executed_at).days
+            days_active = (datetime.now(timezone.utc) - user_trades[0].executed_at).days
             if days_active > 0:
                 annualized_return = total_return * (365 / days_active)
             else:
@@ -678,7 +678,7 @@ class SettlementEngine:
         """Initiate settlement process for a trade"""
         try:
             trade.status = TradeStatus.SETTLED
-            trade.settlement_date = datetime.utcnow()
+            trade.settlement_date = datetime.now(timezone.utc)
             trade.settlement_reference = f"SETTLE-{trade.trade_id}"
             self.audit_service.log_event(
                 event_type="trade_settled",

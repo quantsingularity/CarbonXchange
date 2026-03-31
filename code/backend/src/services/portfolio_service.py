@@ -150,7 +150,7 @@ class PortfolioService:
                 "performance": performance_metrics,
                 "risk": risk_metrics,
                 "allocation": allocation_breakdown,
-                "last_updated": datetime.utcnow().isoformat(),
+                "last_updated": datetime.now(timezone.utc).isoformat(),
             }
         except Exception as e:
             logger.error(f"Error getting portfolio summary: {str(e)}")
@@ -231,7 +231,7 @@ class PortfolioService:
                 "efficient_frontier": self._calculate_efficient_frontier(
                     expected_returns, cov_matrix
                 ),
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             }
         except Exception as e:
             logger.error(f"Error optimizing portfolio: {str(e)}")
@@ -295,7 +295,7 @@ class PortfolioService:
                 "attribution": attribution,
                 "value_history": value_history,
                 "returns": returns,
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             }
         except Exception as e:
             logger.error(f"Error calculating portfolio performance: {str(e)}")
@@ -388,7 +388,7 @@ class PortfolioService:
                     (trade["estimated_cost"] for trade in execution_results)
                 ),
                 "status": "initiated",
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             }
         except Exception as e:
             logger.error(f"Error rebalancing portfolio: {str(e)}")
@@ -436,7 +436,7 @@ class PortfolioService:
                 "recommendations": self._generate_portfolio_recommendations(
                     portfolio, holdings
                 ),
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             }
         except Exception as e:
             logger.error(f"Error getting portfolio analytics: {str(e)}")
@@ -610,7 +610,7 @@ class PortfolioService:
         self, portfolio_id: int, days: int
     ) -> List[Dict[str, Any]]:
         """Get portfolio value history"""
-        end_date = datetime.utcnow()
+        end_date = datetime.now(timezone.utc)
         start_date = end_date - timedelta(days=days)
         dates = pd.date_range(start=start_date, end=end_date, freq="D")
         base_value = 100000

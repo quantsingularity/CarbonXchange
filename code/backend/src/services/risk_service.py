@@ -152,7 +152,7 @@ class RiskService:
 
     def _get_daily_trading_volume(self, user_id: int) -> Decimal:
         """Get user's trading volume for today"""
-        today = datetime.utcnow().date()
+        today = datetime.now(timezone.utc).date()
         volume = (
             db.session.query(func.sum(Trade.total_value))
             .join(
@@ -368,7 +368,7 @@ class RiskService:
 
     def _get_market_volatility(self, credit_type: str) -> float:
         """Calculate market volatility for credit type"""
-        thirty_days_ago = datetime.utcnow() - timedelta(days=30)
+        thirty_days_ago = datetime.now(timezone.utc) - timedelta(days=30)
         prices = (
             db.session.query(Trade.price)
             .filter(

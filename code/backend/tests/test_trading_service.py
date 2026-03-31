@@ -653,7 +653,7 @@ class TestTradingService:
             "project_id": sample_project.id,
             "credit_type": "VCS",
             "vintage_year": 2023,
-            "expires_at": datetime.utcnow() + timedelta(seconds=1),
+            "expires_at": datetime.now(timezone.utc) + timedelta(seconds=1),
         }
         result = trading_service.create_order(sample_user.id, order_data)
         assert result["success"] is True
@@ -673,7 +673,7 @@ class TestTradingService:
         mock_pricing_service.get_current_price.return_value = {
             "price": Decimal("46.75"),
             "pricing_method": "market_based",
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
         current_price = trading_service._get_current_market_price("VCS", 2023)
         assert_decimal_equal(current_price, Decimal("46.75"))

@@ -29,7 +29,7 @@ from src.routes.user import user_bp
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[logging.FileHandler("carbonxchange.log"), logging.StreamHandler()],
+    handlers=[logging.StreamHandler()],
 )
 logger = logging.getLogger(__name__)
 
@@ -39,9 +39,18 @@ def create_app(config_name: Optional[str] = None) -> Flask:
     app = Flask(
         __name__, static_folder=os.path.join(os.path.dirname(__file__), "static")
     )
-    config_class = get_config(config_name)
-    app.config.from_object(config_class)
-    config_class.init_app(app)
+    if isinstance(config_name, dict):
+        config_class = get_config(None)
+        app.config.from_object(config_class)
+        app.config.update(config_name)
+        try:
+            config_class.init_app(app)
+        except Exception:
+            pass
+    else:
+        config_class = get_config(config_name)
+        app.config.from_object(config_class)
+        config_class.init_app(app)
     db.init_app(app)
     migrate.init_app(app, db)
     CORS(

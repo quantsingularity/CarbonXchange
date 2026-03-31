@@ -8,14 +8,13 @@ from datetime import datetime, timedelta, timezone
 from enum import Enum
 from typing import Any
 
-from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Column, DateTime
 from sqlalchemy import Enum as SQLEnum
 from sqlalchemy import ForeignKey, Index, Integer, Numeric, String
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
 
-db = SQLAlchemy()
+from . import db
 
 
 class MarketDataType(Enum):

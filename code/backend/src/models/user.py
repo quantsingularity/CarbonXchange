@@ -5,12 +5,11 @@ Implements comprehensive user management with KYC and compliance features
 
 import re
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 from enum import Enum
 from typing import Any
 
-from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import JSON, Boolean, Column, DateTime
 from sqlalchemy import Enum as SQLEnum
 from sqlalchemy import ForeignKey, Integer, Numeric, String, Text
@@ -18,12 +17,10 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
 from werkzeug.security import check_password_hash, generate_password_hash
 
-db = SQLAlchemy()
+from . import db
 
 
 class UserStatus(Enum):
-    """User account status enumeration"""
-
     PENDING = "pending"
     ACTIVE = "active"
     SUSPENDED = "suspended"
@@ -34,8 +31,6 @@ class UserStatus(Enum):
 
 
 class KYCStatus(Enum):
-    """KYC verification status enumeration"""
-
     NOT_STARTED = "not_started"
     IN_PROGRESS = "in_progress"
     PENDING_REVIEW = "pending_review"
@@ -46,8 +41,6 @@ class KYCStatus(Enum):
 
 
 class UserRole(Enum):
-    """User role enumeration for RBAC"""
-
     INDIVIDUAL = "individual"
     CORPORATE = "corporate"
     INSTITUTIONAL = "institutional"
@@ -60,8 +53,6 @@ class UserRole(Enum):
 
 
 class RiskLevel(Enum):
-    """Risk assessment levels"""
-
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
@@ -70,8 +61,6 @@ class RiskLevel(Enum):
 
 
 class DocumentType(Enum):
-    """KYC document types"""
-
     PASSPORT = "passport"
     DRIVERS_LICENSE = "drivers_license"
     NATIONAL_ID = "national_id"
@@ -111,12 +100,20 @@ class User(db.Model):
     failed_login_attempts = Column(Integer, nullable=False, default=0)
     last_login_at = Column(DateTime, nullable=True)
     last_login_ip = Column(String(45), nullable=True)
-    password_changed_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    password_changed_at = Column(
+        DateTime, nullable=False, default=lambda: datetime.now(timezone.utc)
+    )
     mfa_enabled = Column(Boolean, nullable=False, default=False)
     mfa_secret = Column(String(32), nullable=True)
-    created_at = Column(DateTime, nullable=False, default=datetime.utcnow, index=True)
+    email_verified_at = Column(DateTime, nullable=True)
+    created_at = Column(
+        DateTime, nullable=False, default=lambda: datetime.now(timezone.utc), index=True
+    )
     updated_at = Column(
-        DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow
+        DateTime,
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
     )
     last_activity_at = Column(DateTime, nullable=True, index=True)
     risk_level = Column(
@@ -127,6 +124,7 @@ class User(db.Model):
     locked_until = Column(DateTime, nullable=True)
     suspension_reason = Column(Text, nullable=True)
     suspension_until = Column(DateTime, nullable=True)
+
     profile = relationship(
         "UserProfile",
         back_populates="user",
@@ -142,6 +140,16 @@ class User(db.Model):
     audit_logs = relationship(
         "UserAuditLog", back_populates="user", cascade="all, delete-orphan"
     )
+    orders = relationship("Order", back_populates="user", cascade="all, delete-orphan")
+    portfolios = relationship(
+        "Portfolio", back_populates="user", cascade="all, delete-orphan"
+    )
+    transactions = relationship(
+        "Transaction",
+        foreign_keys="Transaction.user_id",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
 
     def __init__(
         self, email: Any, password: Any, first_name: Any, last_name: Any, **kwargs
@@ -154,17 +162,15 @@ class User(db.Model):
             if hasattr(self, key):
                 setattr(self, key, value)
 
-    def set_password(self, password: Any) -> Any:
-        """Set password with security validation"""
+    def set_password(self, password: Any) -> None:
         if not self._validate_password(password):
             raise ValueError("Password does not meet security requirements")
         self.password_hash = generate_password_hash(
             password, method="pbkdf2:sha256:150000"
         )
-        self.password_changed_at = datetime.utcnow()
+        self.password_changed_at = datetime.now(timezone.utc)
 
-    def check_password(self, password: Any) -> Any:
-        """Check password and handle failed attempts"""
+    def check_password(self, password: Any) -> bool:
         if self.is_locked:
             return False
         is_valid = check_password_hash(self.password_hash, password)
@@ -174,11 +180,18 @@ class User(db.Model):
                 self.lock_account(duration_minutes=30)
         else:
             self.failed_login_attempts = 0
-            self.last_login_at = datetime.utcnow()
+            self.last_login_at = datetime.now(timezone.utc)
         return is_valid
 
-    def _validate_password(self, password: Any) -> Any:
-        """Validate password against security requirements"""
+    def increment_failed_login(self) -> None:
+        self.failed_login_attempts += 1
+        if self.failed_login_attempts >= 5:
+            self.lock_account(duration_minutes=30)
+
+    def reset_failed_login(self) -> None:
+        self.failed_login_attempts = 0
+
+    def _validate_password(self, password: Any) -> bool:
         if len(password) < 8:
             return False
         if not re.search("[A-Z]", password):
@@ -192,67 +205,65 @@ class User(db.Model):
         return True
 
     @hybrid_property
-    def is_locked(self) -> Any:
-        """Check if account is currently locked"""
+    def is_locked(self) -> bool:
         if self.locked_until is None:
             return False
-        return datetime.utcnow() < self.locked_until
+        return datetime.now(timezone.utc) < self.locked_until
 
     @hybrid_property
-    def is_suspended(self) -> Any:
-        """Check if account is currently suspended"""
+    def is_suspended(self) -> bool:
         if self.suspension_until is None:
             return self.status == UserStatus.SUSPENDED
-        return datetime.utcnow() < self.suspension_until
+        return datetime.now(timezone.utc) < self.suspension_until
 
     @hybrid_property
-    def full_name(self) -> Any:
-        """Get user's full name"""
+    def full_name(self) -> str:
         return f"{self.first_name} {self.last_name}"
 
     @hybrid_property
-    def is_kyc_approved(self) -> Any:
-        """Check if user has approved KYC"""
+    def is_email_verified(self) -> bool:
+        return self.email_verified_at is not None
+
+    @hybrid_property
+    def is_kyc_approved(self) -> bool:
         if not self.kyc_records:
             return False
         latest_kyc = max(self.kyc_records, key=lambda x: x.created_at)
         return latest_kyc.status == KYCStatus.APPROVED
 
-    def lock_account(self, duration_minutes: Any = 30) -> Any:
-        """Lock account for specified duration"""
-        self.locked_until = datetime.utcnow() + timedelta(minutes=duration_minutes)
+    def lock_account(self, duration_minutes: int = 30) -> None:
+        self.locked_until = datetime.now(timezone.utc) + timedelta(
+            minutes=duration_minutes
+        )
         self.status = UserStatus.LOCKED
 
-    def unlock_account(self) -> Any:
-        """Unlock account"""
+    def unlock_account(self) -> None:
         self.locked_until = None
         self.failed_login_attempts = 0
         if self.status == UserStatus.LOCKED:
             self.status = UserStatus.ACTIVE
 
-    def suspend_account(self, reason: Any, duration_days: Any = None) -> Any:
-        """Suspend account with reason"""
+    def suspend_account(self, reason: Any, duration_days: Any = None) -> None:
         self.status = UserStatus.SUSPENDED
         self.suspension_reason = reason
         if duration_days:
-            self.suspension_until = datetime.utcnow() + timedelta(days=duration_days)
+            self.suspension_until = datetime.now(timezone.utc) + timedelta(
+                days=duration_days
+            )
 
-    def activate_account(self) -> Any:
-        """Activate account"""
+    def activate_account(self) -> None:
         self.status = UserStatus.ACTIVE
         self.suspension_reason = None
         self.suspension_until = None
         self.locked_until = None
 
-    def update_risk_assessment(self, risk_level: Any, risk_score: Any = None) -> Any:
-        """Update user risk assessment"""
+    def update_risk_assessment(self, risk_level: Any, risk_score: Any = None) -> None:
         self.risk_level = risk_level
         if risk_score is not None:
             self.risk_score = Decimal(str(risk_score))
-        self.risk_last_assessed = datetime.utcnow()
+        self.risk_last_assessed = datetime.now(timezone.utc)
 
-    def to_dict(self, include_sensitive: Any = False) -> Any:
-        """Convert user to dictionary"""
+    def to_dict(self, include_sensitive: bool = False) -> dict:
         data = {
             "id": self.id,
             "uuid": self.uuid,
@@ -266,6 +277,7 @@ class User(db.Model):
             "is_verified": self.is_verified,
             "is_active": self.is_active,
             "is_kyc_approved": self.is_kyc_approved,
+            "is_email_verified": self.is_email_verified,
             "risk_level": self.risk_level.value,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "last_login_at": (
@@ -285,7 +297,7 @@ class User(db.Model):
             )
         return data
 
-    def __repr__(self) -> Any:
+    def __repr__(self) -> str:
         return f"<User {self.email}>"
 
 
@@ -319,14 +331,18 @@ class UserProfile(db.Model):
     preferred_language = Column(String(5), nullable=True, default="en")
     timezone = Column(String(50), nullable=True, default="UTC")
     marketing_consent = Column(Boolean, nullable=False, default=False)
-    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    created_at = Column(
+        DateTime, nullable=False, default=lambda: datetime.now(timezone.utc)
+    )
     updated_at = Column(
-        DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow
+        DateTime,
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
     )
     user = relationship("User", back_populates="profile")
 
-    def to_dict(self) -> Any:
-        """Convert profile to dictionary"""
+    def to_dict(self) -> dict:
         return {
             "middle_name": self.middle_name,
             "nationality": self.nationality,
@@ -395,30 +411,32 @@ class UserKYC(db.Model):
     expires_at = Column(DateTime, nullable=True)
     rejection_reason = Column(Text, nullable=True)
     rejection_date = Column(DateTime, nullable=True)
-    created_at = Column(DateTime, nullable=False, default=datetime.utcnow, index=True)
+    created_at = Column(
+        DateTime, nullable=False, default=lambda: datetime.now(timezone.utc), index=True
+    )
     updated_at = Column(
-        DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow
+        DateTime,
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
     )
     user = relationship("User", back_populates="kyc_records")
     documents = relationship(
         "KYCDocument", back_populates="kyc_record", cascade="all, delete-orphan"
     )
 
-    def is_expired(self) -> Any:
-        """Check if KYC verification has expired"""
+    def is_expired(self) -> bool:
         if self.expires_at is None:
             return False
-        return datetime.utcnow() > self.expires_at
+        return datetime.now(timezone.utc) > self.expires_at
 
     def days_until_expiry(self) -> Any:
-        """Get days until KYC expiry"""
         if self.expires_at is None:
             return None
-        delta = self.expires_at - datetime.utcnow()
+        delta = self.expires_at - datetime.now(timezone.utc)
         return delta.days if delta.days > 0 else 0
 
-    def to_dict(self) -> Any:
-        """Convert KYC record to dictionary"""
+    def to_dict(self) -> dict:
         return {
             "id": self.id,
             "status": self.status.value,
@@ -449,9 +467,7 @@ class KYCDocument(db.Model):
     kyc_record_id = Column(
         Integer, ForeignKey("user_kyc.id"), nullable=False, index=True
     )
-    document_type: "Column[Any]" = Column(
-        SQLEnum(DocumentType), nullable=False, index=True
-    )
+    document_type = Column(SQLEnum(DocumentType), nullable=False, index=True)
     document_number = Column(String(100), nullable=True)
     issuing_country = Column(String(3), nullable=True)
     issuing_authority = Column(String(255), nullable=True)
@@ -466,21 +482,26 @@ class KYCDocument(db.Model):
     verification_notes = Column(Text, nullable=True)
     verified_by = Column(String(255), nullable=True)
     verified_at = Column(DateTime, nullable=True)
-    uploaded_at = Column(DateTime, nullable=False, default=datetime.utcnow, index=True)
-    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    uploaded_at = Column(
+        DateTime, nullable=False, default=lambda: datetime.now(timezone.utc), index=True
+    )
+    created_at = Column(
+        DateTime, nullable=False, default=lambda: datetime.now(timezone.utc)
+    )
     updated_at = Column(
-        DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow
+        DateTime,
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
     )
     kyc_record = relationship("UserKYC", back_populates="documents")
 
-    def is_expired(self) -> Any:
-        """Check if document has expired"""
+    def is_expired(self) -> bool:
         if self.expiry_date is None:
             return False
-        return datetime.utcnow().date() > self.expiry_date.date()
+        return datetime.now(timezone.utc).date() > self.expiry_date.date()
 
-    def to_dict(self) -> Any:
-        """Convert document to dictionary"""
+    def to_dict(self) -> dict:
         return {
             "id": self.id,
             "document_type": self.document_type.value,
@@ -512,22 +533,23 @@ class UserSession(db.Model):
     ip_address = Column(String(45), nullable=False)
     is_active = Column(Boolean, nullable=False, default=True)
     expires_at = Column(DateTime, nullable=False, index=True)
-    created_at = Column(DateTime, nullable=False, default=datetime.utcnow, index=True)
-    last_activity_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    created_at = Column(
+        DateTime, nullable=False, default=lambda: datetime.now(timezone.utc), index=True
+    )
+    last_activity_at = Column(
+        DateTime, nullable=False, default=lambda: datetime.now(timezone.utc)
+    )
     terminated_at = Column(DateTime, nullable=True)
     user = relationship("User", back_populates="sessions")
 
-    def is_expired(self) -> Any:
-        """Check if session has expired"""
-        return datetime.utcnow() > self.expires_at
+    def is_expired(self) -> bool:
+        return datetime.now(timezone.utc) > self.expires_at
 
-    def terminate(self) -> Any:
-        """Terminate session"""
+    def terminate(self) -> None:
         self.is_active = False
-        self.terminated_at = datetime.utcnow()
+        self.terminated_at = datetime.now(timezone.utc)
 
-    def to_dict(self) -> Any:
-        """Convert session to dictionary"""
+    def to_dict(self) -> dict:
         return {
             "id": self.id,
             "device_fingerprint": self.device_fingerprint,
@@ -558,11 +580,12 @@ class UserAuditLog(db.Model):
     event_metadata = Column(JSON, nullable=True)
     success = Column(Boolean, nullable=False, default=True)
     error_message = Column(Text, nullable=True)
-    created_at = Column(DateTime, nullable=False, default=datetime.utcnow, index=True)
+    created_at = Column(
+        DateTime, nullable=False, default=lambda: datetime.now(timezone.utc), index=True
+    )
     user = relationship("User", back_populates="audit_logs")
 
-    def to_dict(self) -> Any:
-        """Convert audit log to dictionary"""
+    def to_dict(self) -> dict:
         return {
             "id": self.id,
             "user_id": self.user_id,
