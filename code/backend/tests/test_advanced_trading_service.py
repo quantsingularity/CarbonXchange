@@ -7,11 +7,12 @@ import os
 import sys
 from datetime import datetime, timezone
 from decimal import Decimal
+from typing import Any
 from unittest.mock import Mock, patch
+
 import numpy as np
 import pandas as pd
 import pytest
-from typing import Any
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 from models.trading import OrderSide, OrderType

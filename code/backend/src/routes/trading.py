@@ -3,13 +3,15 @@ Trading routes for CarbonXchange Backend
 Implements comprehensive trading functionality with financial industry standards
 """
 
-from typing import Any
 import logging
 from datetime import datetime
 from decimal import Decimal, InvalidOperation
+from typing import Any
+
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from sqlalchemy import and_, asc, desc, or_
+
 from ..models import db
 from ..models.trading import (
     Order,

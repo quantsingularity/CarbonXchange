@@ -3,10 +3,11 @@ Carbon Credit models for CarbonXchange Backend
 Implements comprehensive carbon credit and project management with enhanced trading features
 """
 
-from typing import Any
 import uuid
 from datetime import datetime, timezone
 from enum import Enum
+from typing import Any
+
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import JSON, Boolean, Column, DateTime
 from sqlalchemy import Enum as SQLEnum

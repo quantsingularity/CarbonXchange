@@ -3,11 +3,12 @@ Transaction and Audit models for CarbonXchange Backend
 Implements comprehensive transaction tracking and audit logging for financial compliance
 """
 
-from typing import Any
 import json
 import uuid
 from datetime import datetime, timezone
 from enum import Enum
+from typing import Any
+
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Boolean, Column, DateTime
 from sqlalchemy import Enum as SQLEnum

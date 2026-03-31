@@ -4,6 +4,7 @@ Implements comprehensive data models for carbon credit trading with financial in
 """
 
 from typing import Any, List
+
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 

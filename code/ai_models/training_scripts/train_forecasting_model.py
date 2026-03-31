@@ -1,9 +1,10 @@
-from typing import Any
+import logging
 import os
+from typing import Any
+
 import pandas as pd
 from joblib import dump
 from sklearn.ensemble import RandomForestRegressor
-import logging
 
 logging.basicConfig(
     level=logging.INFO,

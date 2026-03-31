@@ -11,6 +11,7 @@ import secrets
 import time
 from datetime import datetime
 from typing import Any, Callable, Optional
+
 from flask import current_app, g, jsonify, request
 from flask_jwt_extended import get_jwt, get_jwt_identity, verify_jwt_in_request
 from src.models import db
@@ -248,6 +249,7 @@ class CryptoUtils:
         if salt is None:
             salt = secrets.token_hex(16)
         import base64
+
         from cryptography.hazmat.primitives import hashes
         from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
@@ -372,6 +374,7 @@ class AdvancedSecurityManager:
         try:
             import base64
             from io import BytesIO
+
             import pyotp
             import qrcode
 

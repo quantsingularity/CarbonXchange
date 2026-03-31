@@ -5,6 +5,7 @@ Handles user management and operations
 
 import logging
 from typing import Any, Dict, Optional
+
 from ..models import db
 from ..models.user import User, UserProfile, UserStatus
 from .audit_service import AuditService

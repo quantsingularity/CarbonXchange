@@ -3,11 +3,12 @@ Trading models for CarbonXchange Backend
 Implements comprehensive trading, order management, and portfolio tracking
 """
 
-from typing import Any
 import uuid
 from datetime import datetime, timezone
 from decimal import Decimal
 from enum import Enum
+from typing import Any
+
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Boolean, Column, DateTime
 from sqlalchemy import Enum as SQLEnum

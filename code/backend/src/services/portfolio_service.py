@@ -7,9 +7,11 @@ import logging
 from datetime import datetime, timedelta
 from decimal import Decimal
 from typing import Any, Dict, List, Optional
+
 import numpy as np
 import pandas as pd
 from scipy.optimize import minimize
+
 from ..models import db
 from ..models.trading import Portfolio, PortfolioHolding
 from ..models.user import User

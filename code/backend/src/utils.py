@@ -10,6 +10,7 @@ import time
 from datetime import datetime, timezone
 from decimal import Decimal
 from typing import Any, Callable, Dict, List, Optional
+
 import redis
 from flask import current_app, request
 from sqlalchemy import text
@@ -430,6 +431,7 @@ def validate_request_data(data: dict, required_fields: list) -> bool:
 def handle_api_error(error: Exception) -> tuple:
     """Handle API errors and return appropriate response"""
     import logging
+
     from flask import current_app
     from werkzeug.exceptions import HTTPException
 

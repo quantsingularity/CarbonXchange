@@ -7,6 +7,7 @@ import logging
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 from typing import Any, Dict, List, Optional
+
 from ..models import db
 from ..models.market import MarketData, PriceHistory
 from ..models.trading import Trade, TradeStatus

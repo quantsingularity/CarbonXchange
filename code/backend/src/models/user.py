@@ -3,12 +3,13 @@ User models for CarbonXchange Backend
 Implements comprehensive user management with KYC and compliance features
 """
 
-from typing import Any
 import re
 import uuid
 from datetime import datetime, timedelta
 from decimal import Decimal
 from enum import Enum
+from typing import Any
+
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import JSON, Boolean, Column, DateTime
 from sqlalchemy import Enum as SQLEnum

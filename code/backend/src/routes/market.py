@@ -3,6 +3,7 @@ Market routes for CarbonXchange Backend
 """
 
 from typing import Any
+
 from flask import Blueprint, jsonify
 
 market_bp = Blueprint("market", __name__)

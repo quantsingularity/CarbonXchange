@@ -3,11 +3,12 @@ Compliance models for CarbonXchange Backend
 Implements comprehensive compliance tracking and regulatory reporting
 """
 
-from typing import Any
 import json
 import uuid
 from datetime import datetime, timezone
 from enum import Enum
+from typing import Any
+
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Boolean, Column, DateTime
 from sqlalchemy import Enum as SQLEnum

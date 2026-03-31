@@ -6,8 +6,10 @@ Implements comprehensive audit logging for financial industry compliance
 import logging
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
+
 from flask import current_app, request
 from sqlalchemy import and_, desc, or_
+
 from ..models import db
 from ..models.user import UserAuditLog
 

@@ -7,12 +7,14 @@ import logging
 from datetime import datetime, timedelta
 from decimal import ROUND_HALF_UP, Decimal
 from typing import Any, Dict, List, Optional, Tuple
+
 import numpy as np
 import pandas as pd
 from scipy import stats
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import StandardScaler
 from sqlalchemy import desc
+
 from ..models import db
 from ..models.carbon_credit import CarbonCredit, CarbonProject, ProjectType
 from ..models.trading import Trade, TradeStatus

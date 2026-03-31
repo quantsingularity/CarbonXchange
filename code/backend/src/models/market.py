@@ -3,10 +3,11 @@ Market Data models for CarbonXchange Backend
 Implements comprehensive market data tracking and price analytics
 """
 
-from typing import Any
 import uuid
 from datetime import datetime, timedelta, timezone
 from enum import Enum
+from typing import Any
+
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Column, DateTime
 from sqlalchemy import Enum as SQLEnum

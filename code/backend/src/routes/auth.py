@@ -3,10 +3,11 @@ Authentication routes for CarbonXchange Backend
 Implements secure authentication with JWT, MFA, and audit logging
 """
 
-from typing import Any
 import logging
 import re
 from datetime import datetime, timezone
+from typing import Any
+
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import (
     create_access_token,

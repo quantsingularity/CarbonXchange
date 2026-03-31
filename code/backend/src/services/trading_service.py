@@ -7,7 +7,9 @@ import logging
 from datetime import datetime, timedelta
 from decimal import Decimal
 from typing import Any, Dict, List, Optional
+
 from sqlalchemy import and_, desc, func, or_
+
 from ..models import db
 from ..models.trading import (
     Order,

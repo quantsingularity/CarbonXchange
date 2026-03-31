@@ -5,8 +5,9 @@ Handles Know Your Customer verification processes
 
 import logging
 from typing import Any, Dict
+
 from ..models import db
-from ..models.user import User, UserKYC, KYCStatus
+from ..models.user import KYCStatus, User, UserKYC
 from .audit_service import AuditService
 
 logger = logging.getLogger(__name__)

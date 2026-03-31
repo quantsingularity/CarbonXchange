@@ -6,6 +6,7 @@ Handles carbon credit management and operations
 import logging
 from decimal import Decimal
 from typing import Any, Dict, Optional
+
 from ..models import db
 from ..models.carbon_credit import CarbonCredit, CarbonProject
 from .audit_service import AuditService

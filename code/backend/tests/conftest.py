@@ -7,9 +7,10 @@ import os
 import tempfile
 from datetime import datetime, timedelta
 from decimal import Decimal
-from unittest.mock import Mock, patch
-import pytest
 from typing import Any
+from unittest.mock import Mock, patch
+
+import pytest
 from src import create_app
 from src.models import db
 from src.models.carbon_credit import (
