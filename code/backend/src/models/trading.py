@@ -41,6 +41,7 @@ class OrderStatus(Enum):
     OPEN = "open"
     PARTIALLY_FILLED = "partially_filled"
     FILLED = "filled"
+    EXECUTED = "executed"
     CANCELLED = "cancelled"
     REJECTED = "rejected"
     EXPIRED = "expired"
@@ -60,6 +61,7 @@ class PortfolioType(Enum):
     """Portfolio type enumeration"""
 
     TRADING = "trading"
+    PERSONAL = "personal"
     RETIREMENT = "retirement"
     CUSTODY = "custody"
 
@@ -111,6 +113,9 @@ class Order(db.Model):
     first_fill_at = Column(DateTime, nullable=True)
     last_fill_at = Column(DateTime, nullable=True)
     closed_at = Column(DateTime, nullable=True)
+    cancelled_at = Column(DateTime, nullable=True)
+    iceberg_visible_qty = Column(Numeric(15, 4), nullable=True)
+    iceberg_remaining_qty = Column(Numeric(15, 4), nullable=True)
     user = relationship("User", back_populates="orders")
     project = relationship("CarbonProject")
     buy_trades = relationship(
@@ -181,17 +186,24 @@ class Order(db.Model):
             self.first_fill_at = datetime.now(timezone.utc)
         self.last_fill_at = datetime.now(timezone.utc)
         if self.remaining_quantity == 0:
-            self.status = OrderStatus.FILLED
+            self.status = OrderStatus.EXECUTED
             self.closed_at = datetime.now(timezone.utc)
         else:
             self.status = OrderStatus.PARTIALLY_FILLED
 
     def cancel(self, reason: Any = None) -> Any:
         """Cancel the order"""
-        if not self.is_active:
+        if self.status in [
+            OrderStatus.FILLED,
+            OrderStatus.EXECUTED,
+            OrderStatus.CANCELLED,
+            OrderStatus.REJECTED,
+            OrderStatus.EXPIRED,
+        ]:
             raise ValueError("Cannot cancel inactive order")
         self.status = OrderStatus.CANCELLED
         self.closed_at = datetime.now(timezone.utc)
+        self.cancelled_at = datetime.now(timezone.utc)
         if reason:
             self.notes = f"{self.notes or ''}\nCancelled: {reason}".strip()
 
@@ -259,6 +271,7 @@ class Trade(db.Model):
     credit_id = Column(Integer, ForeignKey("carbon_credits.id"), nullable=True)
     project_id = Column(Integer, ForeignKey("carbon_projects.id"), nullable=True)
     vintage_year = Column(Integer, nullable=True)
+    credit_type = Column(String(100), nullable=True, index=True)
     status: "Column[Any]" = Column(
         SQLEnum(TradeStatus), nullable=False, default=TradeStatus.PENDING
     )

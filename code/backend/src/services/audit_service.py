@@ -134,6 +134,22 @@ class AuditService:
             metadata=compliance_data,
         )
 
+    def log_trading_event(
+        self,
+        event_type: str,
+        description: str,
+        user_id: Optional[int] = None,
+        metadata: Optional[Dict] = None,
+    ) -> bool:
+        """Log trading-related events"""
+        return self.log_event(
+            event_type=event_type,
+            event_category="trading",
+            event_description=description,
+            user_id=user_id,
+            metadata=metadata,
+        )
+
     def get_user_audit_trail(
         self,
         user_id: int,

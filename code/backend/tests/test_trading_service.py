@@ -9,6 +9,7 @@ from typing import Any
 from unittest.mock import patch
 
 import pytest
+from src.models import db
 from src.models.trading import Order, OrderSide, OrderStatus, OrderType, Trade
 from src.models.user import User
 from src.services.trading_service import TradingService
@@ -21,18 +22,20 @@ class TestTradingService:
     @pytest.fixture
     def trading_service(
         self,
+        app: Any,
         mock_risk_service: Any,
         mock_compliance_service: Any,
         mock_pricing_service: Any,
         mock_audit_service: Any,
     ) -> Any:
         """Create trading service with mocked dependencies"""
-        service = TradingService()
-        service.risk_service = mock_risk_service
-        service.compliance_service = mock_compliance_service
-        service.pricing_service = mock_pricing_service
-        service.audit_service = mock_audit_service
-        return service
+        with app.app_context():
+            service = TradingService()
+            service.risk_service = mock_risk_service
+            service.compliance_service = mock_compliance_service
+            service.pricing_service = mock_pricing_service
+            service.audit_service = mock_audit_service
+            return service
 
     def test_create_market_buy_order_success(
         self,
@@ -54,7 +57,7 @@ class TestTradingService:
         assert result["success"] is True
         assert "order_id" in result
         assert result["status"] == "pending"
-        order = Order.query.get(result["order_id"])
+        order = db.session.get(Order, result["order_id"])
         assert order is not None
         assert order.user_id == sample_user.id
         assert order.project_id == sample_project.id
@@ -81,7 +84,7 @@ class TestTradingService:
         }
         result = trading_service.create_order(sample_user.id, order_data)
         assert result["success"] is True
-        order = Order.query.get(result["order_id"])
+        order = db.session.get(Order, result["order_id"])
         assert order.order_type == OrderType.LIMIT
         assert order.side == OrderSide.SELL
         assert_decimal_equal(order.price, Decimal("47.50"))
@@ -220,7 +223,12 @@ class TestTradingService:
         self, trading_service: Any, db_session: Any, sample_order: Any
     ) -> Any:
         """Test cancellation by wrong user"""
-        other_user = User(email="other@example.com", password="password")
+        other_user = User(
+            email="other@example.com",
+            password="TestPassword123!",
+            first_name="Other",
+            last_name="User",
+        )
         db_session.add(other_user)
         db_session.commit()
         result = trading_service.cancel_order(other_user.id, sample_order.id)
@@ -375,14 +383,14 @@ class TestTradingService:
         }
         buy_result = trading_service.create_order(sample_user.id, buy_order_data)
         sell_result = trading_service.create_order(sample_user.id, sell_order_data)
-        buy_order = Order.query.get(buy_result["order_id"])
-        sell_order = Order.query.get(sell_result["order_id"])
+        buy_order = db.session.get(Order, buy_result["order_id"])
+        sell_order = db.session.get(Order, sell_result["order_id"])
         result = trading_service.execute_trade(
             buy_order, sell_order, Decimal("100"), Decimal("45.00")
         )
         assert result["success"] is True
         assert "trade_id" in result
-        trade = Trade.query.get(result["trade_id"])
+        trade = db.session.get(Trade, result["trade_id"])
         assert trade is not None
         assert trade.buy_order_id == buy_order.id
         assert trade.sell_order_id == sell_order.id
@@ -418,8 +426,8 @@ class TestTradingService:
         }
         buy_result = trading_service.create_order(sample_user.id, buy_order_data)
         sell_result = trading_service.create_order(sample_user.id, sell_order_data)
-        buy_order = Order.query.get(buy_result["order_id"])
-        sell_order = Order.query.get(sell_result["order_id"])
+        buy_order = db.session.get(Order, buy_result["order_id"])
+        sell_order = db.session.get(Order, sell_result["order_id"])
         result = trading_service.execute_trade(
             buy_order, sell_order, Decimal("100"), Decimal("45.00")
         )
@@ -602,25 +610,31 @@ class TestTradingService:
         db_session: Any,
         sample_user: Any,
         sample_project: Any,
+        app: Any,
     ) -> Any:
         """Test concurrent order creation handling"""
         import threading
 
         results = []
         errors = []
+        lock = threading.Lock()
 
         def create_order():
             try:
-                order_data = {
-                    "order_type": "market",
-                    "side": "buy",
-                    "quantity": 10,
-                    "project_id": sample_project.id,
-                    "credit_type": "VCS",
-                    "vintage_year": 2023,
-                }
-                result = trading_service.create_order(sample_user.id, order_data)
-                results.append(result)
+                with app.app_context():
+                    order_data = {
+                        "order_type": "market",
+                        "side": "buy",
+                        "quantity": 10,
+                        "project_id": sample_project.id,
+                        "credit_type": "VCS",
+                        "vintage_year": 2023,
+                    }
+                    with lock:
+                        result = trading_service.create_order(
+                            sample_user.id, order_data
+                        )
+                    results.append(result)
             except Exception as e:
                 errors.append(str(e))
 
@@ -657,7 +671,7 @@ class TestTradingService:
         }
         result = trading_service.create_order(sample_user.id, order_data)
         assert result["success"] is True
-        order = Order.query.get(result["order_id"])
+        order = db.session.get(Order, result["order_id"])
         import time
 
         time.sleep(2)

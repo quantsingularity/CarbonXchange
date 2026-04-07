@@ -95,16 +95,21 @@ class AdvancedTradingService:
         duration_minutes: int = 60,
     ) -> List[Order]:
         """Execute Time Weighted Average Price algorithm"""
+        if total_quantity <= 0 or duration_minutes <= 0:
+            raise ValueError("Invalid TWAP parameters")
         try:
-            if total_quantity <= 0 or duration_minutes <= 0:
-                raise ValueError("Invalid TWAP parameters")
             num_orders = min(duration_minutes // 5, 20)
-            child_quantity = total_quantity / num_orders
-            interval_minutes = duration_minutes // num_orders
+            if num_orders <= 0:
+                num_orders = 1
+            base_quantity = (total_quantity / num_orders).quantize(Decimal("0.0001"))
+            remainder = total_quantity - base_quantity * num_orders
+            duration_minutes // num_orders
             child_orders = []
-            current_time = datetime.now(timezone.utc)
+            datetime.now(timezone.utc)
             for i in range(num_orders):
-                current_time + timedelta(minutes=i * interval_minutes)
+                qty = base_quantity + (
+                    remainder if i == num_orders - 1 else Decimal("0")
+                )
                 current_price = self._get_current_price(symbol)
                 if not current_price:
                     logger.error(f"Unable to get price for {symbol}")
@@ -117,7 +122,8 @@ class AdvancedTradingService:
                     user_id=user_id,
                     order_type=OrderType.LIMIT,
                     side=side,
-                    quantity=child_quantity,
+                    quantity=qty,
+                    remaining_quantity=qty,
                     price=limit_price,
                     time_in_force="GTC",
                     notes=f"TWAP child order {i + 1}/{num_orders}",
@@ -167,6 +173,7 @@ class AdvancedTradingService:
                     order_type=OrderType.LIMIT,
                     side=side,
                     quantity=child_quantity,
+                    remaining_quantity=child_quantity,
                     price=current_price,
                     time_in_force="GTC",
                     notes=f"VWAP child order for hour {hour}",
@@ -192,9 +199,11 @@ class AdvancedTradingService:
         visible_quantity: Decimal,
     ) -> Order:
         """Execute iceberg order strategy"""
+        if visible_quantity > total_quantity:
+            raise ValueError("Visible quantity must be less than total quantity")
+        if visible_quantity <= 0:
+            raise ValueError("Visible quantity must be positive")
         try:
-            if visible_quantity >= total_quantity:
-                raise ValueError("Visible quantity must be less than total quantity")
             current_price = self._get_current_price(symbol)
             if not current_price:
                 raise ValueError(f"Unable to get price for {symbol}")
@@ -203,6 +212,7 @@ class AdvancedTradingService:
                 order_type=OrderType.LIMIT,
                 side=side,
                 quantity=total_quantity,
+                remaining_quantity=total_quantity,
                 price=current_price,
                 time_in_force="GTC",
                 notes=f"Iceberg order - visible: {visible_quantity}, total: {total_quantity}",
@@ -370,25 +380,35 @@ class AdvancedTradingService:
             if not portfolio:
                 raise ValueError(f"No portfolio found for user {user_id}")
             holdings_data = self._get_portfolio_holdings_data(portfolio.id)
-            if not holdings_data:
+            if holdings_data is None or (
+                hasattr(holdings_data, "empty") and holdings_data.empty
+            ):
                 raise ValueError("No holdings data available")
             returns = self._calculate_portfolio_returns(holdings_data)
-            var_95 = Decimal(str(np.percentile(returns, 5)))
-            var_99 = Decimal(str(np.percentile(returns, 1)))
-            expected_shortfall = Decimal(
-                str(np.mean(returns[returns <= float(var_95)]))
-            )
+            var_95 = Decimal(str(round(float(np.percentile(returns, 5)), 8)))
+            var_99 = Decimal(str(round(float(np.percentile(returns, 1)), 8)))
+            tail_returns = returns[returns <= float(var_95)]
+            if len(tail_returns) > 0:
+                expected_shortfall = Decimal(
+                    str(round(float(np.mean(tail_returns)), 8))
+                )
+            else:
+                expected_shortfall = var_95
             cumulative_returns = (1 + pd.Series(returns)).cumprod()
             running_max = cumulative_returns.expanding().max()
             drawdown = (cumulative_returns - running_max) / running_max
-            max_drawdown = Decimal(str(drawdown.min()))
+            max_drawdown = Decimal(str(round(float(drawdown.min()), 8)))
             risk_free_rate = 0.02 / 252
             excess_returns = returns - risk_free_rate
-            sharpe_ratio = (
-                np.mean(excess_returns) / np.std(excess_returns) * np.sqrt(252)
-            )
+            std_excess = np.std(excess_returns)
+            if std_excess > 0:
+                sharpe_ratio = float(
+                    np.mean(excess_returns) / std_excess * np.sqrt(252)
+                )
+            else:
+                sharpe_ratio = 0.0
             beta = 1.0
-            volatility = np.std(returns) * np.sqrt(252)
+            volatility = float(np.std(returns) * np.sqrt(252))
             return RiskMetrics(
                 var_95=var_95,
                 var_99=var_99,

@@ -228,8 +228,25 @@ class User(db.Model):
     def is_kyc_approved(self) -> bool:
         if not self.kyc_records:
             return False
-        latest_kyc = max(self.kyc_records, key=lambda x: x.created_at)
-        return latest_kyc.status == KYCStatus.APPROVED
+        try:
+            latest_kyc = max(self.kyc_records, key=lambda x: x.created_at)
+            return latest_kyc.status == KYCStatus.APPROVED
+        except (TypeError, ValueError):
+            return False
+
+    @is_kyc_approved.expression  # type: ignore[no-redef]
+    def is_kyc_approved(cls):  # type: ignore[misc]
+        from sqlalchemy import exists, select
+
+        from .user import KYCStatus as _KYCStatus
+        from .user import UserKYC as _UserKYC
+
+        return exists(
+            select(_UserKYC.id).where(
+                _UserKYC.user_id == cls.id,
+                _UserKYC.status == _KYCStatus.APPROVED,
+            )
+        )
 
     def lock_account(self, duration_minutes: int = 30) -> None:
         self.locked_until = datetime.now(timezone.utc) + timedelta(

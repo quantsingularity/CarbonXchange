@@ -241,6 +241,9 @@ class TestingConfig(BaseConfig):
     TESTING = True
     ENV = "testing"
     SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        "pool_pre_ping": True,
+    }
     WTF_CSRF_ENABLED = False
     SESSION_COOKIE_SECURE = False
     RATELIMIT_ENABLED = False

@@ -3,8 +3,6 @@ Comprehensive test suite for Advanced Trading Service
 Tests all trading algorithms, risk management, and portfolio optimization features
 """
 
-import os
-import sys
 from datetime import datetime, timezone
 from decimal import Decimal
 from typing import Any
@@ -13,11 +11,9 @@ from unittest.mock import Mock, patch
 import numpy as np
 import pandas as pd
 import pytest
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
-from models.trading import OrderSide, OrderType
-from models.user import User
-from services.advanced_trading_service import (
+from src.models.trading import OrderSide, OrderType
+from src.models.user import User
+from src.services.advanced_trading_service import (
     AdvancedTradingService,
     RiskMetrics,
     TradingAlgorithm,
@@ -28,10 +24,36 @@ from services.advanced_trading_service import (
 class TestAdvancedTradingService:
     """Test suite for AdvancedTradingService"""
 
+    @pytest.fixture(scope="class")
+    def app(self) -> Any:
+        """Create app context for advanced trading tests"""
+        import os
+        import tempfile
+
+        from src.main import create_app
+
+        db_fd, db_path = tempfile.mkstemp()
+        application = create_app("testing")
+        application.config.update(
+            {
+                "TESTING": True,
+                "SQLALCHEMY_DATABASE_URI": f"sqlite:///{db_path}",
+            }
+        )
+        from src.models import db
+
+        with application.app_context():
+            db.create_all()
+            yield application
+        os.close(db_fd)
+        os.unlink(db_path)
+
     @pytest.fixture
-    def trading_service(self) -> Any:
+    def trading_service(self, app: Any) -> Any:
         """Create a trading service instance for testing"""
-        return AdvancedTradingService()
+        with app.app_context():
+            service = AdvancedTradingService()
+            return service
 
     @pytest.fixture
     def mock_user(self) -> Any:
@@ -406,15 +428,100 @@ def test_database() -> Any:
 class TestTradingServiceIntegration:
     """Integration tests for trading service with database"""
 
+    @pytest.fixture(scope="class")
+    def app(self) -> Any:
+        """Create app context for integration tests"""
+        import os
+        import tempfile
+
+        from src.main import create_app
+
+        db_fd, db_path = tempfile.mkstemp()
+        application = create_app("testing")
+        application.config.update(
+            {
+                "TESTING": True,
+                "SQLALCHEMY_DATABASE_URI": f"sqlite:///{db_path}",
+            }
+        )
+        from src.models import db
+
+        with application.app_context():
+            db.create_all()
+            yield application
+        os.close(db_fd)
+        os.unlink(db_path)
+
+    @pytest.fixture
+    def trading_service(self, app: Any) -> Any:
+        """Create trading service with app context"""
+        with app.app_context():
+            return AdvancedTradingService()
+
+    @pytest.fixture
+    def mock_user(self) -> Any:
+        """Mock user for integration tests"""
+        from unittest.mock import Mock
+
+        user = Mock()
+        user.id = 1
+        user.email = "integration@example.com"
+        return user
+
     @pytest.mark.integration
-    def test_full_trading_workflow(self, trading_service: Any, mock_user: Any) -> Any:
+    def test_full_trading_workflow(
+        self, trading_service: Any, mock_user: Any, app: Any
+    ) -> Any:
         """Test complete trading workflow from signal generation to execution"""
+        with app.app_context():
+            from unittest.mock import patch
+
+            with patch.object(trading_service, "_get_price_history") as mock_ph:
+                import numpy as np
+                import pandas as pd
+
+                dates = pd.date_range(start="2023-01-01", periods=60, freq="D")
+                np.random.seed(42)
+                prices = np.random.normal(100, 5, 60)
+                mock_ph.return_value = pd.DataFrame(
+                    {"timestamp": dates, "close": prices, "volume": np.ones(60) * 1000}
+                )
+                signals = trading_service.generate_trading_signals(
+                    "CARBON_TEST", TradingAlgorithm.MOMENTUM
+                )
+                assert isinstance(signals, list)
 
     @pytest.mark.integration
     def test_risk_management_integration(
-        self, trading_service: Any, mock_user: Any
+        self, trading_service: Any, mock_user: Any, app: Any
     ) -> Any:
         """Test integration between trading service and risk management"""
+        with app.app_context():
+            from unittest.mock import patch
+
+            import numpy as np
+
+            with patch("src.models.trading.Portfolio.query") as mock_pq:
+                from unittest.mock import Mock
+
+                mock_p = Mock()
+                mock_p.id = 1
+                mock_pq.filter_by.return_value.first.return_value = mock_p
+                with patch.object(
+                    trading_service, "_get_portfolio_holdings_data"
+                ) as mock_hd:
+                    import pandas as pd
+
+                    mock_hd.return_value = pd.DataFrame(
+                        {"asset": ["A"], "quantity": [100], "value": [5000]}
+                    )
+                    with patch.object(
+                        trading_service, "_calculate_portfolio_returns"
+                    ) as mock_r:
+                        np.random.seed(1)
+                        mock_r.return_value = np.random.normal(0.001, 0.02, 252)
+                        risk = trading_service.calculate_portfolio_risk(mock_user.id)
+                        assert isinstance(risk, RiskMetrics)
 
 
 if __name__ == "__main__":

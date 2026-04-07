@@ -110,11 +110,9 @@ class CarbonProject(db.Model):
         default=ProjectStatus.DEVELOPMENT,
         index=True,
     )
-    project_id = Column(String(100), unique=True, nullable=False, index=True)
+    project_id = Column(String(100), unique=True, nullable=True, index=True)
     registry_id = Column(String(100), nullable=True, index=True)
-    standard: "Column[Any]" = Column(
-        SQLEnum(CreditStandard), nullable=False, index=True
-    )
+    standard: "Column[Any]" = Column(SQLEnum(CreditStandard), nullable=True, index=True)
     country = Column(String(3), nullable=False, index=True)
     region = Column(String(100), nullable=True)
     latitude = Column(Numeric(10, 8), nullable=True)
@@ -146,7 +144,7 @@ class CarbonProject(db.Model):
         default=VerificationStatus.NOT_STARTED,
     )
     next_verification_due = Column(DateTime, nullable=True)
-    developer_name = Column(String(255), nullable=False)
+    developer_name = Column(String(255), nullable=True)
     developer_contact = Column(String(255), nullable=True)
     developer_website = Column(String(500), nullable=True)
     developer_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
@@ -168,6 +166,8 @@ class CarbonProject(db.Model):
     estimated_credit_price = Column(Numeric(10, 2), nullable=True)
     minimum_credit_price = Column(Numeric(10, 2), nullable=True)
     price_currency = Column(String(3), nullable=False, default="USD")
+    total_credits = Column(Numeric(15, 4), nullable=True, default=0)
+    available_credits_count = Column(Numeric(15, 4), nullable=True, default=0)
     created_at = Column(
         DateTime, nullable=False, default=lambda: datetime.now(timezone.utc), index=True
     )
@@ -370,7 +370,7 @@ class CarbonCredit(db.Model):
         String(36), unique=True, nullable=False, default=lambda: str(uuid.uuid4())
     )
     serial_number = Column(String(100), unique=True, nullable=False, index=True)
-    batch_id = Column(String(100), nullable=False, index=True)
+    batch_id = Column(String(100), nullable=True, index=True)
     project_id = Column(
         Integer, ForeignKey("carbon_projects.id"), nullable=False, index=True
     )
@@ -395,6 +395,8 @@ class CarbonCredit(db.Model):
     last_trade_currency = Column(String(3), nullable=False, default="USD")
     market_price = Column(Numeric(10, 4), nullable=True)
     reserve_price = Column(Numeric(10, 4), nullable=True)
+    price_per_unit = Column(Numeric(10, 4), nullable=True)
+    credit_type = Column(String(100), nullable=True, index=True)
     retired_date = Column(DateTime, nullable=True)
     retired_by_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     retirement_reason = Column(String(255), nullable=True)
